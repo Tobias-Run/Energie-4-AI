@@ -2,6 +2,7 @@
 
 > **GridSim — interactive browser simulator for AI data center expansion vs. European power supply, 2026–2045.**
 
+[![CI](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-P0_model_prototype-orange)
 ![Calibration](<https://img.shields.io/badge/calibration_gate_V1-passing_(22_tests)-brightgreen>)
 ![Simulation](https://img.shields.io/badge/simulation-client--side_TypeScript-blue)
