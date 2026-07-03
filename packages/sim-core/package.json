@@ -1,0 +1,19 @@
+{
+  "name": "@energie4ai/sim-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Framework-free simulation core for Energie-4-AI: system-dynamics model of AI data center expansion vs. European power supply, 2026-2045.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.0"
+  }
+}

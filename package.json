@@ -1,0 +1,25 @@
+{
+  "name": "energie-4-ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "npm -w @energie4ai/sim-core run test",
+    "typecheck": "npm -w @energie4ai/sim-core run typecheck && npm -w @energie4ai/web run typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "dev": "npm -w @energie4ai/web run dev",
+    "build": "npm -w @energie4ai/web run build"
+  },
+  "devDependencies": {
+    "eslint": "^9.30.0",
+    "prettier": "^3.6.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.35.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "description": "Global data center electricity demand driver. Logistic growth curve anchored on the IEA base case; saturation level is an expert guess (no published long-horizon anchor beyond 2035).",
+  "demand2024Twh": 415,
+  "demand2030Twh": 945,
+  "saturationTwh": 3000,
+  "provenance": {
+    "demand2024Twh": "iea2025energyai",
+    "demand2030Twh": "iea2025energyai",
+    "saturationTwh": "expert-guess"
+  }
+}

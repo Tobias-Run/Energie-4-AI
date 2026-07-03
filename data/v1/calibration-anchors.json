@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "description": "Validation gate V1: the default run must reproduce these published scenario corridors within the stated tolerance (mission document §5, §10.1).",
+  "anchors": {
+    "globalDc2030Twh": { "value": 945, "tolerance": 0.1 },
+    "euDcIncrease2024to2030Twh": { "value": 45, "tolerance": 0.1 },
+    "euDcGrowthRatio2025to2030Min": { "value": 1.5 },
+    "euDcShareOfDemand2030": { "value": 0.045, "tolerance": 0.1 },
+    "euDcShareOfDemand2035": { "value": 0.057, "tolerance": 0.1 }
+  },
+  "provenance": {
+    "globalDc2030Twh": "iea2025energyai",
+    "euDcIncrease2024to2030Twh": "iea2025energyai",
+    "euDcGrowthRatio2025to2030Min": "entsoe2026datacentres",
+    "euDcShareOfDemand2030": "ember2025grids",
+    "euDcShareOfDemand2035": "ember2025grids"
+  }
+}
