@@ -3,7 +3,7 @@
 > **GridSim — interactive browser simulator for AI data center expansion vs. European power supply, 2026–2045.**
 
 [![CI](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml)
-![Status](https://img.shields.io/badge/status-P0_model_prototype-orange)
+![Status](https://img.shields.io/badge/status-P1_interactive_MVP-blue)
 ![Calibration](<https://img.shields.io/badge/calibration_gate_V1-passing_(22_tests)-brightgreen>)
 ![Simulation](https://img.shields.io/badge/simulation-client--side_TypeScript-blue)
 ![Scope](https://img.shields.io/badge/scope-EU--27_%2B_UK_%2B_NO_%2B_CH-green)
@@ -63,18 +63,18 @@ The default run reproduces the published corridors (enforced by `packages/sim-co
 ```bash
 npm install
 npm test          # sim-core unit tests incl. calibration gate V1
-npm run dev       # P0 smoke page (the real UI is Phase P1)
+npm run dev       # interactive app: Europe map, time slider, levers, story mode
 npm run lint && npm run format:check && npm run typecheck
 ```
 
 ## Roadmap
 
-| Phase                    | Duration | Deliverable                                                                | Status          |
-| ------------------------ | -------- | -------------------------------------------------------------------------- | --------------- |
-| **P0 — Model prototype** | 6 weeks  | TypeScript simulation core passing calibration gate V1                     | ✅ gate passing |
-| **P1 — Interactive MVP** | 8 weeks  | Map + time slider + 3 levers + 1 story scenario                            | ⏳              |
-| **P2 — Full lever set**  | 8 weeks  | All levers, Monte Carlo, compare mode, permalinks, external modeler review | ⏳              |
-| **P3 — Public launch**   | 4 weeks  | Story mode, EN/DE, accessibility audit (WCAG 2.1 AA), open-source release  | ⏳              |
+| Phase                    | Duration | Deliverable                                                                | Status         |
+| ------------------------ | -------- | -------------------------------------------------------------------------- | -------------- |
+| **P0 — Model prototype** | 6 weeks  | TypeScript simulation core passing calibration gate V1                     | ✅ done        |
+| **P1 — Interactive MVP** | 8 weeks  | Map + time slider + 3 levers + 1 story scenario                            | ✅ MVP in repo |
+| **P2 — Full lever set**  | 8 weeks  | All levers, Monte Carlo, compare mode, permalinks, external modeler review | ⏳             |
+| **P3 — Public launch**   | 4 weeks  | Story mode, EN/DE, accessibility audit (WCAG 2.1 AA), open-source release  | ⏳             |
 
 ## Repository layout
 
@@ -87,7 +87,7 @@ npm run lint && npm run format:check && npm run typecheck
 ├── packages/
 │   └── sim-core/                    # Framework-free simulation core + calibration tests
 ├── apps/
-│   └── web/                         # Vite + React shell (P0 smoke page; real UI in P1)
+│   └── web/                         # Interactive app: map, time slider, levers, story mode
 └── data/
     └── v1/                          # Versioned JSON parameter bundles with provenance
 ```

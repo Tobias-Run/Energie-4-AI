@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Per-country parameters, base year 2024. Aggregate-relevant fields (EU-27 totals) are anchored to published sources; individual country values are approximations and marked 'expert-guess' until replaced by a per-country sourced dataset (planned for P2).",
   "provenance": {
     "baselineTwh2024": "entsoe2026tyndp",
@@ -73,7 +73,7 @@
       "lowCarbonTwh2024": 130,
       "lowCarbonGrowthPre2030": 7,
       "lowCarbonGrowthPost2030": 9,
-      "gasCapTwh2024": 130,
+      "gasCapTwh2024": 150,
       "otherFirmTwh2024": 25,
       "otherFirmDeclinePerYear": 1.5,
       "baseConnectableGwPerYear": 0.25,
