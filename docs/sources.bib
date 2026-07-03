@@ -1,0 +1,119 @@
+% GridSim-AI source base — see mission document §8.
+% Source-tracking rule (§8.3): every model parameter carries a source_id
+% referencing an entry key in this file. Parameters without a source are
+% marked "expert-guess" in the UI. Reviewed quarterly.
+
+% ---------------------------------------------------------------------------
+% 8.1 Peer-reviewed (top-ranked energy journals)
+% ---------------------------------------------------------------------------
+
+@article{hoersch2018pypsaeur,
+  author  = {H{\"o}rsch, Jonas and Hofmann, Fabian and Schlachtberger, David and Brown, Tom},
+  title   = {{PyPSA-Eur}: An open optimisation model of the {European} transmission system},
+  journal = {Energy Strategy Reviews},
+  volume  = {22},
+  pages   = {207--215},
+  year    = {2018},
+  note    = {Reference open model of the European grid; benchmark for the simplified network layer.}
+}
+
+@article{luxembourg2024timeseurope,
+  author  = {Luxembourg, S. L. and others},
+  title   = {{TIMES-Europe}: An integrated energy system model for analyzing {Europe}'s energy and climate challenges},
+  journal = {Environmental Modeling \& Assessment},
+  year    = {2024},
+  note    = {Integrated long-horizon European scenario modeling; methodological contrast (optimization vs. simulation).}
+}
+
+@article{noland2024baseload,
+  author  = {N{\o}land, J{\o}rgen K. and Hjelmeland, Martin and Korp{\aa}s, Magnus},
+  title   = {Will Energy-Hungry {AI} Create a Baseload Power Demand Boom?},
+  journal = {IEEE Access},
+  volume  = {12},
+  pages   = {110353--110360},
+  year    = {2024},
+  note    = {Peer-reviewed treatment of AI load characteristics (firmness/duty cycle); informs the training-vs-inference split.}
+}
+
+@article{koronen2020datacentres,
+  author  = {Koronen, Carolina and {\AA}hman, Max and Nilsson, Lars J.},
+  title   = {Data centres in future {European} energy systems --- energy efficiency, integration and policy},
+  journal = {Energy Efficiency},
+  volume  = {13},
+  year    = {2020},
+  note    = {Foundational EU-focused analysis of DC efficiency, demand response, and heat integration; source for efficiency-lever bounds.}
+}
+
+@article{elsevier2025dcflexibility,
+  title   = {Data centres as a source of flexibility for power systems},
+  journal = {Energy Reports / Applied Energy family (Elsevier)},
+  year    = {2025},
+  note    = {Quantifies EU flexibility needs (24\% of demand by 2030, 30\% by 2050; ~2,189 TWh by 2050); anchors the flexibility-participation lever. Full author list to be completed.}
+}
+
+@misc{chen2025griddemand,
+  author  = {Chen, Xin and Wang, Xuan and Colacelli, A. and Lee, M. and Xie, Le},
+  title   = {Electricity demand and grid impacts of {AI} data centers: Challenges and prospects},
+  year    = {2025},
+  note    = {Preprint; journal version to be tracked. Grid-impact taxonomy for AI loads.}
+}
+
+% ---------------------------------------------------------------------------
+% 8.2 Planning & agency literature (calibration anchors)
+% ---------------------------------------------------------------------------
+
+@techreport{iea2025energyai,
+  author      = {{International Energy Agency}},
+  title       = {Energy and {AI}; and: Overcoming energy constraints is key to delivering on {Europe}'s data centre goals},
+  institution = {IEA},
+  year        = {2025},
+  note        = {Base-case demand corridors (415 to 945 TWh global 2024-2030; EU +45 TWh / +70\% by 2030; 10\% of EU demand growth to 2030); FLAP-D hub dynamics. Calibration anchor.}
+}
+
+@techreport{entsoe2026tyndp,
+  author      = {{ENTSO-E} and {ENTSOG}},
+  title       = {{TYNDP} 2026 Scenarios Report},
+  institution = {ENTSO-E/ENTSOG},
+  year        = {2026},
+  note        = {Central Scenario (National Trends+) plus two economic variants; default baseline and structural template for the scenario UI.}
+}
+
+@techreport{entsoe2026datacentres,
+  author      = {{ENTSO-E}},
+  title       = {Data Centres and the Power System},
+  institution = {ENTSO-E},
+  year        = {2026},
+  month       = apr,
+  note        = {European DC demand +>50\% 2025-2030; country-level deployment heterogeneity. Calibration anchor.}
+}
+
+@techreport{ember2025grids,
+  author      = {{Ember}},
+  title       = {Grids for data centres: ambitious grid planning can win {Europe}'s {AI} race},
+  institution = {Ember},
+  year        = {2025},
+  note        = {ICIS demand shares (4.5\% by 2030, 5.7\% by 2035); grid-planning policy levers. Calibration anchor.}
+}
+
+@techreport{ec2025gridspackage,
+  author      = {{European Commission}},
+  title       = {{European Grids Package} (incl. {TEN-E} revision, permitting deadlines, {Grid Connection Guidance})},
+  institution = {European Commission},
+  year        = {2025},
+  month       = dec,
+  note        = {Parameterizes the "permitting reform" lever.}
+}
+
+@techreport{interface2026compute,
+  author      = {Nowicka, M. and {Interface}},
+  title       = {{European} {AI} compute \& energy study},
+  institution = {Interface},
+  year        = {2026},
+  note        = {Stranded-asset risk framing; AI clusters as critical energy infrastructure.}
+}
+
+% ---------------------------------------------------------------------------
+% Special key: parameters without a published source
+% ---------------------------------------------------------------------------
+% source_id "expert-guess" is reserved and intentionally has no entry here;
+% the UI must flag such parameters visibly (mission document §8.3).
