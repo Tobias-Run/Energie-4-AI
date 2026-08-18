@@ -11,7 +11,8 @@ interface Props {
 
 const W = 640;
 const H = 200;
-const PAD = { top: 14, right: 74, bottom: 22, left: 44 };
+// right padding must fit the widest end label ("Renewables " + up to 4 digits)
+const PAD = { top: 14, right: 108, bottom: 22, left: 44 };
 
 const CATEGORIES = [
   { key: 'renewables', label: 'Renewables', color: 'var(--mix-ren)' },

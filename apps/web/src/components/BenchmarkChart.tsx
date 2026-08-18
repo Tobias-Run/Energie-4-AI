@@ -69,6 +69,32 @@ export function BenchmarkChart({ years, euValues, currentYear }: Props) {
 
   const hi = hoverIdx ?? years.indexOf(Math.min(currentYear, horizon));
 
+  // Decluttered end-of-line labels: raw y-positions often land within a few px of each
+  // other (regions converge in growth rate), which makes overlapping text unreadable.
+  // Sort by vertical position, then push down any label that's too close to the one above.
+  const MIN_LABEL_GAP = 11;
+  const rawEndPoints: Array<{ id: string; x: number; y: number; text: string }> = [];
+  for (const s of seriesData) {
+    let lastIdx = -1;
+    s.values.forEach((v, i) => {
+      if (v !== null) lastIdx = i;
+    });
+    if (lastIdx < 0) continue;
+    rawEndPoints.push({
+      id: s.id,
+      x: x(years[lastIdx]!) + 4,
+      y: y(s.values[lastIdx]!),
+      text: `${s.label.replace(' (model)', '')} ${Math.round(s.values[lastIdx]!)}`,
+    });
+  }
+  rawEndPoints.sort((a, b) => a.y - b.y);
+  const endLabels: Array<{ id: string; x: number; labelY: number; text: string }> = [];
+  for (const l of rawEndPoints) {
+    const prev = endLabels[endLabels.length - 1];
+    const labelY = prev ? Math.max(l.y, prev.labelY + MIN_LABEL_GAP) : l.y;
+    endLabels.push({ id: l.id, x: l.x, labelY, text: l.text });
+  }
+
   return (
     <div>
       <h2 style={{ marginBottom: 2 }}>DC demand growth benchmark (index, 2024 = 100)</h2>
@@ -127,25 +153,12 @@ export function BenchmarkChart({ years, euValues, currentYear }: Props) {
         {seriesData.map((s) => (
           <path key={s.id} d={linePath(s.values)} fill="none" stroke={s.color} strokeWidth={2} />
         ))}
-        {/* direct labels at each line's end */}
-        {seriesData.map((s) => {
-          let lastIdx = -1;
-          s.values.forEach((v, i) => {
-            if (v !== null) lastIdx = i;
-          });
-          if (lastIdx < 0) return null;
-          return (
-            <text
-              key={s.id}
-              x={x(years[lastIdx]!) + 4}
-              y={y(s.values[lastIdx]!) + 3}
-              fontSize={10}
-              fill="var(--text-secondary)"
-            >
-              {s.label.replace(' (model)', '')} {Math.round(s.values[lastIdx]!)}
-            </text>
-          );
-        })}
+        {/* direct labels at each line's end, decluttered so close-together lines stay legible */}
+        {endLabels.map((l) => (
+          <text key={l.id} x={l.x} y={l.labelY} fontSize={10} fill="var(--text-secondary)">
+            {l.text}
+          </text>
+        ))}
         {hi >= 0 && (
           <g>
             <line
