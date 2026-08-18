@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "description": "Exogenous data center electricity demand benchmarks for non-European regions (mission document §4.2: non-European regions enter only as exogenous parameters). Anchor points in TWh; the UI interpolates piecewise-linearly and must not extrapolate beyond the last anchor. 2024/2030 anchors follow the IEA 'Energy and AI' base case (US ≈45% and China ≈25% of global demand growth to 2030), corroborated for the US by LBNL and EPRI; 2035 anchors extend the IEA regional shares within the IEA global envelope and are marked expert-guess. EU-27 is NOT in this bundle — it is model output, shown against these benchmarks.",
+  "globalEnvelopeTwh": { "2024": 415, "2030": 945, "2035": 1200 },
+  "euReferenceTwh": { "2024": 65, "2030": 110, "2035": 153 },
+  "regions": [
+    {
+      "id": "US",
+      "name": "United States",
+      "anchorsTwh": { "2024": 180, "2030": 425, "2035": 540 }
+    },
+    {
+      "id": "CN",
+      "name": "China",
+      "anchorsTwh": { "2024": 100, "2030": 232, "2035": 296 }
+    },
+    {
+      "id": "ROW",
+      "name": "Rest of World (excl. EU)",
+      "anchorsTwh": { "2024": 70, "2030": 178, "2035": 211 }
+    }
+  ],
+  "provenance": {
+    "globalEnvelopeTwh.2024": "iea2025energyai",
+    "globalEnvelopeTwh.2030": "iea2025energyai",
+    "globalEnvelopeTwh.2035": "iea2025energyai",
+    "euReferenceTwh": "iea2025energyai",
+    "regions.US.2024": "lbnl2024usdc",
+    "regions.US.2030": "iea2025energyai",
+    "regions.US.2030.corroboration": "epri2024ai",
+    "regions.US.2035": "expert-guess",
+    "regions.CN.2024": "iea2025energyai",
+    "regions.CN.2030": "iea2025energyai",
+    "regions.CN.2035": "expert-guess",
+    "regions.ROW.2024": "iea2025energyai",
+    "regions.ROW.2030": "iea2025energyai",
+    "regions.ROW.2035": "expert-guess"
+  }
+}
