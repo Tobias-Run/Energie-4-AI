@@ -6,9 +6,16 @@ export {
   scenarioDefaults,
   provenanceMaps,
   dataVersion,
+  regionalBenchmarks,
 } from './data.js';
 export type { Levers, SimConfig, CountryYear, YearAggregates, SimulationResult } from './types.js';
 export { globalDcDemandTwh } from './modules/computeDemand.js';
 export { pueAt } from './modules/electricityDemand.js';
 export { stepPipeline, initPipeline } from './modules/gridPipeline.js';
+export {
+  benchmarkTwh,
+  benchmarkRegions,
+  benchmarkHorizon,
+  globalEnvelopeTwh,
+} from './modules/benchmarks.js';
 export { mulberry32 } from './rng.js';

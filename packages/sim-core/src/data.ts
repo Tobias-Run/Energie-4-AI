@@ -3,6 +3,7 @@ import globalJson from '../../../data/v1/global-compute.json';
 import defaultsJson from '../../../data/v1/scenario-defaults.json';
 import ntcJson from '../../../data/v1/ntc.json';
 import anchorsJson from '../../../data/v1/calibration-anchors.json';
+import benchmarksJson from '../../../data/v1/regional-benchmarks.json';
 
 export interface CountryParams {
   iso: string;
@@ -15,14 +16,23 @@ export interface CountryParams {
   dcTwh2024: number;
   priceIndex: number;
   peakFactor: number;
-  lowCarbonTwh2024: number;
-  lowCarbonGrowthPre2030: number;
-  lowCarbonGrowthPost2030: number;
+  renewablesTwh2024: number;
+  renewablesGrowthPre2030: number;
+  renewablesGrowthPost2030: number;
+  nuclearTwh2024: number;
+  nuclearDeltaPre2030: number;
+  nuclearDeltaPost2030: number;
   gasCapTwh2024: number;
   otherFirmTwh2024: number;
   otherFirmDeclinePerYear: number;
   baseConnectableGwPerYear: number;
   pipelineTightness: number;
+}
+
+export interface RegionalBenchmarks {
+  globalEnvelopeTwh: Record<string, number>;
+  euReferenceTwh: Record<string, number>;
+  regions: Array<{ id: string; name: string; anchorsTwh: Record<string, number> }>;
 }
 
 export interface GlobalComputeParams {
@@ -82,6 +92,7 @@ export const globalCompute: GlobalComputeParams = globalJson;
 export const scenarioDefaults: ScenarioDefaults = defaultsJson as ScenarioDefaults;
 export const ntcLinks: NtcLink[] = ntcJson.links as NtcLink[];
 export const calibrationAnchors: CalibrationAnchors = anchorsJson as CalibrationAnchors;
+export const regionalBenchmarks: RegionalBenchmarks = benchmarksJson as RegionalBenchmarks;
 
 export const dataVersion = countriesJson.version;
 
@@ -92,4 +103,5 @@ export const provenanceMaps: Record<string, Record<string, string>> = {
   'scenario-defaults.json': defaultsJson.provenance,
   'ntc.json': ntcJson.provenance,
   'calibration-anchors.json': anchorsJson.provenance,
+  'regional-benchmarks.json': benchmarksJson.provenance,
 };

@@ -21,7 +21,12 @@ import {
   itLoadGwFromEnergy,
 } from './modules/electricityDemand.js';
 import { initPipeline, stepPipeline, type PipelineState } from './modules/gridPipeline.js';
-import { importCapTwhByCountry, lowCarbonTwh, otherFirmTwh } from './modules/supplyGrid.js';
+import {
+  importCapTwhByCountry,
+  nuclearTwh,
+  otherFirmTwh,
+  renewablesTwh,
+} from './modules/supplyGrid.js';
 import { assessAdequacy } from './modules/stressAdequacy.js';
 
 export const DEFAULT_CONFIG: SimConfig = {
@@ -155,6 +160,9 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     let euDc = 0;
     let europeDc = 0;
     let euTotal = 0;
+    let euRen = 0;
+    let euNuc = 0;
+    let euFossil = 0;
     let europeEmissions = 0;
     let euQueue = 0;
     let congestionNumerator = 0;
@@ -165,13 +173,17 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       const s = state.get(c.iso)!;
       const baseline = baselineDemandTwh(c, year);
       const total = baseline + s.dcEnergyTwh;
+      const ren = renewablesTwh(c, year);
+      const nuc = nuclearTwh(c, year);
+      const other = otherFirmTwh(c, year);
       const adequacy = assessAdequacy(
         c,
         {
           totalDemandTwh: total,
           dcEnergyTwh: s.dcEnergyTwh,
-          lowCarbonTwh: lowCarbonTwh(c, year),
-          otherFirmTwh: otherFirmTwh(c, year),
+          renewablesTwh: ren,
+          nuclearTwh: nuc,
+          otherFirmTwh: other,
           gasCapTwh: c.gasCapTwh2024,
           importCapTwh: importCap[c.iso] ?? 0,
         },
@@ -183,9 +195,13 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         dcItLoadGw: itLoadGwFromEnergy(s.dcEnergyTwh, year, d),
         baselineTwh: baseline,
         totalDemandTwh: total,
-        lowCarbonTwh: lowCarbonTwh(c, year),
+        renewablesTwh: ren,
+        nuclearTwh: nuc,
         gasGenTwh: adequacy.gasGenTwh,
-        otherFirmTwh: otherFirmTwh(c, year),
+        otherFirmTwh: other,
+        generationTwh: adequacy.generationTwh,
+        fossilGenTwh: adequacy.fossilGenTwh,
+        netImportShare: adequacy.netImportShare,
         importCapTwh: importCap[c.iso] ?? 0,
         peakLoadGw: adequacy.peakLoadGw,
         dcShareOfPeak: adequacy.dcShareOfPeak,
@@ -202,6 +218,9 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         euDc += s.dcEnergyTwh;
         euTotal += total;
         euQueue += s.queueGw;
+        euRen += ren;
+        euNuc += nuc;
+        euFossil += adequacy.fossilGenTwh;
       }
       if (adequacy.flagged) flagged.push(c.iso);
       congestionNumerator += adequacy.stressIndex * total;
@@ -218,6 +237,9 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       europeDcTwh: europeDc,
       euTotalDemandTwh: euTotal,
       euDcShareOfDemand: euDc / euTotal,
+      euRenewablesTwh: euRen,
+      euNuclearTwh: euNuc,
+      euFossilGenTwh: euFossil,
       europeEmissionsMt: europeEmissions,
       congestionCostBnEur: d.congestionBaselineBnEur2024 * (congestionIndex / congestionIndex2024),
       euQueueGw: euQueue,

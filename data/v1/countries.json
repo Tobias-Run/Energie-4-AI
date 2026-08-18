@@ -433,8 +433,8 @@
       "gasCapTwh2024": 25,
       "otherFirmTwh2024": 2,
       "otherFirmDeclinePerYear": 0.3,
-      "baseConnectableGwPerYear": 0.08,
-      "pipelineTightness": 0.35
+      "baseConnectableGwPerYear": 0.06,
+      "pipelineTightness": 0.22
     },
     {
       "iso": "SK",

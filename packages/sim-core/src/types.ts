@@ -20,9 +20,16 @@ export interface CountryYear {
   dcItLoadGw: number;
   baselineTwh: number;
   totalDemandTwh: number;
-  lowCarbonTwh: number;
+  renewablesTwh: number;
+  nuclearTwh: number;
   gasGenTwh: number;
   otherFirmTwh: number;
+  /** Total domestic generation (renewables + nuclear + other firm + gas dispatch). */
+  generationTwh: number;
+  /** Gas dispatch + legacy firm — the fossil leg of the three-category mix (issue #12). */
+  fossilGenTwh: number;
+  /** Share of demand not covered by domestic generation; imports are not attributed to a mix category. */
+  netImportShare: number;
   importCapTwh: number;
   peakLoadGw: number;
   dcShareOfPeak: number;
@@ -41,6 +48,10 @@ export interface YearAggregates {
   europeDcTwh: number;
   euTotalDemandTwh: number;
   euDcShareOfDemand: number;
+  /** EU-27 generation by mix category (production-based, TWh). */
+  euRenewablesTwh: number;
+  euNuclearTwh: number;
+  euFossilGenTwh: number;
   europeEmissionsMt: number;
   congestionCostBnEur: number;
   euQueueGw: number;

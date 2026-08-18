@@ -1,12 +1,25 @@
 import { BASE_YEAR, type CountryParams, type NtcLink, type ScenarioDefaults } from '../data.js';
 import { HOURS_PER_YEAR_K } from './electricityDemand.js';
 
-/** Low-carbon generation (TWh) for a country in a given year (NECP-aligned linear buildout). */
-export function lowCarbonTwh(c: CountryParams, year: number): number {
+function piecewise(base: number, pre2030PerYear: number, post2030PerYear: number, year: number) {
   const yearsPre = Math.min(year, 2030) - BASE_YEAR;
   const yearsPost = Math.max(year - 2030, 0);
-  return (
-    c.lowCarbonTwh2024 + c.lowCarbonGrowthPre2030 * yearsPre + c.lowCarbonGrowthPost2030 * yearsPost
+  return base + pre2030PerYear * yearsPre + post2030PerYear * yearsPost;
+}
+
+/** Renewables generation (TWh) for a country in a given year (NECP-aligned linear buildout). */
+export function renewablesTwh(c: CountryParams, year: number): number {
+  return Math.max(
+    0,
+    piecewise(c.renewablesTwh2024, c.renewablesGrowthPre2030, c.renewablesGrowthPost2030, year),
+  );
+}
+
+/** Nuclear generation (TWh): deltas may be negative (phase-out) or positive (new builds), floored at zero. */
+export function nuclearTwh(c: CountryParams, year: number): number {
+  return Math.max(
+    0,
+    piecewise(c.nuclearTwh2024, c.nuclearDeltaPre2030, c.nuclearDeltaPost2030, year),
   );
 }
 
