@@ -6,6 +6,8 @@ import { TimeSlider } from './components/TimeSlider.js';
 import { LeverPanel } from './components/LeverPanel.js';
 import { StoryMode, type StoryStep } from './components/StoryMode.js';
 import { TimeSeriesChart } from './components/TimeSeriesChart.js';
+import { SupplyMixChart } from './components/SupplyMixChart.js';
+import { BenchmarkChart } from './components/BenchmarkChart.js';
 import { AssumptionsDrawer } from './components/AssumptionsDrawer.js';
 import { DataTable } from './components/DataTable.js';
 
@@ -37,6 +39,7 @@ export function App() {
 
   // stable color domain across the whole run so the animation is comparable
   const domainMax = useMemo(() => {
+    if (metric.fixedMax !== undefined) return metric.fixedMax;
     let max = 0;
     for (const series of Object.values(result.countries)) {
       for (let i = result.years.indexOf(START_YEAR); i < series.length; i++) {
@@ -51,8 +54,20 @@ export function App() {
     return {
       years: result.years.slice(from),
       values: result.aggregates.slice(from).map((a) => a.euDcTwh),
+      renewables: result.aggregates.slice(from).map((a) => a.euRenewablesTwh),
+      nuclear: result.aggregates.slice(from).map((a) => a.euNuclearTwh),
+      fossil: result.aggregates.slice(from).map((a) => a.euFossilGenTwh),
     };
   }, [result]);
+
+  // benchmark series needs the 2024 base year as index base
+  const benchmarkSeries = useMemo(
+    () => ({
+      years: result.years,
+      euValues: result.aggregates.map((a) => a.euDcTwh),
+    }),
+    [result],
+  );
 
   const applyStory = (step: StoryStep) => {
     setPlaying(false);
@@ -116,6 +131,28 @@ export function App() {
               setYear(y);
             }}
           />
+
+          <div style={{ marginTop: 14 }}>
+            <SupplyMixChart
+              years={euSeries.years}
+              renewables={euSeries.renewables}
+              nuclear={euSeries.nuclear}
+              fossil={euSeries.fossil}
+              currentYear={year}
+              onYear={(y) => {
+                setPlaying(false);
+                setYear(y);
+              }}
+            />
+          </div>
+
+          <div style={{ marginTop: 14 }}>
+            <BenchmarkChart
+              years={benchmarkSeries.years}
+              euValues={benchmarkSeries.euValues}
+              currentYear={year}
+            />
+          </div>
 
           <AssumptionsDrawer metric={metric} />
           <DataTable rows={rows} names={NAMES} metric={metric} year={year} />

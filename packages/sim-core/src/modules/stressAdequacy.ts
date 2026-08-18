@@ -52,8 +52,7 @@ export function assessAdequacy(
   const dcShareOfPeak = peakLoadGw > 0 ? dcFirmGw / peakLoadGw : 0;
 
   const flagged =
-    stressIndex > defaults.stressFlagThreshold ||
-    dcShareOfPeak > defaults.dcPeakShareFlagThreshold;
+    stressIndex > defaults.stressFlagThreshold || dcShareOfPeak > defaults.dcPeakShareFlagThreshold;
 
   const emissionsMt =
     gasGenTwh * defaults.gasEmissionFactorMtPerTwh +

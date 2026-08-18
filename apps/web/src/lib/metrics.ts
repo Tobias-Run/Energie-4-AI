@@ -7,6 +7,8 @@ export interface MetricDef {
   /** Extract the value from a country-year row. */
   value: (row: CountryYear) => number;
   format: (v: number) => string;
+  /** Fixed color-scale maximum (e.g. 1 for shares); otherwise the run maximum is used. */
+  fixedMax?: number;
   /** Assumptions-drawer text: what is behind this number (spec §6). */
   explanation: string;
   sourceIds: string[];
@@ -42,6 +44,39 @@ export const METRICS: MetricDef[] = [
     explanation:
       'Annual demand divided by total available resources (domestic low-carbon + legacy firm + gas capacity + NTC import capability). A coarse adequacy proxy — no load flow, no intra-hour dispatch (see model limits).',
     sourceIds: ['expert-guess'],
+  },
+  {
+    id: 'renewablesShare',
+    label: 'Renewables share of generation',
+    unit: '%',
+    value: (r) => (r.generationTwh > 0 ? r.renewablesTwh / r.generationTwh : 0),
+    format: (v) => `${(v * 100).toFixed(0)}%`,
+    fixedMax: 1,
+    explanation:
+      'Renewables (incl. hydro and bioenergy) divided by total domestic generation. Production-based accounting: imports are not attributed to any mix category (NTC model, no flow tracing) — check the net-import share alongside.',
+    sourceIds: ['ember2025eer', 'expert-guess'],
+  },
+  {
+    id: 'fossilShare',
+    label: 'Fossil share of generation',
+    unit: '%',
+    value: (r) => (r.generationTwh > 0 ? r.fossilGenTwh / r.generationTwh : 0),
+    format: (v) => `${(v * 100).toFixed(0)}%`,
+    fixedMax: 1,
+    explanation:
+      'Gas dispatch plus legacy firm generation (coal, lignite, oil) divided by total domestic generation. Production-based; imports not attributed.',
+    sourceIds: ['ember2025eer', 'expert-guess'],
+  },
+  {
+    id: 'netImportShare',
+    label: 'Net-import share of demand',
+    unit: '%',
+    value: (r) => r.netImportShare,
+    format: (v) => `${(v * 100).toFixed(0)}%`,
+    fixedMax: 1,
+    explanation:
+      'Share of national demand not covered by domestic generation. Shown alongside the generation mix because a production-based mix says little for heavy importers (e.g. Luxembourg).',
+    sourceIds: ['ember2025eer', 'expert-guess'],
   },
   {
     id: 'emissionsMt',

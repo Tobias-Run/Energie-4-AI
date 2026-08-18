@@ -95,6 +95,13 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
             DC {hoverRow.dcEnergyTwh.toFixed(1)} TWh · stress {hoverRow.stressIndex.toFixed(2)}
             {hoverRow.queueGw > 0.005 && <> · queue {hoverRow.queueGw.toFixed(2)} GW</>}
           </div>
+          <div className="muted">
+            mix R/N/F:{' '}
+            {hoverRow.generationTwh > 0
+              ? `${Math.round((hoverRow.renewablesTwh / hoverRow.generationTwh) * 100)}/${Math.round((hoverRow.nuclearTwh / hoverRow.generationTwh) * 100)}/${Math.round((hoverRow.fossilGenTwh / hoverRow.generationTwh) * 100)}%`
+              : '—'}{' '}
+            · imports {Math.round(hoverRow.netImportShare * 100)}%
+          </div>
           {hoverRow.flagged && (
             <div className="tt-flag">⚠ stress flag (DC share of peak or adequacy threshold)</div>
           )}

@@ -39,6 +39,10 @@ export function AssumptionsDrawer({ metric }: Props) {
       'ember2025grids',
     ],
     ['Gas emission factor', `${d.gasEmissionFactorMtPerTwh} Mt/TWh`, 'expert-guess'],
+    ['Generation mix accounting', 'production-based; imports not attributed', 'ember2025eer'],
+    ['US/CN/RoW benchmark anchors 2024/2030', 'IEA base case', 'iea2025energyai'],
+    ['US benchmark corroboration', 'LBNL 2024 / EPRI 2024', 'lbnl2024usdc'],
+    ['Benchmark anchors 2035 (regional split)', 'within IEA global envelope', 'expert-guess'],
   ];
 
   return (

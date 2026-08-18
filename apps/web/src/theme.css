@@ -10,6 +10,15 @@
   --series-1: #2a78d6;
   --status-critical: #d03b3b;
   --map-other: #efeeea;
+  /* supply-mix categories (validated categorical slots: green / violet / orange) */
+  --mix-ren: #008300;
+  --mix-nuc: #4a3aa7;
+  --mix-fossil: #eb6834;
+  /* benchmark series (categorical slots 1-4 in fixed order) */
+  --bench-eu: #2a78d6;
+  --bench-us: #1baf7a;
+  --bench-cn: #eda100;
+  --bench-row: #008300;
   /* sequential blue, 5 bins, light mode (light -> dark = low -> high) */
   --seq-1: #cde2fb;
   --seq-2: #86b6ef;
@@ -31,6 +40,13 @@
     --series-1: #3987e5;
     --status-critical: #e66767;
     --map-other: #242423;
+    --mix-ren: #008300;
+    --mix-nuc: #9085e9;
+    --mix-fossil: #d95926;
+    --bench-eu: #3987e5;
+    --bench-us: #199e70;
+    --bench-cn: #c98500;
+    --bench-row: #008300;
     /* dark mode: near-zero recedes into the dark surface, high = light */
     --seq-1: #0d366b;
     --seq-2: #1c5cab;
