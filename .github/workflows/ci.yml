@@ -1,7 +1,10 @@
 name: CI
 
 on:
+  # Branch pushes are covered by the pull_request trigger. Listing a bare `push:` here as
+  # well ran the whole job twice for every commit on a branch with an open PR.
   push:
+    branches: [main]
   pull_request:
 
 jobs:
