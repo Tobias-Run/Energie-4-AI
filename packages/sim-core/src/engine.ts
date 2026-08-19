@@ -44,13 +44,18 @@ interface CountryState {
 
 export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
   const t0 = performance.now();
+  // Resolve field by field rather than spreading: a spread lets an explicitly-passed
+  // `undefined` overwrite a default, which silently produced zero-length runs.
   const cfg: SimConfig = {
-    ...DEFAULT_CONFIG,
-    ...config,
+    startYear: config?.startYear ?? DEFAULT_CONFIG.startYear,
+    endYear: config?.endYear ?? DEFAULT_CONFIG.endYear,
+    seed: config?.seed ?? DEFAULT_CONFIG.seed,
     levers: { ...DEFAULT_CONFIG.levers, ...config?.levers },
+    params: config?.params,
   };
   const levers: Levers = cfg.levers;
-  const d = scenarioDefaults;
+  const d = cfg.params?.scenarioDefaults ?? scenarioDefaults;
+  const gc = cfg.params?.globalCompute ?? globalCompute;
   // Reserved for Monte Carlo parameter perturbation (P2); the default run draws nothing.
   mulberry32(cfg.seed);
 
@@ -81,11 +86,11 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
   const aggregates: YearAggregates[] = [];
   let congestionIndex2024 = 0;
 
-  let prevGlobal = globalDcDemandTwh(BASE_YEAR, globalCompute, levers.computeGrowthMultiplier);
+  let prevGlobal = globalDcDemandTwh(BASE_YEAR, gc, levers.computeGrowthMultiplier);
 
   for (let year = BASE_YEAR; year <= cfg.endYear; year++) {
     // --- compute demand module: global driver and Europe's captured additions ---
-    const globalTwh = globalDcDemandTwh(year, globalCompute, levers.computeGrowthMultiplier);
+    const globalTwh = globalDcDemandTwh(year, gc, levers.computeGrowthMultiplier);
     const globalAdditions = Math.max(0, globalTwh - prevGlobal);
     prevGlobal = globalTwh;
 

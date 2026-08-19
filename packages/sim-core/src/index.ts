@@ -20,4 +20,14 @@ export {
 } from './modules/benchmarks.js';
 export type { Hub, NtcLink } from './data.js';
 export { hubs, ntcLinks, ntcAnchorYears } from './data.js';
+export { runMonteCarlo, sampleTriangular, TORNADO_TARGETS } from './modules/monteCarlo.js';
+export type {
+  MonteCarloResult,
+  MonteCarloConfig,
+  CorridorBand,
+  TornadoEntry,
+  TornadoTarget,
+} from './modules/monteCarlo.js';
+export { uncertaintyRanges } from './data.js';
+export type { UncertaintyRange } from './data.js';
 export { mulberry32 } from './rng.js';

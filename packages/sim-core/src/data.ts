@@ -5,6 +5,7 @@ import ntcJson from '../../../data/v1/ntc.json';
 import anchorsJson from '../../../data/v1/calibration-anchors.json';
 import benchmarksJson from '../../../data/v1/regional-benchmarks.json';
 import hubsJson from '../../../data/v1/hubs.json';
+import uncertaintyJson from '../../../data/v1/uncertainty.json';
 
 export interface CountryParams {
   iso: string;
@@ -55,6 +56,15 @@ export interface Hub {
   /** As-of date for ixpPeakTbps (live figure that drifts), null when unverified. */
   asOf: string | null;
   sizeClass: 'major' | 'mid' | 'regional' | 'none';
+}
+
+/** One parameter's triangular uncertainty range (mission document §5.5). */
+export interface UncertaintyRange {
+  low: number;
+  central: number;
+  high: number;
+  rationale: string;
+  source_id: string;
 }
 
 export interface RegionalBenchmarks {
@@ -136,6 +146,9 @@ export const ntcAnchorYears: number[] = ntcJson.anchorYears;
 export const calibrationAnchors: CalibrationAnchors = anchorsJson as CalibrationAnchors;
 export const regionalBenchmarks: RegionalBenchmarks = benchmarksJson as RegionalBenchmarks;
 export const hubs: Hub[] = hubsJson.hubs as Hub[];
+/** Uncertainty ranges keyed by dotted parameter path (e.g. 'scenarioDefaults.ntcUtilization'). */
+export const uncertaintyRanges: Record<string, UncertaintyRange> =
+  uncertaintyJson.parameters as Record<string, UncertaintyRange>;
 
 export const dataVersion = countriesJson.version;
 
@@ -148,4 +161,5 @@ export const provenanceMaps: Record<string, Record<string, string>> = {
   'calibration-anchors.json': anchorsJson.provenance,
   'regional-benchmarks.json': benchmarksJson.provenance,
   'hubs.json': hubsJson.provenance,
+  'uncertainty.json': uncertaintyJson.provenance,
 };

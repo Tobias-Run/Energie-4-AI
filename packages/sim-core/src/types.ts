@@ -13,6 +13,16 @@ export interface SimConfig {
   endYear: number;
   seed: number;
   levers: Levers;
+  /**
+   * Parameter set to run with. Defaults to the shipped bundles; Monte Carlo mode passes
+   * perturbed copies drawn from the uncertainty ranges. Runs stay deterministic given a seed.
+   */
+  params?: SimParams;
+}
+
+export interface SimParams {
+  scenarioDefaults: import('./data.js').ScenarioDefaults;
+  globalCompute: import('./data.js').GlobalComputeParams;
 }
 
 export interface CountryYear {
