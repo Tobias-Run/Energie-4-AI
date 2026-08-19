@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react';
-import { countries, runSimulation, type CountryYear, type Levers } from '@energie4ai/sim-core';
+import {
+  countries,
+  runSimulation,
+  runMonteCarlo,
+  type CountryYear,
+  type Levers,
+  type TornadoTarget,
+} from '@energie4ai/sim-core';
 import { METRICS } from './lib/metrics.js';
 import { EuropeMap } from './components/EuropeMap.js';
 import { TimeSlider } from './components/TimeSlider.js';
@@ -8,6 +15,8 @@ import { StoryMode, type StoryStep } from './components/StoryMode.js';
 import { TimeSeriesChart } from './components/TimeSeriesChart.js';
 import { SupplyMixChart } from './components/SupplyMixChart.js';
 import { BenchmarkChart } from './components/BenchmarkChart.js';
+import { CorridorChart } from './components/CorridorChart.js';
+import { TornadoChart } from './components/TornadoChart.js';
 import { AssumptionsDrawer } from './components/AssumptionsDrawer.js';
 import { DataTable } from './components/DataTable.js';
 
@@ -24,8 +33,15 @@ export function App() {
   const [year, setYear] = useState(START_YEAR);
   const [metricId, setMetricId] = useState('dcShareOfDemand');
   const [playing, setPlaying] = useState(false);
+  const [monteCarlo, setMonteCarlo] = useState(false);
+  const [tornadoTarget, setTornadoTarget] = useState<TornadoTarget>('euDcTwh');
 
   const result = useMemo(() => runSimulation({ levers }), [levers]);
+  // ~600 ms for 200 runs, so it only runs while the mode is on
+  const mc = useMemo(
+    () => (monteCarlo ? runMonteCarlo({ levers, runs: 200, seed: 4, tornadoTarget }) : null),
+    [levers, monteCarlo, tornadoTarget],
+  );
   const metric = METRICS.find((m) => m.id === metricId) ?? METRICS[0]!;
 
   const yearIdx = result.years.indexOf(year);
@@ -120,17 +136,41 @@ export function App() {
             onPlaying={setPlaying}
           />
 
-          <TimeSeriesChart
-            years={euSeries.years}
-            values={euSeries.values}
-            currentYear={year}
-            title="EU-27 data center electricity demand (TWh)"
-            unit="TWh"
-            onYear={(y) => {
-              setPlaying(false);
-              setYear(y);
-            }}
-          />
+          {mc ? (
+            <CorridorChart
+              corridor={mc.corridor}
+              fromYear={START_YEAR}
+              currentYear={year}
+              runs={mc.runs}
+              onYear={(y) => {
+                setPlaying(false);
+                setYear(y);
+              }}
+            />
+          ) : (
+            <TimeSeriesChart
+              years={euSeries.years}
+              values={euSeries.values}
+              currentYear={year}
+              title="EU-27 data center electricity demand (TWh)"
+              unit="TWh"
+              onYear={(y) => {
+                setPlaying(false);
+                setYear(y);
+              }}
+            />
+          )}
+
+          {mc && (
+            <div style={{ marginTop: 14 }}>
+              <TornadoChart
+                entries={mc.tornado}
+                target={mc.tornadoTarget}
+                year={END_YEAR}
+                onTarget={setTornadoTarget}
+              />
+            </div>
+          )}
 
           <div style={{ marginTop: 14 }}>
             <SupplyMixChart
@@ -171,6 +211,52 @@ export function App() {
               Full 20-year run recomputes in {result.meta.runtimeMs.toFixed(1)} ms, entirely in your
               browser.
             </p>
+          </div>
+          <div className="panel">
+            <h2>Uncertainty</h2>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <input
+                type="checkbox"
+                checked={monteCarlo}
+                onChange={(e) => setMonteCarlo(e.target.checked)}
+              />
+              <span>Monte Carlo mode (200 runs)</span>
+            </label>
+            {mc ? (
+              <>
+                <p className="muted" style={{ margin: '6px 0 4px' }}>
+                  Sampled {mc.runs} runs over 19 source-tracked parameter ranges in{' '}
+                  {mc.runtimeMs.toFixed(0)} ms. Seed {mc.seed} — the same seed reproduces this
+                  corridor exactly.
+                </p>
+                <h2 style={{ margin: '10px 0 4px' }}>Stress flag in {END_YEAR}</h2>
+                {Object.entries(mc.flagFrequency).length === 0 ? (
+                  <p className="muted" style={{ margin: 0 }}>
+                    No region flagged in any run.
+                  </p>
+                ) : (
+                  Object.entries(mc.flagFrequency)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([iso, f]) => (
+                      <div key={iso} className="assumption-row">
+                        <span>{NAMES[iso] ?? iso}</span>
+                        <span>
+                          <strong>{(f * 100).toFixed(0)}%</strong> of runs
+                        </span>
+                      </div>
+                    ))
+                )}
+                <p className="muted" style={{ margin: '4px 0 0' }}>
+                  A frequency, not a forecast: it says how often the flag trips across the sampled
+                  ranges, not how likely the outcome is in the world.
+                </p>
+              </>
+            ) : (
+              <p className="muted" style={{ margin: '6px 0 0' }}>
+                Replaces the single demand line with a p10–p90 corridor and ranks which parameters
+                drive it. Takes about half a second.
+              </p>
+            )}
           </div>
           <div className="panel">
             <StoryMode onApply={applyStory} onExit={() => setLevers({ ...levers })} />
