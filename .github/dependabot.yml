@@ -1,17 +1,35 @@
 version: 2
 updates:
   # npm workspaces (root, packages/*, apps/*)
+  #
+  # Grouping is deliberately split by update type. A single group covering '*' bundles
+  # major upgrades together with patches, so one incompatible major makes `npm ci` fail
+  # before any test runs and the whole batch is unmergeable — that is what happened to the
+  # August 2026 batch, where TypeScript 7 conflicted with the typescript-eslint peer range
+  # and took nine unrelated updates down with it.
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: monthly
     groups:
-      all-npm-dependencies:
+      npm-minor-and-patch:
         patterns:
           - '*'
+        update-types:
+          - minor
+          - patch
+    # Majors are intentionally left ungrouped: Dependabot opens one PR per major, each with
+    # its own CI result, so a breaking upgrade can be judged and merged on its own.
 
   # GitHub Actions used in .github/workflows
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
