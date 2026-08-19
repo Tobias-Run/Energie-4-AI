@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Levers } from '@energie4ai/sim-core';
+import { scenarioDefaults, type Levers } from '@energie4ai/sim-core';
 
 export interface StoryStep {
   title: string;
@@ -9,11 +9,7 @@ export interface StoryStep {
   levers: Levers;
 }
 
-const BASE: Levers = {
-  computeGrowthMultiplier: 1,
-  extraEfficiencyRate: 0,
-  permittingReform: false,
-};
+const BASE: Levers = { ...scenarioDefaults.levers };
 const REFORM: Levers = { ...BASE, permittingReform: true };
 
 /** P1 story scenario: "Grids Package delivers" (mission document §6). */

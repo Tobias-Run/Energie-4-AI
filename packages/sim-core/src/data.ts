@@ -104,11 +104,11 @@ export interface ScenarioDefaults {
   dcPeakShareFlagThreshold: number;
   allocationGravityExponent: number;
   priceElasticity: number;
-  levers: {
-    computeGrowthMultiplier: number;
-    extraEfficiencyRate: number;
-    permittingReform: boolean;
-  };
+  /** Strength of the renewables tilt under the 'renewables' siting policy. */
+  sitingRenewablesExponent: number;
+  /** DC share of national demand at which 'capped' siting stops new connections. */
+  hubCapDcShareOfDemand: number;
+  levers: import('./types.js').Levers;
 }
 
 export interface CalibrationAnchors {

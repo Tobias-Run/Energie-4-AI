@@ -8,7 +8,8 @@ import {
 import { globalCompute } from '../src/data.js';
 import { mulberry32 } from '../src/rng.js';
 
-const LEVERS = { computeGrowthMultiplier: 1, extraEfficiencyRate: 0, permittingReform: false };
+// taken from the bundle so new levers do not silently drop out of these runs
+const LEVERS = scenarioDefaults.levers;
 
 describe('uncertainty ranges (issue #5)', () => {
   it('every central value matches the shipped bundle value', () => {

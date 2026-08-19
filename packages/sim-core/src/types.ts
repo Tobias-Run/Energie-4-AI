@@ -5,7 +5,22 @@ export interface Levers {
   extraEfficiencyRate: number;
   /** European Grids Package scenario: permitting ~4-6 years instead of ~8-10. */
   permittingReform: boolean;
+  /**
+   * Where new DC load is steered. 'market' = gravity and price only (default);
+   * 'renewables' = additionally tilted toward high-renewables systems;
+   * 'capped' = no country may take more than hubCapShare of EU additions in a year.
+   */
+  sitingPolicy: SitingPolicy;
+  /**
+   * Fraction of DC load participating in demand response, and therefore not counted as
+   * firm at peak. Acts directly on the criterion that drives the late-horizon flags.
+   */
+  flexibilityShare: number;
+  /** Multiplier on priceElasticity: how strongly price differences steer siting. */
+  priceSensitivity: number;
 }
+
+export type SitingPolicy = 'market' | 'renewables' | 'capped';
 
 export interface SimConfig {
   /** First reported year. The model always computes from the data base year (2024). */

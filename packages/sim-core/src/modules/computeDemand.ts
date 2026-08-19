@@ -32,14 +32,48 @@ export function efficiencyFactor(year: number, levers: Levers): number {
 
 /**
  * Allocation weight of a country for new DC additions: gravity toward existing stock,
- * tilted by relative electricity price.
+ * tilted by relative electricity price, and — under the 'renewables' siting policy —
+ * by how clean that country's generation is. The 'capped' policy is not expressible as
+ * a weight; it is applied to the normalized shares afterwards (see applyHubCap).
  */
 export function allocationWeight(
   dcStockTwh: number,
   priceIndex: number,
   defaults: ScenarioDefaults,
+  levers: Levers,
+  renewablesShare: number,
 ): number {
   const gravity = Math.pow(Math.max(dcStockTwh, 0.01), defaults.allocationGravityExponent);
-  const price = Math.pow(1 / priceIndex, defaults.priceElasticity);
-  return gravity * price;
+  const price = Math.pow(1 / priceIndex, defaults.priceElasticity * levers.priceSensitivity);
+  const clean =
+    levers.sitingPolicy === 'renewables'
+      ? Math.pow(Math.max(renewablesShare, 0.01), defaults.sitingRenewablesExponent)
+      : 1;
+  return gravity * price * clean;
+}
+
+/**
+ * Connection moratorium for saturated systems ('capped' siting policy). A country whose DC
+ * load has passed `cap` as a share of its own demand takes no further additions; its share
+ * flows to the others through the normal weight normalization.
+ *
+ * Modelled on the real policy it names — Dublin and Amsterdam paused new connections because
+ * local DC concentration strained the grid — rather than on an EU-wide allocation quota,
+ * which no authority actually administers. Existing load is untouched: a moratorium stops
+ * new connections, it does not remove installed capacity.
+ */
+export function applySaturationCap(
+  weights: Map<string, number>,
+  dcShareOfDemand: Map<string, number>,
+  cap: number,
+): Map<string, number> {
+  const out = new Map(weights);
+  let anyLeft = false;
+  for (const [iso, w] of out) {
+    if ((dcShareOfDemand.get(iso) ?? 0) >= cap) out.set(iso, 0);
+    else if (w > 0) anyLeft = true;
+  }
+  // If every country is saturated the cap would zero the whole allocation and silently
+  // discard demand; fall back to the uncapped weights so load still lands somewhere.
+  return anyLeft ? out : weights;
 }

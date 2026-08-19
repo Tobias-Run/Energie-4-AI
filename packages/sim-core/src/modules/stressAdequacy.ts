@@ -1,4 +1,5 @@
 import type { CountryParams, ScenarioDefaults } from '../data.js';
+import type { Levers } from '../types.js';
 import { HOURS_PER_YEAR_K } from './electricityDemand.js';
 
 export interface AdequacyInput {
@@ -33,6 +34,7 @@ export function assessAdequacy(
   c: CountryParams,
   input: AdequacyInput,
   defaults: ScenarioDefaults,
+  levers: Levers,
 ): AdequacyResult {
   const nonGas = input.renewablesTwh + input.nuclearTwh + input.otherFirmTwh;
   const gasGenTwh = Math.min(Math.max(input.totalDemandTwh - nonGas, 0), input.gasCapTwh);
@@ -48,7 +50,11 @@ export function assessAdequacy(
 
   const peakLoadGw = (input.totalDemandTwh * c.peakFactor) / HOURS_PER_YEAR_K;
   // DC load is near-flat; its firm (inference) share contributes its average draw at peak.
-  const dcFirmGw = (input.dcEnergyTwh / HOURS_PER_YEAR_K) * defaults.firmLoadShare;
+  // Load enrolled in demand response is assumed curtailable exactly when it matters, so it
+  // drops out of the peak contribution entirely — an optimistic reading of flexibility, and
+  // the reason the lever is capped well below full participation.
+  const effectiveFirmShare = defaults.firmLoadShare * (1 - levers.flexibilityShare);
+  const dcFirmGw = (input.dcEnergyTwh / HOURS_PER_YEAR_K) * effectiveFirmShare;
   const dcShareOfPeak = peakLoadGw > 0 ? dcFirmGw / peakLoadGw : 0;
 
   const flagged =

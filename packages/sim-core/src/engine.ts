@@ -10,6 +10,7 @@ import { mulberry32 } from './rng.js';
 import type { CountryYear, Levers, SimConfig, SimulationResult, YearAggregates } from './types.js';
 import {
   allocationWeight,
+  applySaturationCap,
   efficiencyFactor,
   euCaptureShare,
   globalDcDemandTwh,
@@ -99,13 +100,23 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       const euAdditionsTwh = euCaptureShare(year, d) * globalAdditions * eff;
 
       // Allocate EU additions by gravity/price weights; non-EU countries have their own capture.
-      const weights = new Map<string, number>();
-      let weightSum = 0;
+      let weights = new Map<string, number>();
+      const dcShare = new Map<string, number>();
       for (const c of countries.filter((c) => c.eu27)) {
-        const w = allocationWeight(state.get(c.iso)!.dcEnergyTwh, c.priceIndex, d);
-        weights.set(c.iso, w);
-        weightSum += w;
+        // renewables share of this country's generation, for the 'renewables' siting policy
+        const ren = renewablesTwh(c, year);
+        const gen = ren + nuclearTwh(c, year) + otherFirmTwh(c, year) + c.gasCapTwh2024;
+        const renShare = gen > 0 ? ren / gen : 0;
+        const dcTwh = state.get(c.iso)!.dcEnergyTwh;
+        const demand = baselineDemandTwh(c, year) + dcTwh;
+        dcShare.set(c.iso, demand > 0 ? dcTwh / demand : 0);
+        weights.set(c.iso, allocationWeight(dcTwh, c.priceIndex, d, levers, renShare));
       }
+      if (levers.sitingPolicy === 'capped') {
+        weights = applySaturationCap(weights, dcShare, d.hubCapDcShareOfDemand);
+      }
+      let weightSum = 0;
+      for (const w of weights.values()) weightSum += w;
 
       const desiredGw = new Map<string, number>();
       for (const c of countries) {
@@ -194,6 +205,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
           importCapTwh: importCap[c.iso] ?? 0,
         },
         d,
+        levers,
       );
 
       const row: CountryYear = {

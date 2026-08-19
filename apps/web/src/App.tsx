@@ -3,6 +3,7 @@ import {
   countries,
   runSimulation,
   runMonteCarlo,
+  scenarioDefaults,
   type CountryYear,
   type Levers,
   type TornadoTarget,
@@ -25,11 +26,7 @@ const END_YEAR = 2045;
 const NAMES: Record<string, string> = Object.fromEntries(countries.map((c) => [c.iso, c.name]));
 
 export function App() {
-  const [levers, setLevers] = useState<Levers>({
-    computeGrowthMultiplier: 1,
-    extraEfficiencyRate: 0,
-    permittingReform: false,
-  });
+  const [levers, setLevers] = useState<Levers>({ ...scenarioDefaults.levers });
   const [year, setYear] = useState(START_YEAR);
   const [metricId, setMetricId] = useState('dcShareOfDemand');
   const [playing, setPlaying] = useState(false);
