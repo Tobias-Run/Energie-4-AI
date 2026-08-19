@@ -82,6 +82,9 @@ npm run lint && npm run format:check && npm run typecheck
 ├── CLAUDE.md                        # Kickoff / work-sequencing instructions
 ├── docs/
 │   ├── mission-document-gridsim.md  # Binding specification (v0.1)
+│   ├── model-notes.md               # What the model does, where it is weak
+│   ├── review-package.md            # Entry point for external reviewers
+│   ├── fallstudien.md               # Worked case studies read off the UI (DE)
 │   ├── sources.bib                  # Source base — every model parameter carries a source_id
 │   └── DISCLAIMER.md                # Data usage & fair use statement (EN/DE)
 ├── packages/
@@ -96,6 +99,9 @@ npm run lint && npm run format:check && npm run typecheck
 
 - 📋 [**Mission Document & Software Specification**](docs/mission-document-gridsim.md) — mission, scope, modeling approach, UX spec, source base, roadmap
 - 📚 [**Source base**](docs/sources.bib) — peer-reviewed anchors and planning/agency literature the model calibrates against
+- 🔍 [**Reviewer package**](docs/review-package.md) — start here for an external review: what to check, and the six weaknesses we already know about
+- 🧮 [**Model notes**](docs/model-notes.md) — module-by-module description of the running model, its calibration and its limits
+- 📊 [**Fallstudien**](docs/fallstudien.md) — three worked case studies with permalinks and screenshots (German)
 - ⚖️ [**Data usage & fair use statement**](docs/DISCLAIMER.md) — external data are used for scientific research and education; provenance rules and takedown contact
 
 ## Data & fair use

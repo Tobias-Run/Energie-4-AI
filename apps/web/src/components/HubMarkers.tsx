@@ -1,6 +1,6 @@
 import type { Hub } from '@energie4ai/sim-core';
 import { projectPoint } from '../lib/geo.js';
-import { useI18n } from '../i18n/index.js';
+import { fmt, useI18n, type Strings } from '../i18n/index.js';
 
 const RADIUS: Record<Hub['sizeClass'], number> = {
   major: 6.5,
@@ -34,6 +34,13 @@ interface Props {
  * survives both color-vision deficiency and the dark/light swap.
  *   filled = interconnection-driven · ring = power-driven · ring with core = both
  */
+/** Short driver name in the active language, shared by the legend and the marker labels. */
+function driverLabel(driver: Hub['driver'], t: Strings): string {
+  if (driver === 'peering') return t.map.driverPeering;
+  if (driver === 'power') return t.map.driverPower;
+  return t.map.driverBoth;
+}
+
 export function HubMarkers({ hubs, onHover }: Props) {
   const { t } = useI18n();
   return (
@@ -46,7 +53,13 @@ export function HubMarkers({ hubs, onHover }: Props) {
             key={h.id}
             tabIndex={0}
             role="img"
-            aria-label={`${h.name} data center cluster${h.ixpName ? `, internet exchange ${h.ixpName}` : ', no internet exchange'}, ${h.driver}-driven`}
+            aria-label={fmt(t.map.markerLabel, {
+              name: h.name,
+              exchange: h.ixpName
+                ? fmt(t.map.markerExchange, { ixp: h.ixpName })
+                : t.map.markerNoExchange,
+              driver: driverLabel(h.driver, t),
+            })}
             style={{ cursor: 'pointer' }}
             onMouseEnter={() => onHover(h)}
             onMouseLeave={() => onHover(null)}
@@ -86,7 +99,7 @@ export function HubLegend() {
   );
   return (
     <>
-      {item('interconnection-driven', <circle cx={8} cy={8} r={4.5} fill="var(--hub-marker)" />)}
+      {item(t.map.driverPeering, <circle cx={8} cy={8} r={4.5} fill="var(--hub-marker)" />)}
       {item(
         t.map.driverPower,
         <circle cx={8} cy={8} r={4.5} fill="none" stroke="var(--hub-marker)" strokeWidth={1.8} />,
