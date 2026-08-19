@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   countries,
   runSimulation,
@@ -20,18 +20,36 @@ import { CorridorChart } from './components/CorridorChart.js';
 import { TornadoChart } from './components/TornadoChart.js';
 import { AssumptionsDrawer } from './components/AssumptionsDrawer.js';
 import { DataTable } from './components/DataTable.js';
+import { CompareMode, type PinnedScenario } from './components/CompareMode.js';
+import { decodeScenario, scenarioUrl, writeScenarioToUrl } from './lib/permalink.js';
+import { exportPng, exportRunCsv, exportSvg } from './lib/export.js';
 
 const START_YEAR = 2026;
 const END_YEAR = 2045;
 const NAMES: Record<string, string> = Object.fromEntries(countries.map((c) => [c.iso, c.name]));
 
+const INITIAL = decodeScenario(window.location.search, {
+  levers: { ...scenarioDefaults.levers },
+  year: START_YEAR,
+  metricId: 'dcShareOfDemand',
+  monteCarlo: false,
+});
+
 export function App() {
-  const [levers, setLevers] = useState<Levers>({ ...scenarioDefaults.levers });
-  const [year, setYear] = useState(START_YEAR);
-  const [metricId, setMetricId] = useState('dcShareOfDemand');
+  const [levers, setLevers] = useState<Levers>(INITIAL.levers);
+  const [year, setYear] = useState(INITIAL.year);
+  const [metricId, setMetricId] = useState(INITIAL.metricId);
   const [playing, setPlaying] = useState(false);
-  const [monteCarlo, setMonteCarlo] = useState(false);
+  const [monteCarlo, setMonteCarlo] = useState(INITIAL.monteCarlo);
   const [tornadoTarget, setTornadoTarget] = useState<TornadoTarget>('euDcTwh');
+  const [pinned, setPinned] = useState<PinnedScenario[]>([]);
+  const [copied, setCopied] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  // The URL is the only place scenario state persists — localStorage is forbidden (§4).
+  useEffect(() => {
+    writeScenarioToUrl({ levers, year, metricId, monteCarlo });
+  }, [levers, year, metricId, monteCarlo]);
 
   const result = useMemo(() => runSimulation({ levers }), [levers]);
   // ~600 ms for 200 runs, so it only runs while the mode is on
@@ -91,6 +109,28 @@ export function App() {
 
   const agg = result.aggregates[yearIdx]!;
 
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(scenarioUrl({ levers, year, metricId, monteCarlo }));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
+  const pinCurrent = () =>
+    setPinned((prev) =>
+      prev.length >= 3
+        ? prev
+        : [
+            // short positional name; the lever settings get their own column, so repeating
+            // the description here just printed the same string twice per row
+            ...prev,
+            {
+              id: `${Date.now()}`,
+              label: `Scenario ${String.fromCharCode(65 + prev.length)}`,
+              levers: { ...levers },
+            },
+          ],
+    );
+
   return (
     <div className="app">
       <header>
@@ -122,7 +162,15 @@ export function App() {
             </span>
           </div>
 
-          <EuropeMap rows={rows} names={NAMES} metric={metric} domainMax={domainMax} year={year} />
+          <div ref={mapRef}>
+            <EuropeMap
+              rows={rows}
+              names={NAMES}
+              metric={metric}
+              domainMax={domainMax}
+              year={year}
+            />
+          </div>
 
           <TimeSlider
             year={year}
@@ -191,6 +239,17 @@ export function App() {
             />
           </div>
 
+          <div style={{ marginTop: 14 }}>
+            <CompareMode
+              pinned={pinned}
+              current={levers}
+              fromYear={START_YEAR}
+              currentYear={year}
+              onPin={pinCurrent}
+              onRemove={(id) => setPinned((prev) => prev.filter((p) => p.id !== id))}
+            />
+          </div>
+
           <AssumptionsDrawer metric={metric} />
           <DataTable rows={rows} names={NAMES} metric={metric} year={year} />
         </main>
@@ -254,6 +313,34 @@ export function App() {
                 drive it. Takes about half a second.
               </p>
             )}
+          </div>
+          <div className="panel">
+            <h2>Share &amp; export</h2>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <button onClick={() => void copyLink()}>{copied ? '✓ Copied' : 'Copy link'}</button>
+              <button onClick={() => exportRunCsv(result, NAMES)}>Run as CSV</button>
+              <button
+                onClick={() => {
+                  const svg = mapRef.current?.querySelector('svg');
+                  if (svg) exportSvg(svg as SVGSVGElement, `map-${metric.id}-${year}.svg`);
+                }}
+              >
+                Map SVG
+              </button>
+              <button
+                onClick={() => {
+                  const svg = mapRef.current?.querySelector('svg');
+                  if (svg) void exportPng(svg as SVGSVGElement, `map-${metric.id}-${year}.png`);
+                }}
+              >
+                Map PNG
+              </button>
+            </div>
+            <p className="muted" style={{ marginBottom: 0 }}>
+              The link carries the full scenario — this tool stores nothing on your device. The CSV
+              carries the levers and data-bundle version in its header, so a downloaded table can be
+              traced back to the run that produced it.
+            </p>
           </div>
           <div className="panel">
             <StoryMode onApply={applyStory} onExit={() => setLevers({ ...levers })} />
