@@ -58,7 +58,6 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     ? d.permittingYearsReform
     : d.permittingYearsBaseline;
 
-  const importCap = importCapTwhByCountry(ntcLinks, d);
   const euIsos = new Set(countries.filter((c) => c.eu27).map((c) => c.iso));
 
   // --- initial state (base year 2024) ---
@@ -156,6 +155,8 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     }
 
     // --- electricity demand, supply, stress & adequacy per country ---
+    // NTCs follow sourced 2024/2030/2040 anchors, so the network expands during the run
+    const importCap = importCapTwhByCountry(ntcLinks, d, year);
     years.push(year);
     let euDc = 0;
     let europeDc = 0;

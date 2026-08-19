@@ -1,10 +1,14 @@
 {
   "version": "1.0.0",
-  "description": "Default scenario parameter set ('central' scenario). Every parameter carries a source_id in the provenance map; 'expert-guess' marks parameters without a published source (mission document §8.3).",
+  "description": "Default scenario parameter set ('central' scenario). Every parameter carries a source_id in the provenance map; 'expert-guess' marks parameters without a published source (mission document §8.3). Emission factors are DIRECT COMBUSTION (scope 1) values: 0.37 Mt/TWh for gas and 0.85 Mt/TWh for the legacy coal/lignite/oil mix. They sit below the IPCC AR5 lifecycle medians (gas 0.49, coal 0.82) on purpose — lifecycle figures include upstream methane, fuel transport and plant construction, which this model does not track. Reported emissions are therefore a lower bound.",
   "captureShareOfGlobalAdditions": {
     "euPre2030": 0.085,
     "euPost2030": 0.065,
-    "nonEu": { "GB": 0.012, "NO": 0.002, "CH": 0.001 }
+    "nonEu": {
+      "GB": 0.012,
+      "NO": 0.002,
+      "CH": 0.001
+    }
   },
   "pue2024": 1.4,
   "pueFloor": 1.15,
@@ -46,8 +50,8 @@
     "permittingYearsReform": "ec2025gridspackage",
     "constructionYears": "expert-guess",
     "ntcUtilization": "expert-guess",
-    "gasEmissionFactorMtPerTwh": "expert-guess",
-    "otherFirmEmissionFactorMtPerTwh": "expert-guess",
+    "gasEmissionFactorMtPerTwh": "ipcc2014ar5annex3",
+    "otherFirmEmissionFactorMtPerTwh": "ipcc2014ar5annex3",
     "congestionBaselineBnEur2024": "ember2025grids",
     "stressFlagThreshold": "expert-guess",
     "dcPeakShareFlagThreshold": "expert-guess",

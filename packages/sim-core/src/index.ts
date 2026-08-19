@@ -18,6 +18,6 @@ export {
   benchmarkHorizon,
   globalEnvelopeTwh,
 } from './modules/benchmarks.js';
-export type { Hub } from './data.js';
-export { hubs } from './data.js';
+export type { Hub, NtcLink } from './data.js';
+export { hubs, ntcLinks, ntcAnchorYears } from './data.js';
 export { mulberry32 } from './rng.js';

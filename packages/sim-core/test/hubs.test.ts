@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { countries, hubs } from '../src/index.js';
+import { countries, hubs, ntcLinks } from '../src/index.js';
+import { scenarioDefaults } from '../src/data.js';
+import { importCapTwhByCountry } from '../src/modules/supplyGrid.js';
 
 /**
  * Hubs are display metadata only (decision on issue #2: the model stays country-level).
@@ -53,5 +55,42 @@ describe('hub metadata (issue #2)', () => {
       expect(h.ixpPeakTbps, `${h.id} claims major`).not.toBeNull();
       expect(h.ixpPeakTbps!).toBeGreaterThan(10);
     }
+  });
+});
+
+describe('NTC network (issue #4)', () => {
+  const anchored = ntcLinks.filter((l) => l.source !== 'expert-guess');
+
+  it('most borders are sourced, and only GB borders remain estimates', () => {
+    expect(anchored.length).toBeGreaterThan(50);
+    for (const l of ntcLinks.filter((x) => x.source === 'expert-guess')) {
+      expect(l.from === 'GB' || l.to === 'GB', `${l.from}-${l.to}`).toBe(true);
+    }
+  });
+
+  it('capacity is interpolated between anchors and held flat outside them', () => {
+    const d = scenarioDefaults;
+    const at = (y: number) => importCapTwhByCountry(ntcLinks, d, y);
+    // Ireland gains the Celtic Interconnector (FR-IE) at the 2030 anchor
+    expect(at(2030)['IE']!).toBeGreaterThan(at(2026)['IE']!);
+    // between anchors the value moves monotonically, outside them it is flat
+    expect(at(2028)['IE']!).toBeGreaterThan(at(2026)['IE']!);
+    expect(at(2028)['IE']!).toBeLessThan(at(2030)['IE']!);
+    expect(at(2045)['IE']!).toBeCloseTo(at(2040)['IE']!, 6);
+    expect(at(2020)['IE']!).toBeCloseTo(at(2024)['IE']!, 6);
+  });
+
+  it('direction matters: asymmetric borders give the two ends different capability', () => {
+    // CH->IT is far larger than IT->CH in the sourced data
+    const chit = ntcLinks.find((l) => l.from === 'CH' && l.to === 'IT');
+    expect(chit).toBeDefined();
+    expect(chit!.forwardGw['2024']).not.toBeCloseTo(chit!.backwardGw['2024']!, 3);
+  });
+
+  it('the sourced network expands over the horizon', () => {
+    const total = (y: string) =>
+      anchored.reduce((sum, l) => sum + (l.forwardGw[y] ?? 0) + (l.backwardGw[y] ?? 0), 0);
+    expect(total('2030')).toBeGreaterThan(total('2024'));
+    expect(total('2040')).toBeGreaterThan(total('2030'));
   });
 });

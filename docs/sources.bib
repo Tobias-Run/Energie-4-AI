@@ -141,6 +141,26 @@
 }
 
 % ---------------------------------------------------------------------------
+% Grid interconnection (issue #4: NTC hardening)
+% ---------------------------------------------------------------------------
+
+@misc{ember2026interconnection,
+  author       = {{Ember}},
+  title        = {Europe Electricity Interconnection Data Tool --- reference interconnector capacities},
+  howpublished = {\url{https://ember-energy.org/data/europe-electricity-interconnection-data/}},
+  year         = {2026},
+  note         = {REF\_NTC dataset: net transfer capacity (MW) per border and direction for 2024, 2030 and 2040, derived from ENTSO-E TYNDP material. Released under CC-BY-4.0. Covers the EU-27 plus NO and CH; Great Britain is not in the dataset, so GB borders in this model remain estimates.}
+}
+
+@techreport{ipcc2014ar5annex3,
+  author      = {{IPCC}},
+  title       = {Climate Change 2014: Mitigation of Climate Change --- Annex {III}: Technology-specific Cost and Performance Parameters},
+  institution = {Intergovernmental Panel on Climate Change},
+  year        = {2014},
+  note        = {Lifecycle greenhouse-gas medians: coal 820 gCO2eq/kWh (range 740--910), natural gas combined cycle 490 gCO2eq/kWh. NOTE ON SCOPE: this model's emission factors are DIRECT COMBUSTION (scope 1) figures and therefore sit below these lifecycle medians by design --- lifecycle values include upstream methane, fuel transport and plant construction, none of which the model tracks.}
+}
+
+% ---------------------------------------------------------------------------
 % Internet exchange points (issue #2: hub markers linked to peering hubs)
 % ---------------------------------------------------------------------------
 

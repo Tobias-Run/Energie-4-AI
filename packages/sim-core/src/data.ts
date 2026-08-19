@@ -111,7 +111,20 @@ export interface CalibrationAnchors {
   };
 }
 
-export type NtcLink = [string, string, number];
+/**
+ * One border, with capacity per direction and per anchor year. Asymmetry is common
+ * (72 of the sourced borders differ by direction), so importing and exporting capability
+ * must be read from the matching direction rather than a single link value.
+ */
+export interface NtcLink {
+  from: string;
+  to: string;
+  /** Capacity from `from` into `to`, keyed by anchor year. */
+  forwardGw: Record<string, number>;
+  /** Capacity from `to` into `from`, keyed by anchor year. */
+  backwardGw: Record<string, number>;
+  source: string;
+}
 
 export const BASE_YEAR = 2024;
 
@@ -119,6 +132,7 @@ export const countries: CountryParams[] = countriesJson.countries as CountryPara
 export const globalCompute: GlobalComputeParams = globalJson;
 export const scenarioDefaults: ScenarioDefaults = defaultsJson as ScenarioDefaults;
 export const ntcLinks: NtcLink[] = ntcJson.links as NtcLink[];
+export const ntcAnchorYears: number[] = ntcJson.anchorYears;
 export const calibrationAnchors: CalibrationAnchors = anchorsJson as CalibrationAnchors;
 export const regionalBenchmarks: RegionalBenchmarks = benchmarksJson as RegionalBenchmarks;
 export const hubs: Hub[] = hubsJson.hubs as Hub[];
