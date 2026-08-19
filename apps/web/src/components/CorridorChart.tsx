@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { CorridorBand } from '@energie4ai/sim-core';
+import { fmt, useI18n } from '../i18n/index.js';
 
 interface Props {
   corridor: CorridorBand;
@@ -20,6 +21,7 @@ const PAD = { top: 16, right: 72, bottom: 22, left: 44 };
  * information rather than an error.
  */
 export function CorridorChart({ corridor, fromYear, currentYear, runs, onYear }: Props) {
+  const { t } = useI18n();
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -61,17 +63,17 @@ export function CorridorChart({ corridor, fromYear, currentYear, runs, onYear }:
 
   return (
     <div>
-      <h2 style={{ marginBottom: 2 }}>EU-27 data center demand — uncertainty corridor (TWh)</h2>
+      <h2 style={{ marginBottom: 2 }}>{t.charts.corridorTitle}</h2>
       <div className="legend" style={{ marginBottom: 2 }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
           <span className="swatch" style={{ background: 'var(--series-1)', opacity: 0.22 }} />
-          <span>p10–p90 across {runs} runs</span>
+          <span>{fmt(t.charts.corridorBand, { runs })}</span>
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
           <svg width={20} height={10} aria-hidden="true">
             <line x1={0} x2={20} y1={5} y2={5} stroke="var(--series-1)" strokeWidth={2} />
           </svg>
-          <span>sampled median</span>
+          <span>{t.charts.corridorMedian}</span>
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
           <svg width={20} height={10} aria-hidden="true">
@@ -85,14 +87,14 @@ export function CorridorChart({ corridor, fromYear, currentYear, runs, onYear }:
               strokeDasharray="4 3"
             />
           </svg>
-          <span>central run</span>
+          <span>{t.charts.corridorCentral}</span>
         </span>
       </div>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`EU-27 data center demand uncertainty corridor, tenth to ninetieth percentile across ${runs} Monte Carlo runs`}
+        aria-label={fmt(t.charts.corridorLabel, { runs })}
         style={{ width: '100%', height: 'auto', display: 'block', cursor: 'pointer' }}
         onMouseMove={(e) => setHoverIdx(idxFromEvent(e))}
         onMouseLeave={() => setHoverIdx(null)}
@@ -171,8 +173,13 @@ export function CorridorChart({ corridor, fromYear, currentYear, runs, onYear }:
               strokeDasharray="3 3"
             />
             <text x={PAD.left} y={PAD.top - 4} fontSize={11} fill="var(--text-primary)">
-              {years[hi]}: {Math.round(p10[hi]!)}–{Math.round(p90[hi]!)} TWh (median{' '}
-              {Math.round(p50[hi]!)}, central {Math.round(central[hi]!)})
+              {fmt(t.charts.corridorHover, {
+                year: years[hi]!,
+                p10: Math.round(p10[hi]!),
+                p90: Math.round(p90[hi]!),
+                p50: Math.round(p50[hi]!),
+                central: Math.round(central[hi]!),
+              })}
             </text>
           </g>
         )}

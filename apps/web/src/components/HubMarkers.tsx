@@ -1,5 +1,6 @@
 import type { Hub } from '@energie4ai/sim-core';
 import { projectPoint } from '../lib/geo.js';
+import { useI18n } from '../i18n/index.js';
 
 const RADIUS: Record<Hub['sizeClass'], number> = {
   major: 6.5,
@@ -34,8 +35,9 @@ interface Props {
  *   filled = interconnection-driven · ring = power-driven · ring with core = both
  */
 export function HubMarkers({ hubs, onHover }: Props) {
+  const { t } = useI18n();
   return (
-    <g aria-label="Data center cluster locations">
+    <g aria-label={t.map.clusterLocations}>
       {hubs.map((h) => {
         const r = RADIUS[h.sizeClass];
         const filled = h.driver === 'peering';
@@ -45,7 +47,7 @@ export function HubMarkers({ hubs, onHover }: Props) {
             tabIndex={0}
             role="img"
             aria-label={`${h.name} data center cluster${h.ixpName ? `, internet exchange ${h.ixpName}` : ', no internet exchange'}, ${h.driver}-driven`}
-            style={{ cursor: 'pointer', outline: 'none' }}
+            style={{ cursor: 'pointer' }}
             onMouseEnter={() => onHover(h)}
             onMouseLeave={() => onHover(null)}
             onFocus={() => onHover(h)}
@@ -73,6 +75,7 @@ export function HubMarkers({ hubs, onHover }: Props) {
 
 /** Legend entries for the marker vocabulary, drawn as tiny inline SVGs. */
 export function HubLegend() {
+  const { t } = useI18n();
   const item = (label: string, render: React.ReactNode) => (
     <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
       <svg width={16} height={16} aria-hidden="true">
@@ -85,11 +88,11 @@ export function HubLegend() {
     <>
       {item('interconnection-driven', <circle cx={8} cy={8} r={4.5} fill="var(--hub-marker)" />)}
       {item(
-        'power-driven',
+        t.map.driverPower,
         <circle cx={8} cy={8} r={4.5} fill="none" stroke="var(--hub-marker)" strokeWidth={1.8} />,
       )}
       {item(
-        'both',
+        t.map.driverBoth,
         <g>
           <circle cx={8} cy={8} r={4.5} fill="none" stroke="var(--hub-marker)" strokeWidth={1.8} />
           <circle cx={8} cy={8} r={1.8} fill="var(--hub-marker)" />

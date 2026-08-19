@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { benchmarkHorizon, benchmarkTwh } from '@energie4ai/sim-core';
+import { fmt, useI18n, type Strings } from '../i18n/index.js';
 
 interface Props {
   /** Full model years incl. base year 2024 (index base). */
@@ -13,12 +14,13 @@ const W = 640;
 const H = 200;
 const PAD = { top: 16, right: 96, bottom: 22, left: 44 };
 
-const REGIONS = [
-  { id: 'EU', label: 'EU-27 (model)', color: 'var(--bench-eu)' },
-  { id: 'US', label: 'USA', color: 'var(--bench-us)' },
-  { id: 'CN', label: 'China', color: 'var(--bench-cn)' },
-  { id: 'ROW', label: 'Rest of World', color: 'var(--bench-row)' },
-] as const;
+const regions = (t: Strings) =>
+  [
+    { id: 'EU', label: t.charts.benchmarkEu, color: 'var(--bench-eu)' },
+    { id: 'US', label: t.charts.benchmarkUs, color: 'var(--bench-us)' },
+    { id: 'CN', label: t.charts.benchmarkCn, color: 'var(--bench-cn)' },
+    { id: 'ROW', label: t.charts.benchmarkRow, color: 'var(--bench-row)' },
+  ] as const;
 
 /**
  * Regional benchmark (issue #13): DC demand indexed to 2024 = 100. US/China/RoW are
@@ -26,6 +28,8 @@ const REGIONS = [
  * end at the publication horizon — no silent extrapolation.
  */
 export function BenchmarkChart({ years, euValues, currentYear }: Props) {
+  const { t } = useI18n();
+  const REGIONS = regions(t);
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const horizon = benchmarkHorizon();
@@ -84,7 +88,7 @@ export function BenchmarkChart({ years, euValues, currentYear }: Props) {
       id: s.id,
       x: x(years[lastIdx]!) + 4,
       y: y(s.values[lastIdx]!),
-      text: `${s.label.replace(' (model)', '')} ${Math.round(s.values[lastIdx]!)}`,
+      text: `${s.label.replace(/\s*\((model|Modell)\)/, '')} ${Math.round(s.values[lastIdx]!)}`,
     });
   }
   rawEndPoints.sort((a, b) => a.y - b.y);
@@ -97,7 +101,7 @@ export function BenchmarkChart({ years, euValues, currentYear }: Props) {
 
   return (
     <div>
-      <h2 style={{ marginBottom: 2 }}>DC demand growth benchmark (index, 2024 = 100)</h2>
+      <h2 style={{ marginBottom: 2 }}>{t.charts.benchmarkTitle}</h2>
       <div className="legend" style={{ marginBottom: 2 }}>
         {REGIONS.map((r) => (
           <span key={r.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
@@ -110,7 +114,7 @@ export function BenchmarkChart({ years, euValues, currentYear }: Props) {
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label="Data center demand growth: EU-27 model output vs. published projections for USA, China, and Rest of World, indexed to 2024"
+        aria-label={t.charts.benchmarkLabel}
         style={{ width: '100%', height: 'auto', display: 'block', cursor: 'crosshair' }}
         onMouseMove={(e) => setHoverIdx(idxFromEvent(e))}
         onMouseLeave={() => setHoverIdx(null)}
@@ -175,7 +179,7 @@ export function BenchmarkChart({ years, euValues, currentYear }: Props) {
               {seriesData
                 .map((s) =>
                   s.values[hi] !== null
-                    ? `${s.label.replace(' (model)', '')} ${Math.round(s.values[hi]!)}`
+                    ? `${s.label.replace(/\s*\((model|Modell)\)/, '')} ${Math.round(s.values[hi]!)}`
                     : null,
                 )
                 .filter(Boolean)
@@ -185,9 +189,7 @@ export function BenchmarkChart({ years, euValues, currentYear }: Props) {
         )}
       </svg>
       <p className="muted" style={{ margin: '2px 0 0' }}>
-        US/China/RoW: IEA base-case anchors (US corroborated by LBNL/EPRI); published projections
-        end {horizon} — lines stop there, no extrapolation. 2035 regional split is expert-guess
-        within the IEA global envelope.
+        {fmt(t.charts.benchmarkNote, { horizon })}
       </p>
     </div>
   );

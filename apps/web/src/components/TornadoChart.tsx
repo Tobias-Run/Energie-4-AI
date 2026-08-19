@@ -1,4 +1,5 @@
 import { TORNADO_TARGETS, type TornadoEntry, type TornadoTarget } from '@energie4ai/sim-core';
+import { fmt, useI18n } from '../i18n/index.js';
 
 interface Props {
   entries: TornadoEntry[];
@@ -48,6 +49,13 @@ function shortLabel(path: string): string {
  * "no effect on this metric" is a different statement from "unimportant".
  */
 export function TornadoChart({ entries, target, year, onTarget }: Props) {
+  const { t } = useI18n();
+  // sim-core owns the target ids; their display names are localised here
+  const targetLabel: Record<TornadoTarget, string> = {
+    euDcTwh: t.tornado.targetDemand,
+    flaggedCount: t.tornado.targetFlags,
+    euEmissionsMt: t.tornado.targetEmissions,
+  };
   const active = entries.filter((e) => e.swing > 1e-6);
   const inert = entries.filter((e) => e.swing <= 1e-6);
   const meta = TORNADO_TARGETS[target];
@@ -66,13 +74,13 @@ export function TornadoChart({ entries, target, year, onTarget }: Props) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <h2 style={{ margin: '0 0 2px' }}>Parameter sensitivity in {year}</h2>
+        <h2 style={{ margin: '0 0 2px' }}>{fmt(t.tornado.title, { year })}</h2>
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
-          <span className="muted">Measured on</span>
+          <span className="muted">{t.tornado.measuredOn}</span>
           <select value={target} onChange={(e) => onTarget(e.target.value as TornadoTarget)}>
-            {(Object.keys(TORNADO_TARGETS) as TornadoTarget[]).map((t) => (
-              <option key={t} value={t}>
-                {TORNADO_TARGETS[t].label}
+            {(Object.keys(TORNADO_TARGETS) as TornadoTarget[]).map((k) => (
+              <option key={k} value={k}>
+                {targetLabel[k]}
               </option>
             ))}
           </select>
@@ -80,12 +88,12 @@ export function TornadoChart({ entries, target, year, onTarget }: Props) {
       </div>
 
       {active.length === 0 ? (
-        <p className="muted">No parameter in the range set moves this metric.</p>
+        <p className="muted">{t.tornado.none}</p>
       ) : (
         <svg
           viewBox={`0 0 ${W} ${H}`}
           role="img"
-          aria-label={`Parameter sensitivity on ${meta.label} in ${year}, ranked by swing`}
+          aria-label={fmt(t.tornado.label, { target: targetLabel[target], year })}
           style={{ width: '100%', height: 'auto', display: 'block' }}
         >
           <line
@@ -134,30 +142,24 @@ export function TornadoChart({ entries, target, year, onTarget }: Props) {
             fontSize={10}
             fill="var(--text-muted)"
           >
-            central: {centre.toFixed(centre < 10 ? 1 : 0)} {meta.unit}
+            {fmt(t.tornado.central, {
+              value: centre.toFixed(centre < 10 ? 1 : 0),
+              unit: meta.unit,
+            })}
           </text>
         </svg>
       )}
 
       <p className="muted" style={{ margin: '4px 0 0' }}>
-        Each bar spans {meta.label.toLowerCase()} when that parameter alone is pushed to its range
-        bounds, everything else held central — so bars are comparable but do not capture
-        interactions. The corridor above, which samples all parameters together, does. A{' '}
-        <code>?</code> marks a parameter whose range is an expert estimate rather than a published
-        one.
-        {target === 'flaggedCount' && (
-          <>
-            {' '}
-            This target counts whole regions, so its resolution is one region — bars of equal length
-            mean &quot;moves the count by one&quot;, not &quot;equally important&quot;.
-          </>
-        )}
+        {fmt(t.tornado.note, { target: targetLabel[target].toLowerCase() })}
+        {target === 'flaggedCount' && <> {t.tornado.countNote}</>}
       </p>
       {inert.length > 0 && (
         <p className="muted" style={{ margin: '2px 0 0' }}>
-          No effect on this metric ({inert.length}):{' '}
-          {inert.map((e) => shortLabel(e.path)).join(', ')}. That is a statement about this metric,
-          not about the parameter — switch the measure above to see where they act.
+          {fmt(t.tornado.inert, {
+            count: inert.length,
+            list: inert.map((e) => shortLabel(e.path)).join(', '),
+          })}
         </p>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useI18n, type Strings } from '../i18n/index.js';
 
 interface Props {
   years: number[];
@@ -14,14 +15,17 @@ const H = 200;
 // right padding must fit the widest end label ("Renewables " + up to 4 digits)
 const PAD = { top: 14, right: 108, bottom: 22, left: 44 };
 
-const CATEGORIES = [
-  { key: 'renewables', label: 'Renewables', color: 'var(--mix-ren)' },
-  { key: 'nuclear', label: 'Nuclear', color: 'var(--mix-nuc)' },
-  { key: 'fossil', label: 'Fossil', color: 'var(--mix-fossil)' },
-] as const;
+const categories = (t: Strings) =>
+  [
+    { key: 'renewables', label: t.charts.mixRenewables, color: 'var(--mix-ren)' },
+    { key: 'nuclear', label: t.charts.mixNuclear, color: 'var(--mix-nuc)' },
+    { key: 'fossil', label: t.charts.mixFossil, color: 'var(--mix-fossil)' },
+  ] as const;
 
 /** EU-27 generation mix, stacked by the three categories (issue #12). Production-based. */
 export function SupplyMixChart({ years, renewables, nuclear, fossil, currentYear, onYear }: Props) {
+  const { t } = useI18n();
+  const CATEGORIES = categories(t);
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -42,7 +46,7 @@ export function SupplyMixChart({ years, renewables, nuclear, fossil, currentYear
     return { renewables: [0, ren], nuclear: [ren, nuc], fossil: [nuc, fos] } as const;
   };
 
-  const areaPath = (key: (typeof CATEGORIES)[number]['key']) => {
+  const areaPath = (key: 'renewables' | 'nuclear' | 'fossil') => {
     const top = years.map((yr, i) => `${x(yr).toFixed(1)},${y(stackedAt(i)[key][1]).toFixed(1)}`);
     const bottom = years
       .map((yr, i) => `${x(yr).toFixed(1)},${y(stackedAt(i)[key][0]).toFixed(1)}`)
@@ -62,7 +66,7 @@ export function SupplyMixChart({ years, renewables, nuclear, fossil, currentYear
 
   return (
     <div>
-      <h2 style={{ marginBottom: 2 }}>EU-27 generation mix (TWh, production-based)</h2>
+      <h2 style={{ marginBottom: 2 }}>{t.charts.mixTitle}</h2>
       <div className="legend" style={{ marginBottom: 2 }}>
         {CATEGORIES.map((c) => (
           <span key={c.key} style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
@@ -70,13 +74,13 @@ export function SupplyMixChart({ years, renewables, nuclear, fossil, currentYear
             <span>{c.label}</span>
           </span>
         ))}
-        <span style={{ marginLeft: 'auto' }}>imports not attributed (no flow tracing)</span>
+        <span style={{ marginLeft: 'auto' }}>{t.charts.mixImportsNote}</span>
       </div>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label="EU-27 generation mix by category over time"
+        aria-label={t.charts.mixLabel}
         style={{ width: '100%', height: 'auto', display: 'block', cursor: 'pointer' }}
         onMouseMove={(e) => setHoverIdx(idxFromEvent(e))}
         onMouseLeave={() => setHoverIdx(null)}

@@ -3,6 +3,7 @@ import { hubs as HUB_DATA, type CountryYear } from '@energie4ai/sim-core';
 import { COUNTRY_SHAPES, MAP_HEIGHT, MAP_WIDTH, MISSING_ON_MAP } from '../lib/geo.js';
 import { BIN_VARS, binIndex, binThresholds, type MetricDef } from '../lib/metrics.js';
 import { HubLegend, HubMarkers, placeHubs, type PlacedHub } from './HubMarkers.js';
+import { fmt, useI18n } from '../i18n/index.js';
 
 interface Props {
   rows: Record<string, CountryYear>;
@@ -19,6 +20,7 @@ interface Hover {
 }
 
 export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
+  const { t } = useI18n();
   const [hover, setHover] = useState<Hover | null>(null);
   const [showHubs, setShowHubs] = useState(true);
   const [hubHover, setHubHover] = useState<PlacedHub | null>(null);
@@ -55,7 +57,7 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
         ref={svgRef}
         viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
         role="img"
-        aria-label={`Europe map, ${metric.label} in ${year}`}
+        aria-label={fmt(t.map.label, { metric: metric.label, year })}
         style={{ width: '100%', height: 'auto', display: 'block' }}
       >
         {COUNTRY_SHAPES.map((s, i) => {
@@ -83,7 +85,7 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
               strokeWidth={flagged ? 1.6 : 0.7}
               strokeDasharray={flagged ? '3 2' : undefined}
               tabIndex={0}
-              aria-label={`${names[s.iso] ?? s.iso}: ${row ? metric.format(v) : 'no data'}${flagged ? ', stress flag' : ''}`}
+              aria-label={`${names[s.iso] ?? s.iso}: ${row ? metric.format(v) : '—'}${flagged ? `, ${t.map.stressFlag}` : ''}`}
               onMouseMove={onMove(s.iso)}
               onMouseLeave={() => setHover(null)}
               onFocus={(e) => {
@@ -97,7 +99,7 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
                   });
               }}
               onBlur={() => setHover(null)}
-              style={{ cursor: 'pointer', outline: 'none' }}
+              style={{ cursor: 'pointer' }}
             />
           );
         })}
@@ -113,19 +115,23 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
             {metric.label}: <strong>{metric.format(metric.value(hoverRow))}</strong>
           </div>
           <div className="muted">
-            DC {hoverRow.dcEnergyTwh.toFixed(1)} TWh · stress {hoverRow.stressIndex.toFixed(2)}
-            {hoverRow.queueGw > 0.005 && <> · queue {hoverRow.queueGw.toFixed(2)} GW</>}
+            DC {hoverRow.dcEnergyTwh.toFixed(1)} TWh · {t.table.stress}{' '}
+            {hoverRow.stressIndex.toFixed(2)}
+            {hoverRow.queueGw > 0.005 && (
+              <>
+                {' '}
+                · {t.map.queue} {hoverRow.queueGw.toFixed(2)} GW
+              </>
+            )}
           </div>
           <div className="muted">
             mix R/N/F:{' '}
             {hoverRow.generationTwh > 0
               ? `${Math.round((hoverRow.renewablesTwh / hoverRow.generationTwh) * 100)}/${Math.round((hoverRow.nuclearTwh / hoverRow.generationTwh) * 100)}/${Math.round((hoverRow.fossilGenTwh / hoverRow.generationTwh) * 100)}%`
               : '—'}{' '}
-            · imports {Math.round(hoverRow.netImportShare * 100)}%
+            · {t.map.imports} {Math.round(hoverRow.netImportShare * 100)}%
           </div>
-          {hoverRow.flagged && (
-            <div className="tt-flag">⚠ stress flag (DC share of peak or adequacy threshold)</div>
-          )}
+          {hoverRow.flagged && <div className="tt-flag">⚠ {t.map.stressFlagTooltip}</div>}
         </div>
       )}
 
@@ -138,36 +144,35 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
           <div>
             {hubHover.ixpName ? (
               <>
-                Internet exchange: <strong>{hubHover.ixpName}</strong>
+                {t.map.exchange}: <strong>{hubHover.ixpName}</strong>
               </>
             ) : (
-              <span className="muted">No internet exchange at this location</span>
+              <span className="muted">{t.map.noExchange}</span>
             )}
           </div>
           {hubHover.ixpPeakTbps !== null ? (
             <div className="muted">
-              Peak traffic {hubHover.ixpPeakTbps} Tbit/s (as of {hubHover.asOf})
+              {fmt(t.map.peakTraffic, { tbps: hubHover.ixpPeakTbps, asOf: hubHover.asOf ?? '' })}
             </div>
           ) : (
             hubHover.ixpName && (
               <div className="muted">
-                Size class {hubHover.sizeClass} — no current published figure verified
+                {fmt(t.map.sizeClassOnly, { sizeClass: hubHover.sizeClass })}
               </div>
             )
           )}
           <div className="muted">
-            Cluster driver:{' '}
+            {t.map.clusterDriver}:{' '}
             {hubHover.driver === 'peering'
-              ? 'network interconnection'
+              ? t.map.driverPeeringLong
               : hubHover.driver === 'power'
-                ? 'power and cooling climate'
-                : 'interconnection and power'}
+                ? t.map.driverPowerLong
+                : t.map.driverBothLong}
           </div>
           {rows[hubHover.iso] && (
             <div className="muted">
               {names[hubHover.iso] ?? hubHover.iso} {year}: DC{' '}
-              {rows[hubHover.iso]!.dcEnergyTwh.toFixed(1)} TWh (country-level — the model does not
-              resolve individual hubs)
+              {rows[hubHover.iso]!.dcEnergyTwh.toFixed(1)} TWh ({t.map.countryLevelNote})
             </div>
           )}
         </div>
@@ -192,7 +197,7 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
               borderStyle: 'dashed',
             }}
           />
-          <span>stress flag</span>
+          <span>{t.map.stressFlag}</span>
         </span>
       </div>
 
@@ -206,15 +211,14 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
               if (!e.target.checked) setHubHover(null);
             }}
           />
-          <span>Data center clusters</span>
+          <span>{t.map.clusters}</span>
         </label>
         {showHubs && <HubLegend />}
-        {showHubs && <span style={{ marginLeft: 'auto' }}>marker size = exchange size class</span>}
+        {showHubs && <span style={{ marginLeft: 'auto' }}>{t.map.markerSize}</span>}
       </div>
       {MISSING_ON_MAP.length > 0 && (
         <p className="muted" style={{ margin: '4px 0 0' }}>
-          {MISSING_ON_MAP.join(', ')} simulated but not shown at this map resolution — see table
-          view.
+          {fmt(t.map.notShown, { list: MISSING_ON_MAP.join(', ') })}
         </p>
       )}
     </div>

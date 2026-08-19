@@ -5,51 +5,46 @@ interface Props {
   metric: MetricDef;
 }
 
+import { useI18n } from '../i18n/index.js';
+
 const REPO = 'https://github.com/Tobias-Run/Energie-4-AI';
 
 /** "Assumptions behind this number" drawer — every on-screen figure is traceable (spec §6). */
 export function AssumptionsDrawer({ metric }: Props) {
+  const { t } = useI18n();
   const d = scenarioDefaults;
   const rows: Array<[string, string, string]> = [
     [
-      'EU capture of global DC additions (pre-2030)',
+      t.drawer.rowCapturePre,
       `${(d.captureShareOfGlobalAdditions.euPre2030 * 100).toFixed(1)}%`,
       'iea2025energyai',
     ],
     [
-      'EU capture of global DC additions (post-2030)',
+      t.drawer.rowCapturePost,
       `${(d.captureShareOfGlobalAdditions.euPost2030 * 100).toFixed(1)}%`,
       'ember2025grids',
     ],
-    ['Average PUE 2024 → floor', `${d.pue2024} → ${d.pueFloor}`, 'koronen2020datacentres'],
+    [t.drawer.rowPue, `${d.pue2024} → ${d.pueFloor}`, 'koronen2020datacentres'],
+    [t.drawer.rowFirm, `${(d.firmLoadShare * 100).toFixed(0)}%`, 'noland2024baseload'],
     [
-      'Firm (inference) share of DC load',
-      `${(d.firmLoadShare * 100).toFixed(0)}%`,
-      'noland2024baseload',
-    ],
-    [
-      'Permitting duration (baseline / reform)',
+      t.drawer.rowPermitting,
       `${d.permittingYearsBaseline} yr / ${d.permittingYearsReform} yr`,
       'ec2025gridspackage',
     ],
-    ['NTC average utilization', `${(d.ntcUtilization * 100).toFixed(0)}%`, 'expert-guess'],
-    [
-      'Congestion cost baseline (EU, 2024)',
-      `€${d.congestionBaselineBnEur2024} bn`,
-      'ember2025grids',
-    ],
-    ['Gas emission factor', `${d.gasEmissionFactorMtPerTwh} Mt/TWh`, 'expert-guess'],
-    ['Generation mix accounting', 'production-based; imports not attributed', 'ember2025eer'],
-    ['US/CN/RoW benchmark anchors 2024/2030', 'IEA base case', 'iea2025energyai'],
-    ['US benchmark corroboration', 'LBNL 2024 / EPRI 2024', 'lbnl2024usdc'],
-    ['Benchmark anchors 2035 (regional split)', 'within IEA global envelope', 'expert-guess'],
+    [t.drawer.rowNtc, `${(d.ntcUtilization * 100).toFixed(0)}%`, 'expert-guess'],
+    [t.drawer.rowCongestion, `€${d.congestionBaselineBnEur2024} bn`, 'ember2025grids'],
+    [t.drawer.rowGas, `${d.gasEmissionFactorMtPerTwh} Mt/TWh`, 'expert-guess'],
+    [t.drawer.rowMix, t.drawer.rowMixValue, 'ember2025eer'],
+    [t.drawer.rowBenchmark, t.drawer.rowBenchmarkValue, 'iea2025energyai'],
+    [t.drawer.rowBenchmarkCorroboration, 'LBNL 2024 / EPRI 2024', 'lbnl2024usdc'],
+    [t.drawer.rowBenchmark2035, t.drawer.rowBenchmark2035Value, 'expert-guess'],
   ];
 
   return (
     <details className="drawer">
-      <summary>Assumptions behind these numbers</summary>
+      <summary>{t.drawer.summary}</summary>
       <p className="muted" style={{ marginBottom: 4 }}>
-        <strong>{metric.label}:</strong> {metric.explanation} Sources:{' '}
+        <strong>{metric.label}:</strong> {metric.explanation} {t.drawer.sources}{' '}
         {metric.sourceIds.map((s) => (
           <span key={s} className="source-chip" style={{ marginRight: 3 }}>
             {s}

@@ -3,7 +3,8 @@
   --page: #f9f9f7;
   --text-primary: #0b0b0b;
   --text-secondary: #52514e;
-  --text-muted: #898781;
+  /* 4.57:1 on --surface-1; the previous #898781 sat at 3.50:1 and carried the caveat prose */
+  --text-muted: #75746e;
   --gridline: #e1e0d9;
   --baseline: #c3c2b7;
   --border: rgba(11, 11, 11, 0.1);
@@ -12,14 +13,17 @@
   --map-other: #efeeea;
   --hub-marker: #1c1c1a;
   --hub-halo: #ffffff;
+  --focus-ring: #0b57d0;
   /* supply-mix categories (validated categorical slots: green / violet / orange) */
   --mix-ren: #008300;
   --mix-nuc: #4a3aa7;
   --mix-fossil: #eb6834;
   /* benchmark series (categorical slots 1-4 in fixed order) */
   --bench-eu: #2a78d6;
-  --bench-us: #1baf7a;
-  --bench-cn: #eda100;
+  /* darkened to clear the 3:1 non-text contrast floor without collapsing the hue spacing
+     that makes the four series distinguishable under colour-vision deficiency */
+  --bench-us: #19a673;
+  --bench-cn: #c48500;
   --bench-row: #008300;
   /* sequential blue, 5 bins, light mode (light -> dark = low -> high) */
   --seq-1: #cde2fb;
@@ -44,6 +48,7 @@
     --map-other: #242423;
     --hub-marker: #f5f4f0;
     --hub-halo: #14140f;
+    --focus-ring: #a8c7fa;
     --mix-ren: #008300;
     --mix-nuc: #9085e9;
     --mix-fossil: #d95926;
@@ -280,4 +285,60 @@ table.data-table th {
   gap: 8px;
   align-items: center;
   margin-top: 8px;
+}
+
+/* --- Accessibility (WCAG 2.1 AA, issue #8) --- */
+
+/*
+ * Visible focus everywhere. The map paths and hub markers previously set `outline: none`
+ * to hide the browser's default ring, which left keyboard users with no indication of
+ * where they were — a 2.4.7 failure. SVG geometry cannot take a CSS outline reliably
+ * across browsers, so focused shapes get a thick contrasting stroke instead.
+ */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+svg path[tabindex]:focus-visible,
+svg g[tabindex]:focus-visible {
+  outline: none;
+}
+
+svg path[tabindex]:focus-visible {
+  stroke: var(--focus-ring) !important;
+  stroke-width: 3 !important;
+  stroke-dasharray: none !important;
+}
+
+svg g[tabindex]:focus-visible circle {
+  stroke: var(--focus-ring);
+  stroke-width: 3;
+}
+
+/* Skip link: off-screen until focused, then pinned to the top-left. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  border: 2px solid var(--focus-ring);
+  border-radius: 6px;
+  padding: 8px 14px;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+}
+
+/* Respect a reduced-motion preference: the year animation is the only motion here, but
+   the transition on interactive chrome is unnecessary for anyone who asked for less. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

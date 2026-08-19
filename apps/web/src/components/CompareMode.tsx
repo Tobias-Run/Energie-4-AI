@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { runSimulation, type Levers } from '@energie4ai/sim-core';
 import { exportPng, exportSvg } from '../lib/export.js';
+import { fmt, useI18n, type Strings } from '../i18n/index.js';
 
 export interface PinnedScenario {
   id: string;
@@ -23,7 +24,7 @@ const PAD = { top: 16, right: 78, bottom: 22, left: 44 };
 const COLORS = ['var(--bench-eu)', 'var(--bench-us)', 'var(--bench-cn)'];
 
 /** One-line summary of what makes a pinned scenario different from the central one. */
-export function describeLevers(l: Levers): string {
+export function describeLevers(l: Levers, t?: Strings): string {
   const parts: string[] = [];
   if (l.computeGrowthMultiplier !== 1) parts.push(`growth ×${l.computeGrowthMultiplier}`);
   if (l.extraEfficiencyRate !== 0)
@@ -32,7 +33,7 @@ export function describeLevers(l: Levers): string {
   if (l.sitingPolicy !== 'market') parts.push(`siting: ${l.sitingPolicy}`);
   if (l.flexibilityShare !== 0) parts.push(`flex ${(l.flexibilityShare * 100).toFixed(0)}%`);
   if (l.priceSensitivity !== 1) parts.push(`price ×${l.priceSensitivity}`);
-  return parts.length > 0 ? parts.join(' · ') : 'central scenario';
+  return parts.length > 0 ? parts.join(' · ') : (t?.compare.centralScenario ?? 'central scenario');
 }
 
 /**
@@ -42,6 +43,7 @@ export function describeLevers(l: Levers): string {
  * stays on the single active scenario.
  */
 export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onRemove }: Props) {
+  const { t } = useI18n();
   const svgRef = useRef<SVGSVGElement>(null);
 
   const series = useMemo(
@@ -77,11 +79,11 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
   if (series.length === 0) {
     return (
       <div>
-        <h2>Compare scenarios</h2>
+        <h2>{t.compare.emptyTitle}</h2>
         <p className="muted" style={{ marginTop: 0 }}>
-          Pin the current lever settings to compare up to three scenarios side by side.
+          {t.compare.empty}
         </p>
-        <button onClick={onPin}>+ Pin current scenario</button>
+        <button onClick={onPin}>{t.compare.pinFirst}</button>
       </div>
     );
   }
@@ -105,10 +107,14 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <h2 style={{ margin: '0 0 2px' }}>Compare scenarios — EU-27 DC demand (TWh)</h2>
+        <h2 style={{ margin: '0 0 2px' }}>{t.compare.title}</h2>
         <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 6 }}>
-          <button onClick={onPin} disabled={!canPin} title={canPin ? undefined : 'Maximum of 3'}>
-            + Pin current
+          <button
+            onClick={onPin}
+            disabled={!canPin}
+            title={canPin ? undefined : t.compare.maxReached}
+          >
+            {t.compare.pin}
           </button>
           <button onClick={() => svgRef.current && exportSvg(svgRef.current, 'compare.svg')}>
             SVG
@@ -126,7 +132,7 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
             <span>{s.label}</span>
             <button
               onClick={() => onRemove(s.id)}
-              aria-label={`Remove ${s.label}`}
+              aria-label={fmt(t.compare.remove, { label: s.label })}
               style={{ padding: '0 5px', lineHeight: 1.2 }}
             >
               ×
@@ -139,7 +145,7 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`Comparison of ${series.length} pinned scenarios, EU-27 data center demand`}
+        aria-label={fmt(t.compare.label, { count: series.length })}
         style={{ width: '100%', height: 'auto', display: 'block' }}
       >
         {gridYs.map((v) => (
@@ -178,13 +184,13 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
         {series.map((s, i) => (
           <path key={s.id} d={line(s.values)} fill="none" stroke={COLORS[i]} strokeWidth={2} />
         ))}
-        {series.map((s, i) => (
+        {series.map((s) => (
           <text
             key={s.id}
             x={W - PAD.right + 4}
             y={y(s.values[s.values.length - 1]!) + 3}
             fontSize={10}
-            fill={COLORS[i]}
+            fill="var(--text-secondary)"
           >
             {Math.round(s.values[s.values.length - 1]!)}
           </text>
@@ -194,11 +200,11 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
       <table className="data-table" style={{ marginTop: 6 }}>
         <thead>
           <tr>
-            <th>Scenario</th>
-            <th>Levers</th>
-            <th>EU DC {currentYear}</th>
-            <th>Most saturated</th>
-            <th>Flags</th>
+            <th>{t.compare.colScenario}</th>
+            <th>{t.compare.colLevers}</th>
+            <th>{fmt(t.compare.colDemand, { year: currentYear })}</th>
+            <th>{t.compare.colSaturated}</th>
+            <th>{t.compare.colFlags}</th>
           </tr>
         </thead>
         <tbody>
@@ -209,7 +215,7 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
             return (
               <tr key={s.id}>
                 <td>{s.label}</td>
-                <td className="muted">{describeLevers(s.levers)}</td>
+                <td className="muted">{describeLevers(s.levers, t)}</td>
                 <td>
                   {a.euDcTwh.toFixed(0)} TWh ({(a.euDcShareOfDemand * 100).toFixed(1)}%)
                 </td>
@@ -227,18 +233,13 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
           Math.min(...series.map((s) => s.values[s.values.length - 1]!)) <
           1.01 && (
           <p className="muted" style={{ margin: '4px 0 0' }}>
-            These scenarios end within 1% of each other, so the lines overlap almost exactly. That
-            is the result, not a rendering fault: siting and permitting redistribute load rather
-            than changing how much of it Europe ends up with. The difference is in the two
-            right-hand columns.
+            {t.compare.overlapNote}
           </p>
         )}
       <p className="muted" style={{ margin: '4px 0 0' }}>
-        Pinned scenarios are deterministic central runs. Uncertainty corridors stay on the active
-        scenario — three overlaid bands are unreadable, and three Monte Carlo draws would cost about
-        two seconds on every lever move.{' '}
-        {describeLevers(current) !== 'central scenario' &&
-          `Current settings (${describeLevers(current)}) are not pinned yet.`}
+        {t.compare.note}{' '}
+        {describeLevers(current, t) !== t.compare.centralScenario &&
+          fmt(t.compare.unpinned, { levers: describeLevers(current, t) })}
       </p>
     </div>
   );

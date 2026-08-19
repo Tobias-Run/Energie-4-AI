@@ -1,4 +1,5 @@
 import { scenarioDefaults, type Levers, type SitingPolicy } from '@energie4ai/sim-core';
+import { resolveLocale, type Locale } from '../i18n/index.js';
 
 export interface ScenarioState {
   levers: Levers;
@@ -65,13 +66,22 @@ export function decodeScenario(search: string, fallback: ScenarioState): Scenari
   };
 }
 
+/** The chosen language rides along with the scenario, for the same reason: there is nowhere
+ *  else to put it. Omitted when it matches what the browser would pick anyway, so a link
+ *  shared between two German readers does not carry a redundant key. */
+function withLocale(query: string, locale: Locale): string {
+  const auto = resolveLocale('', navigator.languages ?? [navigator.language]);
+  return locale === auto ? query : `${query}&lang=${locale}`;
+}
+
 /** Replace the address bar without adding a history entry — lever drags would otherwise
  *  bury the back button under hundreds of states. */
-export function writeScenarioToUrl(s: ScenarioState): void {
-  const query = encodeScenario(s);
+export function writeScenarioToUrl(s: ScenarioState, locale: Locale): void {
+  const query = withLocale(encodeScenario(s), locale);
   window.history.replaceState(null, '', `${window.location.pathname}?${query}`);
 }
 
-export function scenarioUrl(s: ScenarioState): string {
-  return `${window.location.origin}${window.location.pathname}?${encodeScenario(s)}`;
+export function scenarioUrl(s: ScenarioState, locale: Locale): string {
+  const query = withLocale(encodeScenario(s), locale);
+  return `${window.location.origin}${window.location.pathname}?${query}`;
 }

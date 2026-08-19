@@ -1,39 +1,36 @@
 import { scenarioDefaults, type Levers, type SitingPolicy } from '@energie4ai/sim-core';
+import { fmt, useI18n, type Strings } from '../i18n/index.js';
 
 interface Props {
   levers: Levers;
   onChange: (l: Levers) => void;
 }
 
-const SITING: Array<{ id: SitingPolicy; label: string; note: string }> = [
-  {
-    id: 'market',
-    label: 'Market-driven',
-    note: 'Additions follow existing clusters and price only.',
-  },
-  {
-    id: 'renewables',
-    label: 'Renewables-coupled',
-    note: 'Additionally tilted toward systems with a high renewables share. Reads the generation mix, not carbon intensity — nuclear-heavy France loses ground despite being low-carbon.',
-  },
+const siting = (t: Strings): Array<{ id: SitingPolicy; label: string; note: string }> => [
+  { id: 'market', label: t.levers.sitingMarket, note: t.levers.sitingMarketNote },
+  { id: 'renewables', label: t.levers.sitingRenewables, note: t.levers.sitingRenewablesNote },
   {
     id: 'capped',
-    label: 'Capped hubs',
-    note: `A country stops accepting new connections once DC load passes ${(scenarioDefaults.hubCapDcShareOfDemand * 100).toFixed(0)}% of its national demand — the Dublin and Amsterdam moratoria, not an EU quota. Existing load stays.`,
+    label: t.levers.sitingCapped,
+    note: fmt(t.levers.sitingCappedNote, {
+      cap: (scenarioDefaults.hubCapDcShareOfDemand * 100).toFixed(0),
+    }),
   },
 ];
 
 /** Scenario levers, each with its source-backed default and plausible range (spec §6). */
 export function LeverPanel({ levers, onChange }: Props) {
+  const { t } = useI18n();
+  const SITING = siting(t);
   return (
     <div>
-      <h2>Scenario levers</h2>
+      <h2>{t.levers.title}</h2>
 
       <div className="lever">
         <label>
           <span className="lever-head">
             <span>
-              Compute demand growth <span className="source-chip">iea2025energyai</span>
+              {t.levers.computeGrowth} <span className="source-chip">iea2025energyai</span>
             </span>
             <strong>×{levers.computeGrowthMultiplier.toFixed(2)}</strong>
           </span>
@@ -48,14 +45,14 @@ export function LeverPanel({ levers, onChange }: Props) {
             }
           />
         </label>
-        <div className="muted">Multiplier on the IEA base-case global growth (default ×1.00).</div>
+        <div className="muted">{t.levers.computeGrowthNote}</div>
       </div>
 
       <div className="lever">
         <label>
           <span className="lever-head">
             <span>
-              Extra efficiency gains <span className="source-chip">expert-guess</span>
+              {t.levers.efficiency} <span className="source-chip">expert-guess</span>
             </span>
             <strong>{(levers.extraEfficiencyRate * 100).toFixed(1)}%/yr</strong>
           </span>
@@ -68,9 +65,7 @@ export function LeverPanel({ levers, onChange }: Props) {
             onChange={(e) => onChange({ ...levers, extraEfficiencyRate: Number(e.target.value) })}
           />
         </label>
-        <div className="muted">
-          Energy-per-compute improvement on top of the base case (default 0.0%/yr).
-        </div>
+        <div className="muted">{t.levers.efficiencyNote}</div>
       </div>
 
       <div className="lever">
@@ -81,20 +76,17 @@ export function LeverPanel({ levers, onChange }: Props) {
             onChange={(e) => onChange({ ...levers, permittingReform: e.target.checked })}
           />
           <span>
-            Permitting reform (&quot;Grids Package&quot;){' '}
-            <span className="source-chip">ec2025gridspackage</span>
+            {t.levers.permitting} <span className="source-chip">ec2025gridspackage</span>
           </span>
         </label>
-        <div className="muted">
-          Grid permitting ~9 years → ~5 years (default off = today&apos;s baseline).
-        </div>
+        <div className="muted">{t.levers.permittingNote}</div>
       </div>
 
       <div className="lever">
         <label>
           <span className="lever-head">
             <span>
-              Siting policy <span className="source-chip">expert-guess</span>
+              {t.levers.siting} <span className="source-chip">expert-guess</span>
             </span>
           </span>
           <select
@@ -116,8 +108,7 @@ export function LeverPanel({ levers, onChange }: Props) {
         <label>
           <span className="lever-head">
             <span>
-              Flexibility participation{' '}
-              <span className="source-chip">elsevier2025dcflexibility</span>
+              {t.levers.flexibility} <span className="source-chip">elsevier2025dcflexibility</span>
             </span>
             <strong>{(levers.flexibilityShare * 100).toFixed(0)}%</strong>
           </span>
@@ -130,18 +121,14 @@ export function LeverPanel({ levers, onChange }: Props) {
             onChange={(e) => onChange({ ...levers, flexibilityShare: Number(e.target.value) })}
           />
         </label>
-        <div className="muted">
-          Share of DC load enrolled in demand response, which stops counting toward peak. The model
-          assumes it curtails exactly when needed — an optimistic reading, which is why the range
-          stops at 50%.
-        </div>
+        <div className="muted">{t.levers.flexibilityNote}</div>
       </div>
 
       <div className="lever">
         <label>
           <span className="lever-head">
             <span>
-              Price sensitivity of siting <span className="source-chip">expert-guess</span>
+              {t.levers.priceSensitivity} <span className="source-chip">expert-guess</span>
             </span>
             <strong>×{levers.priceSensitivity.toFixed(1)}</strong>
           </span>
@@ -154,15 +141,10 @@ export function LeverPanel({ levers, onChange }: Props) {
             onChange={(e) => onChange({ ...levers, priceSensitivity: Number(e.target.value) })}
           />
         </label>
-        <div className="muted">
-          How strongly electricity price steers where load lands. At ×0 siting ignores price and
-          follows existing clusters; high values pull load to cheap systems (Nordics, Iberia).
-        </div>
+        <div className="muted">{t.levers.priceSensitivityNote}</div>
       </div>
 
-      <button onClick={() => onChange({ ...scenarioDefaults.levers })}>
-        Reset to central scenario
-      </button>
+      <button onClick={() => onChange({ ...scenarioDefaults.levers })}>{t.levers.reset}</button>
     </div>
   );
 }

@@ -4,11 +4,12 @@ import {
   runSimulation,
   runMonteCarlo,
   scenarioDefaults,
+  uncertaintyRanges,
   type CountryYear,
   type Levers,
   type TornadoTarget,
 } from '@energie4ai/sim-core';
-import { METRICS } from './lib/metrics.js';
+import { metricsFor } from './lib/metrics.js';
 import { EuropeMap } from './components/EuropeMap.js';
 import { TimeSlider } from './components/TimeSlider.js';
 import { LeverPanel } from './components/LeverPanel.js';
@@ -23,6 +24,15 @@ import { DataTable } from './components/DataTable.js';
 import { CompareMode, type PinnedScenario } from './components/CompareMode.js';
 import { decodeScenario, scenarioUrl, writeScenarioToUrl } from './lib/permalink.js';
 import { exportPng, exportRunCsv, exportSvg } from './lib/export.js';
+import {
+  I18nContext,
+  LOCALES,
+  LOCALE_NAMES,
+  fmt,
+  resolveLocale,
+  stringsFor,
+  type Locale,
+} from './i18n/index.js';
 
 const START_YEAR = 2026;
 const END_YEAR = 2045;
@@ -45,11 +55,17 @@ export function App() {
   const [pinned, setPinned] = useState<PinnedScenario[]>([]);
   const [copied, setCopied] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
+  const [locale, setLocale] = useState<Locale>(() =>
+    resolveLocale(window.location.search, navigator.languages ?? [navigator.language]),
+  );
+  const t = stringsFor(locale);
+  const METRICS = useMemo(() => metricsFor(t), [t]);
 
   // The URL is the only place scenario state persists — localStorage is forbidden (§4).
   useEffect(() => {
-    writeScenarioToUrl({ levers, year, metricId, monteCarlo });
-  }, [levers, year, metricId, monteCarlo]);
+    writeScenarioToUrl({ levers, year, metricId, monteCarlo }, locale);
+    document.documentElement.lang = locale;
+  }, [levers, year, metricId, monteCarlo, locale]);
 
   const result = useMemo(() => runSimulation({ levers }), [levers]);
   // ~600 ms for 200 runs, so it only runs while the mode is on
@@ -110,7 +126,9 @@ export function App() {
   const agg = result.aggregates[yearIdx]!;
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(scenarioUrl({ levers, year, metricId, monteCarlo }));
+    await navigator.clipboard.writeText(
+      scenarioUrl({ levers, year, metricId, monteCarlo }, locale),
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };
@@ -125,237 +143,257 @@ export function App() {
             ...prev,
             {
               id: `${Date.now()}`,
-              label: `Scenario ${String.fromCharCode(65 + prev.length)}`,
+              label: fmt(t.compare.scenarioName, { letter: String.fromCharCode(65 + prev.length) }),
               levers: { ...levers },
             },
           ],
     );
 
   return (
-    <div className="app">
-      <header>
-        <h1>Energie-4-AI</h1>
-        <p className="byline">
-          <em>GridSim — AI data center expansion vs. European power supply, 2026–2045</em>
-        </p>
-      </header>
-
-      <div className="layout">
-        <main className="panel">
-          <div className="controls-row">
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span className="muted">Map metric</span>
-              <select value={metric.id} onChange={(e) => setMetricId(e.target.value)}>
-                {METRICS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.label}
+    <I18nContext.Provider value={{ locale, t, setLocale }}>
+      <div className="app">
+        <a href="#main" className="skip-link">
+          {t.app.skipToContent}
+        </a>
+        <header>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+            <h1>{t.app.title}</h1>
+            <label
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}
+            >
+              <span className="muted">{t.app.language}</span>
+              <select value={locale} onChange={(e) => setLocale(e.target.value as Locale)}>
+                {LOCALES.map((l) => (
+                  <option key={l} value={l}>
+                    {LOCALE_NAMES[l]}
                   </option>
                 ))}
               </select>
             </label>
-            <span className="muted" style={{ marginLeft: 'auto' }}>
-              EU-27 in {year}: DC {agg.euDcTwh.toFixed(0)} TWh ·{' '}
-              {(agg.euDcShareOfDemand * 100).toFixed(1)}% of demand ·{' '}
-              {agg.flaggedRegions.length > 0
-                ? `⚠ ${agg.flaggedRegions.join(', ')}`
-                : 'no stress flags'}
-            </span>
           </div>
+          <p className="byline">
+            <em>{t.app.byline}</em>
+          </p>
+        </header>
 
-          <div ref={mapRef}>
-            <EuropeMap
-              rows={rows}
-              names={NAMES}
-              metric={metric}
-              domainMax={domainMax}
+        <div className="layout">
+          <main className="panel" id="main">
+            <div className="controls-row">
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="muted">{t.app.mapMetric}</span>
+                <select value={metric.id} onChange={(e) => setMetricId(e.target.value)}>
+                  {METRICS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <span className="muted" style={{ marginLeft: 'auto' }} role="status">
+                {fmt(t.app.summary, {
+                  year,
+                  twh: agg.euDcTwh.toFixed(0),
+                  share: (agg.euDcShareOfDemand * 100).toFixed(1),
+                  flags:
+                    agg.flaggedRegions.length > 0
+                      ? `⚠ ${agg.flaggedRegions.join(', ')}`
+                      : t.app.noFlags,
+                })}
+              </span>
+            </div>
+
+            <div ref={mapRef}>
+              <EuropeMap
+                rows={rows}
+                names={NAMES}
+                metric={metric}
+                domainMax={domainMax}
+                year={year}
+              />
+            </div>
+
+            <TimeSlider
               year={year}
+              min={START_YEAR}
+              max={END_YEAR}
+              playing={playing}
+              onYear={setYear}
+              onPlaying={setPlaying}
             />
-          </div>
 
-          <TimeSlider
-            year={year}
-            min={START_YEAR}
-            max={END_YEAR}
-            playing={playing}
-            onYear={setYear}
-            onPlaying={setPlaying}
-          />
-
-          {mc ? (
-            <CorridorChart
-              corridor={mc.corridor}
-              fromYear={START_YEAR}
-              currentYear={year}
-              runs={mc.runs}
-              onYear={(y) => {
-                setPlaying(false);
-                setYear(y);
-              }}
-            />
-          ) : (
-            <TimeSeriesChart
-              years={euSeries.years}
-              values={euSeries.values}
-              currentYear={year}
-              title="EU-27 data center electricity demand (TWh)"
-              unit="TWh"
-              onYear={(y) => {
-                setPlaying(false);
-                setYear(y);
-              }}
-            />
-          )}
-
-          {mc && (
-            <div style={{ marginTop: 14 }}>
-              <TornadoChart
-                entries={mc.tornado}
-                target={mc.tornadoTarget}
-                year={END_YEAR}
-                onTarget={setTornadoTarget}
-              />
-            </div>
-          )}
-
-          <div style={{ marginTop: 14 }}>
-            <SupplyMixChart
-              years={euSeries.years}
-              renewables={euSeries.renewables}
-              nuclear={euSeries.nuclear}
-              fossil={euSeries.fossil}
-              currentYear={year}
-              onYear={(y) => {
-                setPlaying(false);
-                setYear(y);
-              }}
-            />
-          </div>
-
-          <div style={{ marginTop: 14 }}>
-            <BenchmarkChart
-              years={benchmarkSeries.years}
-              euValues={benchmarkSeries.euValues}
-              currentYear={year}
-            />
-          </div>
-
-          <div style={{ marginTop: 14 }}>
-            <CompareMode
-              pinned={pinned}
-              current={levers}
-              fromYear={START_YEAR}
-              currentYear={year}
-              onPin={pinCurrent}
-              onRemove={(id) => setPinned((prev) => prev.filter((p) => p.id !== id))}
-            />
-          </div>
-
-          <AssumptionsDrawer metric={metric} />
-          <DataTable rows={rows} names={NAMES} metric={metric} year={year} />
-        </main>
-
-        <aside style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className="panel">
-            <LeverPanel
-              levers={levers}
-              onChange={(l) => {
-                setPlaying(false);
-                setLevers(l);
-              }}
-            />
-            <p className="muted" style={{ marginBottom: 0 }}>
-              Full 20-year run recomputes in {result.meta.runtimeMs.toFixed(1)} ms, entirely in your
-              browser.
-            </p>
-          </div>
-          <div className="panel">
-            <h2>Uncertainty</h2>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <input
-                type="checkbox"
-                checked={monteCarlo}
-                onChange={(e) => setMonteCarlo(e.target.checked)}
-              />
-              <span>Monte Carlo mode (200 runs)</span>
-            </label>
             {mc ? (
-              <>
-                <p className="muted" style={{ margin: '6px 0 4px' }}>
-                  Sampled {mc.runs} runs over 19 source-tracked parameter ranges in{' '}
-                  {mc.runtimeMs.toFixed(0)} ms. Seed {mc.seed} — the same seed reproduces this
-                  corridor exactly.
-                </p>
-                <h2 style={{ margin: '10px 0 4px' }}>Stress flag in {END_YEAR}</h2>
-                {Object.entries(mc.flagFrequency).length === 0 ? (
-                  <p className="muted" style={{ margin: 0 }}>
-                    No region flagged in any run.
-                  </p>
-                ) : (
-                  Object.entries(mc.flagFrequency)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([iso, f]) => (
-                      <div key={iso} className="assumption-row">
-                        <span>{NAMES[iso] ?? iso}</span>
-                        <span>
-                          <strong>{(f * 100).toFixed(0)}%</strong> of runs
-                        </span>
-                      </div>
-                    ))
-                )}
-                <p className="muted" style={{ margin: '4px 0 0' }}>
-                  A frequency, not a forecast: it says how often the flag trips across the sampled
-                  ranges, not how likely the outcome is in the world.
-                </p>
-              </>
+              <CorridorChart
+                corridor={mc.corridor}
+                fromYear={START_YEAR}
+                currentYear={year}
+                runs={mc.runs}
+                onYear={(y) => {
+                  setPlaying(false);
+                  setYear(y);
+                }}
+              />
             ) : (
-              <p className="muted" style={{ margin: '6px 0 0' }}>
-                Replaces the single demand line with a p10–p90 corridor and ranks which parameters
-                drive it. Takes about half a second.
-              </p>
+              <TimeSeriesChart
+                years={euSeries.years}
+                values={euSeries.values}
+                currentYear={year}
+                title={t.charts.demandTitle}
+                unit="TWh"
+                onYear={(y) => {
+                  setPlaying(false);
+                  setYear(y);
+                }}
+              />
             )}
-          </div>
-          <div className="panel">
-            <h2>Share &amp; export</h2>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <button onClick={() => void copyLink()}>{copied ? '✓ Copied' : 'Copy link'}</button>
-              <button onClick={() => exportRunCsv(result, NAMES)}>Run as CSV</button>
-              <button
-                onClick={() => {
-                  const svg = mapRef.current?.querySelector('svg');
-                  if (svg) exportSvg(svg as SVGSVGElement, `map-${metric.id}-${year}.svg`);
-                }}
-              >
-                Map SVG
-              </button>
-              <button
-                onClick={() => {
-                  const svg = mapRef.current?.querySelector('svg');
-                  if (svg) void exportPng(svg as SVGSVGElement, `map-${metric.id}-${year}.png`);
-                }}
-              >
-                Map PNG
-              </button>
-            </div>
-            <p className="muted" style={{ marginBottom: 0 }}>
-              The link carries the full scenario — this tool stores nothing on your device. The CSV
-              carries the levers and data-bundle version in its header, so a downloaded table can be
-              traced back to the run that produced it.
-            </p>
-          </div>
-          <div className="panel">
-            <StoryMode onApply={applyStory} onExit={() => setLevers({ ...levers })} />
-          </div>
-        </aside>
-      </div>
 
-      <footer className="limits-banner" role="note">
-        <strong>Model limits (read me):</strong> annual energy balances on a simplified NTC network
-        — no load flow, no intra-hour dispatch; country-level resolution (hubs are metadata); many
-        country parameters are <code>expert-guess</code> approximations. Scenarios are{' '}
-        <strong>exploration devices, not forecasts</strong>. Every number is source-tracked — open
-        the assumptions drawer. External data are used as cited facts for scientific research and
-        education (fair use) — see docs/DISCLAIMER.md.
-      </footer>
-    </div>
+            {mc && (
+              <div style={{ marginTop: 14 }}>
+                <TornadoChart
+                  entries={mc.tornado}
+                  target={mc.tornadoTarget}
+                  year={END_YEAR}
+                  onTarget={setTornadoTarget}
+                />
+              </div>
+            )}
+
+            <div style={{ marginTop: 14 }}>
+              <SupplyMixChart
+                years={euSeries.years}
+                renewables={euSeries.renewables}
+                nuclear={euSeries.nuclear}
+                fossil={euSeries.fossil}
+                currentYear={year}
+                onYear={(y) => {
+                  setPlaying(false);
+                  setYear(y);
+                }}
+              />
+            </div>
+
+            <div style={{ marginTop: 14 }}>
+              <BenchmarkChart
+                years={benchmarkSeries.years}
+                euValues={benchmarkSeries.euValues}
+                currentYear={year}
+              />
+            </div>
+
+            <div style={{ marginTop: 14 }}>
+              <CompareMode
+                pinned={pinned}
+                current={levers}
+                fromYear={START_YEAR}
+                currentYear={year}
+                onPin={pinCurrent}
+                onRemove={(id) => setPinned((prev) => prev.filter((p) => p.id !== id))}
+              />
+            </div>
+
+            <AssumptionsDrawer metric={metric} />
+            <DataTable rows={rows} names={NAMES} metric={metric} year={year} />
+          </main>
+
+          <aside style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="panel">
+              <LeverPanel
+                levers={levers}
+                onChange={(l) => {
+                  setPlaying(false);
+                  setLevers(l);
+                }}
+              />
+              <p className="muted" style={{ marginBottom: 0 }}>
+                {fmt(t.app.runtime, { ms: result.meta.runtimeMs.toFixed(1) })}
+              </p>
+            </div>
+            <div className="panel">
+              <h2>{t.uncertainty.title}</h2>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  type="checkbox"
+                  checked={monteCarlo}
+                  onChange={(e) => setMonteCarlo(e.target.checked)}
+                />
+                <span>{t.uncertainty.toggle}</span>
+              </label>
+              {mc ? (
+                <>
+                  <p className="muted" style={{ margin: '6px 0 4px' }}>
+                    {fmt(t.uncertainty.sampled, {
+                      runs: mc.runs,
+                      params: Object.keys(uncertaintyRanges).length,
+                      ms: mc.runtimeMs.toFixed(0),
+                      seed: mc.seed,
+                    })}
+                  </p>
+                  <h2 style={{ margin: '10px 0 4px' }}>
+                    {fmt(t.uncertainty.flagTitle, { year: END_YEAR })}
+                  </h2>
+                  {Object.entries(mc.flagFrequency).length === 0 ? (
+                    <p className="muted" style={{ margin: 0 }}>
+                      {t.uncertainty.noFlags}
+                    </p>
+                  ) : (
+                    Object.entries(mc.flagFrequency)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([iso, f]) => (
+                        <div key={iso} className="assumption-row">
+                          <span>{NAMES[iso] ?? iso}</span>
+                          <span>
+                            <strong>{(f * 100).toFixed(0)}%</strong> {t.uncertainty.ofRuns}
+                          </span>
+                        </div>
+                      ))
+                  )}
+                  <p className="muted" style={{ margin: '4px 0 0' }}>
+                    {t.uncertainty.frequencyNote}
+                  </p>
+                </>
+              ) : (
+                <p className="muted" style={{ margin: '6px 0 0' }}>
+                  {t.uncertainty.off}
+                </p>
+              )}
+            </div>
+            <div className="panel">
+              <h2>{t.share.title}</h2>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <button onClick={() => void copyLink()}>
+                  {copied ? t.share.copied : t.share.copyLink}
+                </button>
+                <button onClick={() => exportRunCsv(result, NAMES)}>{t.share.csv}</button>
+                <button
+                  onClick={() => {
+                    const svg = mapRef.current?.querySelector('svg');
+                    if (svg) exportSvg(svg as SVGSVGElement, `map-${metric.id}-${year}.svg`);
+                  }}
+                >
+                  {t.share.mapSvg}
+                </button>
+                <button
+                  onClick={() => {
+                    const svg = mapRef.current?.querySelector('svg');
+                    if (svg) void exportPng(svg as SVGSVGElement, `map-${metric.id}-${year}.png`);
+                  }}
+                >
+                  {t.share.mapPng}
+                </button>
+              </div>
+              <p className="muted" style={{ marginBottom: 0 }}>
+                {t.share.note}
+              </p>
+            </div>
+            <div className="panel">
+              <StoryMode onApply={applyStory} onExit={() => setLevers({ ...levers })} />
+            </div>
+          </aside>
+        </div>
+
+        <footer className="limits-banner" role="note">
+          <strong>{t.app.limitsTitle}</strong> {t.app.limits}
+        </footer>
+      </div>
+    </I18nContext.Provider>
   );
 }
