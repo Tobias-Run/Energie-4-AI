@@ -1,0 +1,161 @@
+{
+  "version": "1.0.0",
+  "description": "Per-parameter uncertainty ranges for the Monte Carlo mode and the scenario corridors (mission document §5.5, issue #5). Each entry is a triangular distribution given as low / central / high, where `central` must equal the value in the underlying bundle. Paths address the parameter in its bundle: `scenarioDefaults.*` and `globalCompute.*`. Two kinds of entry live here and should not be confused: ranges taken from a publication's own scenario spread or reported range (source_id names it), and ranges on model-internal calibration parameters that have no published equivalent (marked expert-guess) — for those the range IS the honest statement, and the central value alone would be false precision. `stressFlagThreshold` is included deliberately: it is a definitional choice, not a physical quantity, and the corridor should show how much a flag depends on where the line is drawn.",
+  "distribution": "triangular",
+  "parameters": {
+    "globalCompute.demand2030Twh": {
+      "low": 700,
+      "central": 945,
+      "high": 1300,
+      "rationale": "IEA Energy and AI 2025 scenario spread: Headwinds ~700, Base Case 945, Lift-Off ~1300 TWh. The single largest driver of every downstream result.",
+      "source_id": "iea2025energyai"
+    },
+    "globalCompute.saturationTwh": {
+      "low": 2200,
+      "central": 3000,
+      "high": 4500,
+      "rationale": "No published long-horizon anchor beyond 2035; the range spans plausible saturation levels for the logistic curve.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.captureShareOfGlobalAdditions.euPre2030": {
+      "low": 0.06,
+      "central": 0.085,
+      "high": 0.11,
+      "rationale": "How much of global DC growth Europe captures before 2030. IEA puts Europe at roughly a tenth of demand growth; the range covers slower and faster European capture.",
+      "source_id": "iea2025energyai"
+    },
+    "scenarioDefaults.captureShareOfGlobalAdditions.euPost2030": {
+      "low": 0.045,
+      "central": 0.065,
+      "high": 0.09,
+      "rationale": "Post-2030 capture, anchored on the ICIS/Ember demand shares; wider than the pre-2030 range because it is further out.",
+      "source_id": "ember2025grids"
+    },
+    "scenarioDefaults.pue2024": {
+      "low": 1.3,
+      "central": 1.4,
+      "high": 1.5,
+      "rationale": "Fleet-average PUE varies widely by climate, age and operator; the range brackets reported European averages.",
+      "source_id": "koronen2020datacentres"
+    },
+    "scenarioDefaults.pueAnnualDeclineRate": {
+      "low": 0.004,
+      "central": 0.008,
+      "high": 0.014,
+      "rationale": "Pace of cooling and facility efficiency improvement. No published European trajectory; the range spans stagnation to rapid retrofit.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.itUtilization": {
+      "low": 0.55,
+      "central": 0.65,
+      "high": 0.75,
+      "rationale": "Average IT load as a share of installed capacity. Operator-specific and rarely published.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.firmLoadShare": {
+      "low": 0.75,
+      "central": 0.85,
+      "high": 0.92,
+      "rationale": "Share of DC load that is firm (inference-like) rather than interruptible. Drives the peak-share stress flag directly.",
+      "source_id": "noland2024baseload"
+    },
+    "scenarioDefaults.connectionLoadFactor": {
+      "low": 0.75,
+      "central": 0.85,
+      "high": 0.92,
+      "rationale": "Energy delivered per GW of grid connection; depends on ramp profile and contracted capacity.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.phantomQueueFactor": {
+      "low": 1.2,
+      "central": 1.5,
+      "high": 2.5,
+      "rationale": "Speculative inflation of connection queues (the same project queued at several sites). Widely acknowledged, almost never quantified — hence the deliberately wide range.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.spillShare": {
+      "low": 0.35,
+      "central": 0.6,
+      "high": 0.8,
+      "rationale": "How much unserved demand relocates to countries with spare connection capacity instead of waiting. Governs whether hub congestion spreads or bottles up.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.allocationGravityExponent": {
+      "low": 0.5,
+      "central": 0.7,
+      "high": 0.9,
+      "rationale": "Strength of agglomeration in the siting allocation: higher means new capacity follows existing clusters more tightly.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.ntcUtilization": {
+      "low": 0.2,
+      "central": 0.3,
+      "high": 0.45,
+      "rationale": "Share of nameplate NTC usable as firm annual import capability. A pure modelling convention standing in for the absent flow model — one of the most consequential unsourced numbers in the model.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.stressFlagThreshold": {
+      "low": 0.85,
+      "central": 0.9,
+      "high": 0.95,
+      "rationale": "Definitional, not physical: the demand-to-resources ratio at which a region is called stressed. Included so the corridor exposes how much a flag depends on the chosen line.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.dcPeakShareFlagThreshold": {
+      "low": 0.12,
+      "central": 0.15,
+      "high": 0.2,
+      "rationale": "Share of national peak load from firm DC draw at which a region is flagged. Definitional like stressFlagThreshold, but far more consequential: in the central run the 2045 flags are triggered by THIS criterion, not by the adequacy ratio, so the corridor must show how sensitive the flag map is to where this line sits.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.gasEmissionFactorMtPerTwh": {
+      "low": 0.33,
+      "central": 0.37,
+      "high": 0.45,
+      "rationale": "Direct-combustion factor across the plant-efficiency spread (roughly 45–60% for the European CCGT fleet). Excludes upstream methane, so the whole range is a lower bound.",
+      "source_id": "ipcc2014ar5annex3"
+    },
+    "scenarioDefaults.otherFirmEmissionFactorMtPerTwh": {
+      "low": 0.75,
+      "central": 0.85,
+      "high": 1.0,
+      "rationale": "Legacy coal/lignite/oil mix, direct combustion. The upper end reflects lignite-heavy systems; IPCC AR5 reports 740–910 gCO2eq/kWh on a lifecycle basis for coal.",
+      "source_id": "ipcc2014ar5annex3"
+    },
+    "scenarioDefaults.permittingYearsBaseline": {
+      "low": 8,
+      "central": 9,
+      "high": 10,
+      "rationale": "Baseline grid-connection permitting duration, ~8–10 years per the Grids Package impact material.",
+      "source_id": "ec2025gridspackage"
+    },
+    "scenarioDefaults.permittingYearsReform": {
+      "low": 4,
+      "central": 5,
+      "high": 6,
+      "rationale": "Post-reform permitting duration, ~4–6 years.",
+      "source_id": "ec2025gridspackage"
+    }
+  },
+  "provenance": {
+    "globalCompute.demand2030Twh": "iea2025energyai",
+    "globalCompute.saturationTwh": "expert-guess",
+    "scenarioDefaults.captureShareOfGlobalAdditions.euPre2030": "iea2025energyai",
+    "scenarioDefaults.captureShareOfGlobalAdditions.euPost2030": "ember2025grids",
+    "scenarioDefaults.pue2024": "koronen2020datacentres",
+    "scenarioDefaults.pueAnnualDeclineRate": "expert-guess",
+    "scenarioDefaults.itUtilization": "expert-guess",
+    "scenarioDefaults.firmLoadShare": "noland2024baseload",
+    "scenarioDefaults.connectionLoadFactor": "expert-guess",
+    "scenarioDefaults.phantomQueueFactor": "expert-guess",
+    "scenarioDefaults.spillShare": "expert-guess",
+    "scenarioDefaults.allocationGravityExponent": "expert-guess",
+    "scenarioDefaults.ntcUtilization": "expert-guess",
+    "scenarioDefaults.stressFlagThreshold": "expert-guess",
+    "scenarioDefaults.dcPeakShareFlagThreshold": "expert-guess",
+    "scenarioDefaults.gasEmissionFactorMtPerTwh": "ipcc2014ar5annex3",
+    "scenarioDefaults.otherFirmEmissionFactorMtPerTwh": "ipcc2014ar5annex3",
+    "scenarioDefaults.permittingYearsBaseline": "ec2025gridspackage",
+    "scenarioDefaults.permittingYearsReform": "ec2025gridspackage"
+  }
+}

@@ -113,6 +113,90 @@
 }
 
 % ---------------------------------------------------------------------------
+% Added during data hardening (issues #4, #12, #13)
+% ---------------------------------------------------------------------------
+
+@techreport{ember2025eer,
+  author      = {{Ember}},
+  title       = {European Electricity Review 2025},
+  institution = {Ember},
+  year        = {2025},
+  note        = {Per-country 2024 electricity demand and generation by source (renewables, nuclear, fossil). Basis for the hardened country dataset (values rounded; quarterly review per §8.3).}
+}
+
+@techreport{lbnl2024usdc,
+  author      = {Shehabi, Arman and Smith, Sarah J. and Hubbard, Alex and others},
+  title       = {2024 United States Data Center Energy Usage Report},
+  institution = {Lawrence Berkeley National Laboratory},
+  year        = {2024},
+  note        = {US DC consumption ~176 TWh (2023), scenarios 325--580 TWh by 2028. Corroborates the US benchmark trajectory.}
+}
+
+@techreport{epri2024ai,
+  author      = {{EPRI}},
+  title       = {Powering Intelligence: Analyzing Artificial Intelligence and Data Center Energy Consumption},
+  institution = {Electric Power Research Institute},
+  year        = {2024},
+  note        = {US DC demand scenarios up to ~9\% of US electricity by 2030. Corroborates the US benchmark trajectory.}
+}
+
+% ---------------------------------------------------------------------------
+% Grid interconnection (issue #4: NTC hardening)
+% ---------------------------------------------------------------------------
+
+@misc{ember2026interconnection,
+  author       = {{Ember}},
+  title        = {Europe Electricity Interconnection Data Tool --- reference interconnector capacities},
+  howpublished = {\url{https://ember-energy.org/data/europe-electricity-interconnection-data/}},
+  year         = {2026},
+  note         = {REF\_NTC dataset: net transfer capacity (MW) per border and direction for 2024, 2030 and 2040, derived from ENTSO-E TYNDP material. Released under CC-BY-4.0. Covers the EU-27 plus NO and CH; Great Britain is not in the dataset, so GB borders in this model remain estimates.}
+}
+
+@techreport{ipcc2014ar5annex3,
+  author      = {{IPCC}},
+  title       = {Climate Change 2014: Mitigation of Climate Change --- Annex {III}: Technology-specific Cost and Performance Parameters},
+  institution = {Intergovernmental Panel on Climate Change},
+  year        = {2014},
+  note        = {Lifecycle greenhouse-gas medians: coal 820 gCO2eq/kWh (range 740--910), natural gas combined cycle 490 gCO2eq/kWh. NOTE ON SCOPE: this model's emission factors are DIRECT COMBUSTION (scope 1) figures and therefore sit below these lifecycle medians by design --- lifecycle values include upstream methane, fuel transport and plant construction, none of which the model tracks.}
+}
+
+% ---------------------------------------------------------------------------
+% Internet exchange points (issue #2: hub markers linked to peering hubs)
+% ---------------------------------------------------------------------------
+
+@misc{decix2026stats,
+  author       = {{DE-CIX}},
+  title        = {DE-CIX Frankfurt traffic statistics},
+  howpublished = {\url{https://www.de-cix.net/en/locations/frankfurt/statistics}},
+  year         = {2026},
+  note         = {Peak traffic 18.73 Tbit/s at DE-CIX Frankfurt (as of 2026-01); largest IXP worldwide by peak traffic. Live figure --- the value stored in hubs.json carries its own as-of date and drifts upward over time.}
+}
+
+@misc{amsix2026stats,
+  author       = {{AMS-IX}},
+  title        = {AMS-IX Amsterdam traffic statistics},
+  howpublished = {\url{https://www.ams-ix.net/ams/documentation/total-stats}},
+  year         = {2026},
+  note         = {Peak traffic 13 Tbit/s (record reported 17 September). Live figure --- see as-of date in hubs.json.}
+}
+
+@misc{linx2026stats,
+  author       = {{LINX}},
+  title        = {London Internet Exchange traffic statistics},
+  howpublished = {\url{https://www.linx.net/}},
+  year         = {2026},
+  note         = {Peak traffic 11.86 Tbit/s (as of 2026-01). Live figure --- see as-of date in hubs.json.}
+}
+
+@misc{euroix2016report,
+  author       = {{Euro-IX}},
+  title        = {European Internet Exchange Points Report},
+  howpublished = {\url{https://www.euro-ix.net/}},
+  year         = {2016},
+  note         = {Association overview of European IXPs; used only to confirm the existence and location of the smaller exchanges (INEX Dublin, FICIX Helsinki, NIX Oslo, GigaPIX Lisbon, ESPANIX Madrid, Netnod Stockholm, DIX Copenhagen, MIX Milan, SwissIX Zurich). Current peak-traffic figures for these are NOT taken from here --- their size class is marked expert-guess.}
+}
+
+% ---------------------------------------------------------------------------
 % Special key: parameters without a published source
 % ---------------------------------------------------------------------------
 % source_id "expert-guess" is reserved and intentionally has no entry here;

@@ -10,6 +10,7 @@ import { mulberry32 } from './rng.js';
 import type { CountryYear, Levers, SimConfig, SimulationResult, YearAggregates } from './types.js';
 import {
   allocationWeight,
+  applySaturationCap,
   efficiencyFactor,
   euCaptureShare,
   globalDcDemandTwh,
@@ -21,7 +22,12 @@ import {
   itLoadGwFromEnergy,
 } from './modules/electricityDemand.js';
 import { initPipeline, stepPipeline, type PipelineState } from './modules/gridPipeline.js';
-import { importCapTwhByCountry, lowCarbonTwh, otherFirmTwh } from './modules/supplyGrid.js';
+import {
+  importCapTwhByCountry,
+  nuclearTwh,
+  otherFirmTwh,
+  renewablesTwh,
+} from './modules/supplyGrid.js';
 import { assessAdequacy } from './modules/stressAdequacy.js';
 
 export const DEFAULT_CONFIG: SimConfig = {
@@ -39,13 +45,18 @@ interface CountryState {
 
 export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
   const t0 = performance.now();
+  // Resolve field by field rather than spreading: a spread lets an explicitly-passed
+  // `undefined` overwrite a default, which silently produced zero-length runs.
   const cfg: SimConfig = {
-    ...DEFAULT_CONFIG,
-    ...config,
+    startYear: config?.startYear ?? DEFAULT_CONFIG.startYear,
+    endYear: config?.endYear ?? DEFAULT_CONFIG.endYear,
+    seed: config?.seed ?? DEFAULT_CONFIG.seed,
     levers: { ...DEFAULT_CONFIG.levers, ...config?.levers },
+    params: config?.params,
   };
   const levers: Levers = cfg.levers;
-  const d = scenarioDefaults;
+  const d = cfg.params?.scenarioDefaults ?? scenarioDefaults;
+  const gc = cfg.params?.globalCompute ?? globalCompute;
   // Reserved for Monte Carlo parameter perturbation (P2); the default run draws nothing.
   mulberry32(cfg.seed);
 
@@ -53,7 +64,6 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     ? d.permittingYearsReform
     : d.permittingYearsBaseline;
 
-  const importCap = importCapTwhByCountry(ntcLinks, d);
   const euIsos = new Set(countries.filter((c) => c.eu27).map((c) => c.iso));
 
   // --- initial state (base year 2024) ---
@@ -77,11 +87,11 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
   const aggregates: YearAggregates[] = [];
   let congestionIndex2024 = 0;
 
-  let prevGlobal = globalDcDemandTwh(BASE_YEAR, globalCompute, levers.computeGrowthMultiplier);
+  let prevGlobal = globalDcDemandTwh(BASE_YEAR, gc, levers.computeGrowthMultiplier);
 
   for (let year = BASE_YEAR; year <= cfg.endYear; year++) {
     // --- compute demand module: global driver and Europe's captured additions ---
-    const globalTwh = globalDcDemandTwh(year, globalCompute, levers.computeGrowthMultiplier);
+    const globalTwh = globalDcDemandTwh(year, gc, levers.computeGrowthMultiplier);
     const globalAdditions = Math.max(0, globalTwh - prevGlobal);
     prevGlobal = globalTwh;
 
@@ -90,13 +100,23 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       const euAdditionsTwh = euCaptureShare(year, d) * globalAdditions * eff;
 
       // Allocate EU additions by gravity/price weights; non-EU countries have their own capture.
-      const weights = new Map<string, number>();
-      let weightSum = 0;
+      let weights = new Map<string, number>();
+      const dcShare = new Map<string, number>();
       for (const c of countries.filter((c) => c.eu27)) {
-        const w = allocationWeight(state.get(c.iso)!.dcEnergyTwh, c.priceIndex, d);
-        weights.set(c.iso, w);
-        weightSum += w;
+        // renewables share of this country's generation, for the 'renewables' siting policy
+        const ren = renewablesTwh(c, year);
+        const gen = ren + nuclearTwh(c, year) + otherFirmTwh(c, year) + c.gasCapTwh2024;
+        const renShare = gen > 0 ? ren / gen : 0;
+        const dcTwh = state.get(c.iso)!.dcEnergyTwh;
+        const demand = baselineDemandTwh(c, year) + dcTwh;
+        dcShare.set(c.iso, demand > 0 ? dcTwh / demand : 0);
+        weights.set(c.iso, allocationWeight(dcTwh, c.priceIndex, d, levers, renShare));
       }
+      if (levers.sitingPolicy === 'capped') {
+        weights = applySaturationCap(weights, dcShare, d.hubCapDcShareOfDemand);
+      }
+      let weightSum = 0;
+      for (const w of weights.values()) weightSum += w;
 
       const desiredGw = new Map<string, number>();
       for (const c of countries) {
@@ -151,10 +171,15 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     }
 
     // --- electricity demand, supply, stress & adequacy per country ---
+    // NTCs follow sourced 2024/2030/2040 anchors, so the network expands during the run
+    const importCap = importCapTwhByCountry(ntcLinks, d, year);
     years.push(year);
     let euDc = 0;
     let europeDc = 0;
     let euTotal = 0;
+    let euRen = 0;
+    let euNuc = 0;
+    let euFossil = 0;
     let europeEmissions = 0;
     let euQueue = 0;
     let congestionNumerator = 0;
@@ -165,17 +190,22 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       const s = state.get(c.iso)!;
       const baseline = baselineDemandTwh(c, year);
       const total = baseline + s.dcEnergyTwh;
+      const ren = renewablesTwh(c, year);
+      const nuc = nuclearTwh(c, year);
+      const other = otherFirmTwh(c, year);
       const adequacy = assessAdequacy(
         c,
         {
           totalDemandTwh: total,
           dcEnergyTwh: s.dcEnergyTwh,
-          lowCarbonTwh: lowCarbonTwh(c, year),
-          otherFirmTwh: otherFirmTwh(c, year),
+          renewablesTwh: ren,
+          nuclearTwh: nuc,
+          otherFirmTwh: other,
           gasCapTwh: c.gasCapTwh2024,
           importCapTwh: importCap[c.iso] ?? 0,
         },
         d,
+        levers,
       );
 
       const row: CountryYear = {
@@ -183,9 +213,13 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         dcItLoadGw: itLoadGwFromEnergy(s.dcEnergyTwh, year, d),
         baselineTwh: baseline,
         totalDemandTwh: total,
-        lowCarbonTwh: lowCarbonTwh(c, year),
+        renewablesTwh: ren,
+        nuclearTwh: nuc,
         gasGenTwh: adequacy.gasGenTwh,
-        otherFirmTwh: otherFirmTwh(c, year),
+        otherFirmTwh: other,
+        generationTwh: adequacy.generationTwh,
+        fossilGenTwh: adequacy.fossilGenTwh,
+        netImportShare: adequacy.netImportShare,
         importCapTwh: importCap[c.iso] ?? 0,
         peakLoadGw: adequacy.peakLoadGw,
         dcShareOfPeak: adequacy.dcShareOfPeak,
@@ -202,6 +236,9 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         euDc += s.dcEnergyTwh;
         euTotal += total;
         euQueue += s.queueGw;
+        euRen += ren;
+        euNuc += nuc;
+        euFossil += adequacy.fossilGenTwh;
       }
       if (adequacy.flagged) flagged.push(c.iso);
       congestionNumerator += adequacy.stressIndex * total;
@@ -218,6 +255,9 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       europeDcTwh: europeDc,
       euTotalDemandTwh: euTotal,
       euDcShareOfDemand: euDc / euTotal,
+      euRenewablesTwh: euRen,
+      euNuclearTwh: euNuc,
+      euFossilGenTwh: euFossil,
       europeEmissionsMt: europeEmissions,
       congestionCostBnEur: d.congestionBaselineBnEur2024 * (congestionIndex / congestionIndex2024),
       euQueueGw: euQueue,

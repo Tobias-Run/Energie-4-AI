@@ -22,7 +22,7 @@ Europe map (deck.gl or D3) + time slider + 3 levers (compute growth, efficiency 
 - No backend in v1. No localStorage/sessionStorage.
 - Every on-screen number must be traceable to an assumptions drawer (spec §6).
 - Model-class limitations visible in the UI, not hidden (spec §7, honest-limits requirement).
-- License: MIT or Apache-2.0 (flag before committing to one — open decision §11).
+- License: **MIT** (decided, issue #1); data bundles CC-BY-4.0. New files inherit it — no per-file headers.
 
 ## Open decisions — ask, don't assume (spec §11)
 

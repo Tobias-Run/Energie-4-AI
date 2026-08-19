@@ -1,66 +1,897 @@
 {
-  "version": "1.0.0",
-  "description": "Simplified interconnection network: bidirectional net transfer capacities (GW) between neighboring bidding zones, static in v1. Values approximate published ENTSO-E reference capacities; treat as expert-guess until replaced by a TYNDP-derived dataset (planned for P2).",
+  "version": "2.0.0",
+  "description": "Cross-border net transfer capacities (GW) per border AND direction, with anchor years 2024 / 2030 / 2040; the engine interpolates linearly between anchors and holds the 2040 value flat afterwards. Direction matters: 72 of the sourced borders are asymmetric (e.g. CH->IT 4.42 GW vs IT->CH 1.91 GW), so a country's import capability is the sum of the capacities pointing INTO it, not a symmetric link value. Sourced from Ember's Europe Electricity Interconnection Data Tool (REF_NTC, CC-BY-4.0, ENTSO-E-derived) for every border it covers. Great Britain is absent from that dataset, so the six GB borders keep the previous estimates, held flat across the horizon and marked expert-guess. Borders the dataset lists with zero capacity in all three horizons are omitted.",
+  "anchorYears": [2024, 2030, 2040],
   "provenance": {
-    "links": "expert-guess"
+    "links.forwardGw": "ember2026interconnection",
+    "links.backwardGw": "ember2026interconnection",
+    "links.gbBorders": "expert-guess"
   },
   "links": [
-    ["DE", "FR", 4.8],
-    ["DE", "NL", 5.0],
-    ["DE", "PL", 3.0],
-    ["DE", "CZ", 3.4],
-    ["DE", "AT", 7.5],
-    ["DE", "DK", 3.5],
-    ["DE", "SE", 0.6],
-    ["DE", "NO", 1.4],
-    ["DE", "BE", 1.0],
-    ["DE", "CH", 4.6],
-    ["DE", "LU", 2.3],
-    ["FR", "BE", 4.3],
-    ["FR", "CH", 3.7],
-    ["FR", "IT", 4.3],
-    ["FR", "ES", 5.0],
-    ["FR", "GB", 4.0],
-    ["FR", "LU", 0.4],
-    ["FR", "IE", 0.7],
-    ["GB", "IE", 1.5],
-    ["GB", "NL", 1.0],
-    ["GB", "NO", 1.4],
-    ["GB", "BE", 2.4],
-    ["GB", "DK", 1.4],
-    ["NL", "BE", 2.4],
-    ["NL", "NO", 0.7],
-    ["NL", "DK", 0.7],
-    ["ES", "PT", 4.2],
-    ["IT", "CH", 4.2],
-    ["IT", "AT", 1.0],
-    ["IT", "GR", 0.5],
-    ["IT", "SI", 1.3],
-    ["IT", "MT", 0.2],
-    ["AT", "CH", 1.2],
-    ["AT", "CZ", 1.0],
-    ["AT", "HU", 0.8],
-    ["AT", "SI", 1.0],
-    ["PL", "CZ", 0.6],
-    ["PL", "SK", 1.0],
-    ["PL", "LT", 0.5],
-    ["PL", "SE", 0.6],
-    ["CZ", "SK", 1.8],
-    ["SK", "HU", 2.6],
-    ["HU", "RO", 1.4],
-    ["HU", "HR", 2.0],
-    ["HU", "SI", 1.2],
-    ["RO", "BG", 1.4],
-    ["BG", "GR", 1.4],
-    ["EE", "FI", 1.0],
-    ["EE", "LV", 1.3],
-    ["LV", "LT", 1.3],
-    ["LT", "SE", 0.7],
-    ["FI", "SE", 2.7],
-    ["FI", "NO", 0.1],
-    ["SE", "NO", 3.7],
-    ["SE", "DK", 2.4],
-    ["NO", "DK", 1.7],
-    ["HR", "SI", 2.0]
+    {
+      "from": "AT",
+      "to": "CH",
+      "forwardGw": {
+        "2024": 1.2,
+        "2030": 1.2,
+        "2040": 1.2
+      },
+      "backwardGw": {
+        "2024": 1.2,
+        "2030": 1.2,
+        "2040": 1.2
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "AT",
+      "to": "CZ",
+      "forwardGw": {
+        "2024": 0.9,
+        "2030": 0.9,
+        "2040": 0.9
+      },
+      "backwardGw": {
+        "2024": 0.9,
+        "2030": 0.9,
+        "2040": 0.9
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "AT",
+      "to": "DE",
+      "forwardGw": {
+        "2024": 4.9,
+        "2030": 7.5,
+        "2040": 7.5
+      },
+      "backwardGw": {
+        "2024": 4.9,
+        "2030": 7.5,
+        "2040": 7.5
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "AT",
+      "to": "HU",
+      "forwardGw": {
+        "2024": 0.8,
+        "2030": 0.8,
+        "2040": 0.8
+      },
+      "backwardGw": {
+        "2024": 0.8,
+        "2030": 0.8,
+        "2040": 0.8
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "AT",
+      "to": "IT",
+      "forwardGw": {
+        "2024": 0.625,
+        "2030": 0.875,
+        "2040": 1.375
+      },
+      "backwardGw": {
+        "2024": 0.145,
+        "2030": 0.695,
+        "2040": 1.195
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "AT",
+      "to": "SI",
+      "forwardGw": {
+        "2024": 0.95,
+        "2030": 0.95,
+        "2040": 1.45
+      },
+      "backwardGw": {
+        "2024": 0.95,
+        "2030": 0.95,
+        "2040": 1.45
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "BE",
+      "to": "DE",
+      "forwardGw": {
+        "2024": 1.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "backwardGw": {
+        "2024": 1.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "BE",
+      "to": "FR",
+      "forwardGw": {
+        "2024": 0.65,
+        "2030": 2.8,
+        "2040": 3.8
+      },
+      "backwardGw": {
+        "2024": 2.0,
+        "2030": 4.3,
+        "2040": 5.3
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "BE",
+      "to": "GB",
+      "forwardGw": {
+        "2024": 1.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "backwardGw": {
+        "2024": 1.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "source": "expert-guess"
+    },
+    {
+      "from": "BE",
+      "to": "LU",
+      "forwardGw": {
+        "2024": 0.3,
+        "2030": 0.68,
+        "2040": 0.68
+      },
+      "backwardGw": {
+        "2024": 0.18,
+        "2030": 0.18,
+        "2040": 0.18
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "BE",
+      "to": "NL",
+      "forwardGw": {
+        "2024": 1.4,
+        "2030": 3.4,
+        "2040": 5.4
+      },
+      "backwardGw": {
+        "2024": 0.95,
+        "2030": 3.4,
+        "2040": 4.4
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "BG",
+      "to": "GR",
+      "forwardGw": {
+        "2024": 1.2,
+        "2030": 1.7,
+        "2040": 1.7
+      },
+      "backwardGw": {
+        "2024": 1.1,
+        "2030": 1.4,
+        "2040": 1.4
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "BG",
+      "to": "RO",
+      "forwardGw": {
+        "2024": 1.7,
+        "2030": 2.19,
+        "2040": 2.19
+      },
+      "backwardGw": {
+        "2024": 1.8,
+        "2030": 2.19,
+        "2040": 2.19
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "CH",
+      "to": "DE",
+      "forwardGw": {
+        "2024": 4.0,
+        "2030": 4.2,
+        "2040": 4.5
+      },
+      "backwardGw": {
+        "2024": 2.2,
+        "2030": 4.4,
+        "2040": 5.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "CH",
+      "to": "FR",
+      "forwardGw": {
+        "2024": 1.3,
+        "2030": 2.2,
+        "2040": 2.2
+      },
+      "backwardGw": {
+        "2024": 3.2,
+        "2030": 4.5,
+        "2040": 4.5
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "CH",
+      "to": "IT",
+      "forwardGw": {
+        "2024": 4.422,
+        "2030": 5.772,
+        "2040": 5.772
+      },
+      "backwardGw": {
+        "2024": 1.91,
+        "2030": 3.11,
+        "2040": 3.11
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "CY",
+      "to": "GR",
+      "forwardGw": {
+        "2024": 0.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "backwardGw": {
+        "2024": 0.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "CZ",
+      "to": "DE",
+      "forwardGw": {
+        "2024": 2.8,
+        "2030": 2.6,
+        "2040": 2.6
+      },
+      "backwardGw": {
+        "2024": 2.6,
+        "2030": 2.5,
+        "2040": 2.5
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "CZ",
+      "to": "PL",
+      "forwardGw": {
+        "2024": 0.8,
+        "2030": 0.6,
+        "2040": 0.6
+      },
+      "backwardGw": {
+        "2024": 0.8,
+        "2030": 0.8,
+        "2040": 0.8
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "CZ",
+      "to": "SK",
+      "forwardGw": {
+        "2024": 2.0,
+        "2030": 1.8,
+        "2040": 2.3
+      },
+      "backwardGw": {
+        "2024": 1.2,
+        "2030": 1.1,
+        "2040": 1.6
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DE",
+      "to": "DK",
+      "forwardGw": {
+        "2024": 3.5,
+        "2030": 6.5,
+        "2040": 6.5
+      },
+      "backwardGw": {
+        "2024": 3.485,
+        "2030": 6.5,
+        "2040": 6.5
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DE",
+      "to": "FR",
+      "forwardGw": {
+        "2024": 3.0,
+        "2030": 4.8,
+        "2040": 4.8
+      },
+      "backwardGw": {
+        "2024": 3.0,
+        "2030": 4.8,
+        "2040": 4.8
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DE",
+      "to": "LU",
+      "forwardGw": {
+        "2024": 2.3,
+        "2030": 3.7,
+        "2040": 3.7
+      },
+      "backwardGw": {
+        "2024": 2.3,
+        "2030": 3.7,
+        "2040": 3.7
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DE",
+      "to": "NL",
+      "forwardGw": {
+        "2024": 3.95,
+        "2030": 5.0,
+        "2040": 5.0
+      },
+      "backwardGw": {
+        "2024": 3.95,
+        "2030": 5.0,
+        "2040": 5.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DE",
+      "to": "NO",
+      "forwardGw": {
+        "2024": 1.4,
+        "2030": 1.4,
+        "2040": 1.4
+      },
+      "backwardGw": {
+        "2024": 1.4,
+        "2030": 1.4,
+        "2040": 1.4
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DE",
+      "to": "PL",
+      "forwardGw": {
+        "2024": 0.5,
+        "2030": 2.0,
+        "2040": 2.0
+      },
+      "backwardGw": {
+        "2024": 3.0,
+        "2030": 3.0,
+        "2040": 3.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DE",
+      "to": "SE",
+      "forwardGw": {
+        "2024": 0.615,
+        "2030": 1.315,
+        "2040": 2.015
+      },
+      "backwardGw": {
+        "2024": 0.615,
+        "2030": 1.315,
+        "2040": 2.015
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DK",
+      "to": "GB",
+      "forwardGw": {
+        "2024": 1.4,
+        "2030": 1.4,
+        "2040": 1.4
+      },
+      "backwardGw": {
+        "2024": 1.4,
+        "2030": 1.4,
+        "2040": 1.4
+      },
+      "source": "expert-guess"
+    },
+    {
+      "from": "DK",
+      "to": "NL",
+      "forwardGw": {
+        "2024": 0.7,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "backwardGw": {
+        "2024": 0.7,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DK",
+      "to": "NO",
+      "forwardGw": {
+        "2024": 1.632,
+        "2030": 1.632,
+        "2040": 1.632
+      },
+      "backwardGw": {
+        "2024": 1.632,
+        "2030": 1.632,
+        "2040": 1.632
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "DK",
+      "to": "SE",
+      "forwardGw": {
+        "2024": 2.415,
+        "2030": 2.415,
+        "2040": 2.415
+      },
+      "backwardGw": {
+        "2024": 2.015,
+        "2030": 2.015,
+        "2040": 2.015
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "EE",
+      "to": "FI",
+      "forwardGw": {
+        "2024": 1.016,
+        "2030": 1.016,
+        "2040": 1.716
+      },
+      "backwardGw": {
+        "2024": 1.016,
+        "2030": 1.016,
+        "2040": 1.716
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "EE",
+      "to": "LV",
+      "forwardGw": {
+        "2024": 1.06,
+        "2030": 0.95,
+        "2040": 0.95
+      },
+      "backwardGw": {
+        "2024": 0.85,
+        "2030": 0.879,
+        "2040": 0.879
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "ES",
+      "to": "FR",
+      "forwardGw": {
+        "2024": 2.3,
+        "2030": 5.0,
+        "2040": 6.5
+      },
+      "backwardGw": {
+        "2024": 2.7,
+        "2030": 5.0,
+        "2040": 6.5
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "ES",
+      "to": "PT",
+      "forwardGw": {
+        "2024": 4.0,
+        "2030": 4.2,
+        "2040": 4.2
+      },
+      "backwardGw": {
+        "2024": 2.95,
+        "2030": 3.5,
+        "2040": 3.5
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "FI",
+      "to": "NO",
+      "forwardGw": {
+        "2024": 0.08,
+        "2030": 0.0,
+        "2040": 0.0
+      },
+      "backwardGw": {
+        "2024": 0.08,
+        "2030": 0.0,
+        "2040": 0.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "FI",
+      "to": "SE",
+      "forwardGw": {
+        "2024": 1.47,
+        "2030": 3.2,
+        "2040": 4.0
+      },
+      "backwardGw": {
+        "2024": 2.4,
+        "2030": 3.2,
+        "2040": 4.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "FR",
+      "to": "GB",
+      "forwardGw": {
+        "2024": 4.0,
+        "2030": 4.0,
+        "2040": 4.0
+      },
+      "backwardGw": {
+        "2024": 4.0,
+        "2030": 4.0,
+        "2040": 4.0
+      },
+      "source": "expert-guess"
+    },
+    {
+      "from": "FR",
+      "to": "IE",
+      "forwardGw": {
+        "2024": 0.0,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "backwardGw": {
+        "2024": 0.0,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "FR",
+      "to": "IT",
+      "forwardGw": {
+        "2024": 5.1,
+        "2030": 4.605,
+        "2040": 4.605
+      },
+      "backwardGw": {
+        "2024": 3.3,
+        "2030": 2.31,
+        "2040": 2.31
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "FR",
+      "to": "LU",
+      "forwardGw": {
+        "2024": 0.0,
+        "2030": 0.38,
+        "2040": 0.38
+      },
+      "backwardGw": {
+        "2024": 0.0,
+        "2030": 0.0,
+        "2040": 0.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "GB",
+      "to": "IE",
+      "forwardGw": {
+        "2024": 0.5,
+        "2030": 0.5,
+        "2040": 0.5
+      },
+      "backwardGw": {
+        "2024": 0.5,
+        "2030": 0.5,
+        "2040": 0.5
+      },
+      "source": "expert-guess"
+    },
+    {
+      "from": "GB",
+      "to": "NL",
+      "forwardGw": {
+        "2024": 1.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "backwardGw": {
+        "2024": 1.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "source": "expert-guess"
+    },
+    {
+      "from": "GB",
+      "to": "NO",
+      "forwardGw": {
+        "2024": 1.4,
+        "2030": 1.4,
+        "2040": 1.4
+      },
+      "backwardGw": {
+        "2024": 1.4,
+        "2030": 1.4,
+        "2040": 1.4
+      },
+      "source": "expert-guess"
+    },
+    {
+      "from": "GR",
+      "to": "IT",
+      "forwardGw": {
+        "2024": 0.5,
+        "2030": 0.5,
+        "2040": 1.5
+      },
+      "backwardGw": {
+        "2024": 0.5,
+        "2030": 0.5,
+        "2040": 1.5
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "HR",
+      "to": "HU",
+      "forwardGw": {
+        "2024": 1.0,
+        "2030": 0.8,
+        "2040": 0.8
+      },
+      "backwardGw": {
+        "2024": 1.0,
+        "2030": 1.0,
+        "2040": 1.0
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "HR",
+      "to": "SI",
+      "forwardGw": {
+        "2024": 2.0,
+        "2030": 1.5,
+        "2040": 1.6
+      },
+      "backwardGw": {
+        "2024": 2.0,
+        "2030": 1.5,
+        "2040": 1.575
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "HU",
+      "to": "RO",
+      "forwardGw": {
+        "2024": 0.5,
+        "2030": 1.617,
+        "2040": 3.027
+      },
+      "backwardGw": {
+        "2024": 0.8,
+        "2030": 1.435,
+        "2040": 2.175
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "HU",
+      "to": "SI",
+      "forwardGw": {
+        "2024": 0.7,
+        "2030": 1.2,
+        "2040": 1.2
+      },
+      "backwardGw": {
+        "2024": 0.7,
+        "2030": 1.2,
+        "2040": 1.2
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "HU",
+      "to": "SK",
+      "forwardGw": {
+        "2024": 1.9,
+        "2030": 1.8,
+        "2040": 1.8
+      },
+      "backwardGw": {
+        "2024": 2.6,
+        "2030": 2.513,
+        "2040": 2.513
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "IT",
+      "to": "MT",
+      "forwardGw": {
+        "2024": 0.225,
+        "2030": 0.225,
+        "2040": 0.45
+      },
+      "backwardGw": {
+        "2024": 0.225,
+        "2030": 0.225,
+        "2040": 0.45
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "IT",
+      "to": "SI",
+      "forwardGw": {
+        "2024": 0.68,
+        "2030": 1.08,
+        "2040": 1.08
+      },
+      "backwardGw": {
+        "2024": 0.753,
+        "2030": 1.153,
+        "2040": 1.153
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "LT",
+      "to": "LV",
+      "forwardGw": {
+        "2024": 1.224,
+        "2030": 0.95,
+        "2040": 0.95
+      },
+      "backwardGw": {
+        "2024": 1.2,
+        "2030": 0.95,
+        "2040": 0.95
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "LT",
+      "to": "PL",
+      "forwardGw": {
+        "2024": 0.5,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "backwardGw": {
+        "2024": 0.642,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "LT",
+      "to": "SE",
+      "forwardGw": {
+        "2024": 0.5,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "backwardGw": {
+        "2024": 0.7,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "NL",
+      "to": "NO",
+      "forwardGw": {
+        "2024": 0.64,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "backwardGw": {
+        "2024": 0.64,
+        "2030": 0.7,
+        "2040": 0.7
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "NO",
+      "to": "SE",
+      "forwardGw": {
+        "2024": 3.645,
+        "2030": 3.695,
+        "2040": 3.695
+      },
+      "backwardGw": {
+        "2024": 3.945,
+        "2030": 3.995,
+        "2040": 3.995
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "PL",
+      "to": "SE",
+      "forwardGw": {
+        "2024": 0.6,
+        "2030": 0.6,
+        "2040": 0.6
+      },
+      "backwardGw": {
+        "2024": 0.6,
+        "2030": 0.6,
+        "2040": 0.6
+      },
+      "source": "ember2026interconnection"
+    },
+    {
+      "from": "PL",
+      "to": "SK",
+      "forwardGw": {
+        "2024": 0.6,
+        "2030": 0.781,
+        "2040": 0.781
+      },
+      "backwardGw": {
+        "2024": 0.6,
+        "2030": 0.818,
+        "2040": 0.818
+      },
+      "source": "ember2026interconnection"
+    }
   ]
 }

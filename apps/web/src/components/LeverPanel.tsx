@@ -1,21 +1,36 @@
-import type { Levers } from '@energie4ai/sim-core';
+import { scenarioDefaults, type Levers, type SitingPolicy } from '@energie4ai/sim-core';
+import { fmt, useI18n, type Strings } from '../i18n/index.js';
 
 interface Props {
   levers: Levers;
   onChange: (l: Levers) => void;
 }
 
-/** The three P1 levers, each with its source-backed default and plausible range (spec §6). */
+const siting = (t: Strings): Array<{ id: SitingPolicy; label: string; note: string }> => [
+  { id: 'market', label: t.levers.sitingMarket, note: t.levers.sitingMarketNote },
+  { id: 'renewables', label: t.levers.sitingRenewables, note: t.levers.sitingRenewablesNote },
+  {
+    id: 'capped',
+    label: t.levers.sitingCapped,
+    note: fmt(t.levers.sitingCappedNote, {
+      cap: (scenarioDefaults.hubCapDcShareOfDemand * 100).toFixed(0),
+    }),
+  },
+];
+
+/** Scenario levers, each with its source-backed default and plausible range (spec §6). */
 export function LeverPanel({ levers, onChange }: Props) {
+  const { t } = useI18n();
+  const SITING = siting(t);
   return (
     <div>
-      <h2>Scenario levers</h2>
+      <h2>{t.levers.title}</h2>
 
       <div className="lever">
         <label>
           <span className="lever-head">
             <span>
-              Compute demand growth <span className="source-chip">iea2025energyai</span>
+              {t.levers.computeGrowth} <span className="source-chip">iea2025energyai</span>
             </span>
             <strong>×{levers.computeGrowthMultiplier.toFixed(2)}</strong>
           </span>
@@ -30,14 +45,14 @@ export function LeverPanel({ levers, onChange }: Props) {
             }
           />
         </label>
-        <div className="muted">Multiplier on the IEA base-case global growth (default ×1.00).</div>
+        <div className="muted">{t.levers.computeGrowthNote}</div>
       </div>
 
       <div className="lever">
         <label>
           <span className="lever-head">
             <span>
-              Extra efficiency gains <span className="source-chip">expert-guess</span>
+              {t.levers.efficiency} <span className="source-chip">expert-guess</span>
             </span>
             <strong>{(levers.extraEfficiencyRate * 100).toFixed(1)}%/yr</strong>
           </span>
@@ -50,9 +65,7 @@ export function LeverPanel({ levers, onChange }: Props) {
             onChange={(e) => onChange({ ...levers, extraEfficiencyRate: Number(e.target.value) })}
           />
         </label>
-        <div className="muted">
-          Energy-per-compute improvement on top of the base case (default 0.0%/yr).
-        </div>
+        <div className="muted">{t.levers.efficiencyNote}</div>
       </div>
 
       <div className="lever">
@@ -63,22 +76,75 @@ export function LeverPanel({ levers, onChange }: Props) {
             onChange={(e) => onChange({ ...levers, permittingReform: e.target.checked })}
           />
           <span>
-            Permitting reform (&quot;Grids Package&quot;){' '}
-            <span className="source-chip">ec2025gridspackage</span>
+            {t.levers.permitting} <span className="source-chip">ec2025gridspackage</span>
           </span>
         </label>
-        <div className="muted">
-          Grid permitting ~9 years → ~5 years (default off = today&apos;s baseline).
-        </div>
+        <div className="muted">{t.levers.permittingNote}</div>
       </div>
 
-      <button
-        onClick={() =>
-          onChange({ computeGrowthMultiplier: 1, extraEfficiencyRate: 0, permittingReform: false })
-        }
-      >
-        Reset to central scenario
-      </button>
+      <div className="lever">
+        <label>
+          <span className="lever-head">
+            <span>
+              {t.levers.siting} <span className="source-chip">expert-guess</span>
+            </span>
+          </span>
+          <select
+            value={levers.sitingPolicy}
+            onChange={(e) => onChange({ ...levers, sitingPolicy: e.target.value as SitingPolicy })}
+            style={{ width: '100%' }}
+          >
+            {SITING.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="muted">{SITING.find((o) => o.id === levers.sitingPolicy)!.note}</div>
+      </div>
+
+      <div className="lever">
+        <label>
+          <span className="lever-head">
+            <span>
+              {t.levers.flexibility} <span className="source-chip">elsevier2025dcflexibility</span>
+            </span>
+            <strong>{(levers.flexibilityShare * 100).toFixed(0)}%</strong>
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={0.5}
+            step={0.05}
+            value={levers.flexibilityShare}
+            onChange={(e) => onChange({ ...levers, flexibilityShare: Number(e.target.value) })}
+          />
+        </label>
+        <div className="muted">{t.levers.flexibilityNote}</div>
+      </div>
+
+      <div className="lever">
+        <label>
+          <span className="lever-head">
+            <span>
+              {t.levers.priceSensitivity} <span className="source-chip">expert-guess</span>
+            </span>
+            <strong>×{levers.priceSensitivity.toFixed(1)}</strong>
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={3}
+            step={0.25}
+            value={levers.priceSensitivity}
+            onChange={(e) => onChange({ ...levers, priceSensitivity: Number(e.target.value) })}
+          />
+        </label>
+        <div className="muted">{t.levers.priceSensitivityNote}</div>
+      </div>
+
+      <button onClick={() => onChange({ ...scenarioDefaults.levers })}>{t.levers.reset}</button>
     </div>
   );
 }

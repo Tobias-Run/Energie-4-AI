@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useI18n } from '../i18n/index.js';
 
 interface Props {
   years: number[];
@@ -15,6 +16,7 @@ const PAD = { top: 14, right: 46, bottom: 22, left: 44 };
 
 /** Single-series line chart (no legend needed — the title names it) with crosshair hover. */
 export function TimeSeriesChart({ years, values, currentYear, title, unit, onYear }: Props) {
+  const { t } = useI18n();
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -147,7 +149,7 @@ export function TimeSeriesChart({ years, values, currentYear, title, unit, onYea
         </text>
       </svg>
       <p className="muted" style={{ margin: '2px 0 0' }}>
-        Click the chart to jump to a year.
+        {t.charts.clickToJump}
       </p>
     </div>
   );

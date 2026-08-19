@@ -1,10 +1,14 @@
 {
   "version": "1.0.0",
-  "description": "Default scenario parameter set ('central' scenario). Every parameter carries a source_id in the provenance map; 'expert-guess' marks parameters without a published source (mission document §8.3).",
+  "description": "Default scenario parameter set ('central' scenario). Every parameter carries a source_id in the provenance map; 'expert-guess' marks parameters without a published source (mission document §8.3). Emission factors are DIRECT COMBUSTION (scope 1) values: 0.37 Mt/TWh for gas and 0.85 Mt/TWh for the legacy coal/lignite/oil mix. They sit below the IPCC AR5 lifecycle medians (gas 0.49, coal 0.82) on purpose — lifecycle figures include upstream methane, fuel transport and plant construction, which this model does not track. Reported emissions are therefore a lower bound. P2 levers (issue #6): sitingPolicy steers where new DC load is allocated ('market' = gravity and price only, 'renewables' = additionally tilted toward high-renewables systems, 'capped' = a country stops accepting new DC connections once its DC load passes hubCapDcShareOfDemand of national demand, modelled on the Dublin and Amsterdam connection moratoria rather than on an abstract allocation quota); flexibilityShare is the fraction of DC load participating in demand response, which therefore does not count as firm at peak; priceSensitivity scales priceElasticity. Behind-the-meter generation is deliberately absent — issue #3 was decided as deferred entirely to v2.",
   "captureShareOfGlobalAdditions": {
     "euPre2030": 0.085,
     "euPost2030": 0.065,
-    "nonEu": { "GB": 0.012, "NO": 0.002, "CH": 0.001 }
+    "nonEu": {
+      "GB": 0.012,
+      "NO": 0.002,
+      "CH": 0.001
+    }
   },
   "pue2024": 1.4,
   "pueFloor": 1.15,
@@ -25,10 +29,15 @@
   "dcPeakShareFlagThreshold": 0.15,
   "allocationGravityExponent": 0.7,
   "priceElasticity": 1.0,
+  "sitingRenewablesExponent": 0.6,
+  "hubCapDcShareOfDemand": 0.2,
   "levers": {
     "computeGrowthMultiplier": 1.0,
     "extraEfficiencyRate": 0.0,
-    "permittingReform": false
+    "permittingReform": false,
+    "sitingPolicy": "market",
+    "flexibilityShare": 0.0,
+    "priceSensitivity": 1.0
   },
   "provenance": {
     "captureShareOfGlobalAdditions.euPre2030": "iea2025energyai",
@@ -46,8 +55,8 @@
     "permittingYearsReform": "ec2025gridspackage",
     "constructionYears": "expert-guess",
     "ntcUtilization": "expert-guess",
-    "gasEmissionFactorMtPerTwh": "expert-guess",
-    "otherFirmEmissionFactorMtPerTwh": "expert-guess",
+    "gasEmissionFactorMtPerTwh": "ipcc2014ar5annex3",
+    "otherFirmEmissionFactorMtPerTwh": "ipcc2014ar5annex3",
     "congestionBaselineBnEur2024": "ember2025grids",
     "stressFlagThreshold": "expert-guess",
     "dcPeakShareFlagThreshold": "expert-guess",
@@ -55,6 +64,11 @@
     "priceElasticity": "expert-guess",
     "levers.computeGrowthMultiplier": "iea2025energyai",
     "levers.extraEfficiencyRate": "expert-guess",
-    "levers.permittingReform": "ec2025gridspackage"
+    "levers.permittingReform": "ec2025gridspackage",
+    "sitingRenewablesExponent": "expert-guess",
+    "levers.sitingPolicy": "expert-guess",
+    "levers.flexibilityShare": "elsevier2025dcflexibility",
+    "levers.priceSensitivity": "expert-guess",
+    "hubCapDcShareOfDemand": "expert-guess"
   }
 }

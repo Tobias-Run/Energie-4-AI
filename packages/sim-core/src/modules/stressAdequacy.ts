@@ -1,10 +1,12 @@
 import type { CountryParams, ScenarioDefaults } from '../data.js';
+import type { Levers } from '../types.js';
 import { HOURS_PER_YEAR_K } from './electricityDemand.js';
 
 export interface AdequacyInput {
   totalDemandTwh: number;
   dcEnergyTwh: number;
-  lowCarbonTwh: number;
+  renewablesTwh: number;
+  nuclearTwh: number;
   otherFirmTwh: number;
   gasCapTwh: number;
   importCapTwh: number;
@@ -12,6 +14,10 @@ export interface AdequacyInput {
 
 export interface AdequacyResult {
   gasGenTwh: number;
+  generationTwh: number;
+  fossilGenTwh: number;
+  /** Production-based accounting: imports are not attributed to a generation category (issue #12). */
+  netImportShare: number;
   peakLoadGw: number;
   dcShareOfPeak: number;
   stressIndex: number;
@@ -21,23 +27,34 @@ export interface AdequacyResult {
 
 /**
  * Annual energy balance plus peak-stress proxy (mission document §5.4).
- * Gas dispatches as the residual after low-carbon and other firm generation;
- * the stress index measures demand against all available resources incl. imports.
+ * Renewables, nuclear, and legacy firm generation are must-run; gas dispatches as the
+ * residual; the stress index measures demand against all available resources incl. imports.
  */
 export function assessAdequacy(
   c: CountryParams,
   input: AdequacyInput,
   defaults: ScenarioDefaults,
+  levers: Levers,
 ): AdequacyResult {
-  const residual = input.totalDemandTwh - input.lowCarbonTwh - input.otherFirmTwh;
-  const gasGenTwh = Math.min(Math.max(residual, 0), input.gasCapTwh);
+  const nonGas = input.renewablesTwh + input.nuclearTwh + input.otherFirmTwh;
+  const gasGenTwh = Math.min(Math.max(input.totalDemandTwh - nonGas, 0), input.gasCapTwh);
+  const generationTwh = nonGas + gasGenTwh;
+  const fossilGenTwh = gasGenTwh + input.otherFirmTwh;
+  const netImportShare =
+    input.totalDemandTwh > 0
+      ? Math.max(0, input.totalDemandTwh - generationTwh) / input.totalDemandTwh
+      : 0;
 
-  const resources = input.lowCarbonTwh + input.otherFirmTwh + input.gasCapTwh + input.importCapTwh;
+  const resources = nonGas + input.gasCapTwh + input.importCapTwh;
   const stressIndex = resources > 0 ? input.totalDemandTwh / resources : 1;
 
   const peakLoadGw = (input.totalDemandTwh * c.peakFactor) / HOURS_PER_YEAR_K;
   // DC load is near-flat; its firm (inference) share contributes its average draw at peak.
-  const dcFirmGw = (input.dcEnergyTwh / HOURS_PER_YEAR_K) * defaults.firmLoadShare;
+  // Load enrolled in demand response is assumed curtailable exactly when it matters, so it
+  // drops out of the peak contribution entirely — an optimistic reading of flexibility, and
+  // the reason the lever is capped well below full participation.
+  const effectiveFirmShare = defaults.firmLoadShare * (1 - levers.flexibilityShare);
+  const dcFirmGw = (input.dcEnergyTwh / HOURS_PER_YEAR_K) * effectiveFirmShare;
   const dcShareOfPeak = peakLoadGw > 0 ? dcFirmGw / peakLoadGw : 0;
 
   const flagged =
@@ -47,5 +64,15 @@ export function assessAdequacy(
     gasGenTwh * defaults.gasEmissionFactorMtPerTwh +
     input.otherFirmTwh * defaults.otherFirmEmissionFactorMtPerTwh;
 
-  return { gasGenTwh, peakLoadGw, dcShareOfPeak, stressIndex, flagged, emissionsMt };
+  return {
+    gasGenTwh,
+    generationTwh,
+    fossilGenTwh,
+    netImportShare,
+    peakLoadGw,
+    dcShareOfPeak,
+    stressIndex,
+    flagged,
+    emissionsMt,
+  };
 }

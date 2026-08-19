@@ -47,42 +47,52 @@ export interface CountryShape {
   d: string;
 }
 
+// Fit to a mainland-Europe bounding box rather than the raw features: Norway's
+// geometry includes Svalbard (~80°N), which would shrink the whole map.
+const EUROPE_BOUNDS: Feature<Geometry> = {
+  type: 'Feature',
+  properties: {},
+  geometry: {
+    type: 'Polygon',
+    // d3-geo winding: exterior rings clockwise, else the ring encloses the rest of the sphere
+    coordinates: [
+      [
+        [-11, 34.5],
+        [-11, 71.5],
+        [35, 71.5],
+        [35, 34.5],
+        [-11, 34.5],
+      ],
+    ],
+  },
+};
+
+const PROJECTION = geoAzimuthalEqualArea()
+  .rotate([-10, -52])
+  .fitExtent(
+    [
+      [6, 6],
+      [MAP_WIDTH - 6, MAP_HEIGHT - 6],
+    ],
+    EUROPE_BOUNDS,
+  );
+
+/**
+ * Project geographic coordinates onto the same canvas as the country outlines.
+ * Returns null when the point falls outside the projection's clip area.
+ */
+export function projectPoint(lon: number, lat: number): { x: number; y: number } | null {
+  const p = PROJECTION([lon, lat]);
+  return p ? { x: p[0], y: p[1] } : null;
+}
+
 function buildShapes(): { shapes: CountryShape[]; missing: string[] } {
   const world = worldJson as unknown as Topology;
   const collection = feature(
     world,
     world.objects.countries as GeometryCollection<{ name: string }>,
   ) as FeatureCollection<Geometry, { name: string }>;
-
-  // Fit to a mainland-Europe bounding box rather than the raw features: Norway's
-  // geometry includes Svalbard (~80°N), which would shrink the whole map.
-  const europeBounds: Feature<Geometry> = {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Polygon',
-      // d3-geo winding: exterior rings clockwise, else the ring encloses the rest of the sphere
-      coordinates: [
-        [
-          [-11, 34.5],
-          [-11, 71.5],
-          [35, 71.5],
-          [35, 34.5],
-          [-11, 34.5],
-        ],
-      ],
-    },
-  };
-  const projection = geoAzimuthalEqualArea()
-    .rotate([-10, -52])
-    .fitExtent(
-      [
-        [6, 6],
-        [MAP_WIDTH - 6, MAP_HEIGHT - 6],
-      ],
-      europeBounds,
-    );
-  const path = geoPath(projection);
+  const path = geoPath(PROJECTION);
 
   const shapes: CountryShape[] = collection.features
     .map((f) => ({

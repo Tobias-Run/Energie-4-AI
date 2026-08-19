@@ -1,5 +1,6 @@
 import type { CountryYear } from '@energie4ai/sim-core';
 import type { MetricDef } from '../lib/metrics.js';
+import { fmt, useI18n } from '../i18n/index.js';
 
 interface Props {
   rows: Record<string, CountryYear>;
@@ -10,20 +11,21 @@ interface Props {
 
 /** Accessible table view of the current map state (all 30 countries, sorted by metric). */
 export function DataTable({ rows, names, metric, year }: Props) {
+  const { t } = useI18n();
   const sorted = Object.entries(rows).sort(([, a], [, b]) => metric.value(b) - metric.value(a));
   return (
     <details className="drawer">
-      <summary>Table view ({year}, all countries)</summary>
+      <summary>{fmt(t.table.summary, { year })}</summary>
       <div style={{ maxHeight: 320, overflowY: 'auto', marginTop: 6 }}>
         <table className="data-table">
           <thead>
             <tr>
-              <th>Country</th>
+              <th>{t.table.country}</th>
               <th>{metric.label}</th>
-              <th>DC (TWh)</th>
-              <th>Stress</th>
-              <th>Queue (GW)</th>
-              <th>Flag</th>
+              <th>{t.table.dcTwh}</th>
+              <th>{t.table.stress}</th>
+              <th>{t.table.queue}</th>
+              <th>{t.map.stressFlag}</th>
             </tr>
           </thead>
           <tbody>

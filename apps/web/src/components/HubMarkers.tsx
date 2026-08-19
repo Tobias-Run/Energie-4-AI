@@ -1,0 +1,116 @@
+import type { Hub } from '@energie4ai/sim-core';
+import { projectPoint } from '../lib/geo.js';
+import { fmt, useI18n, type Strings } from '../i18n/index.js';
+
+const RADIUS: Record<Hub['sizeClass'], number> = {
+  major: 6.5,
+  mid: 4.5,
+  regional: 3.5,
+  none: 3.5,
+};
+
+export interface PlacedHub extends Hub {
+  x: number;
+  y: number;
+}
+
+/** Hubs that fall inside the map's clip area, with canvas coordinates attached. */
+export function placeHubs(hubs: Hub[]): PlacedHub[] {
+  return hubs.flatMap((h) => {
+    const p = projectPoint(h.lon, h.lat);
+    return p ? [{ ...h, x: p.x, y: p.y }] : [];
+  });
+}
+
+interface Props {
+  hubs: PlacedHub[];
+  onHover: (hub: PlacedHub | null) => void;
+}
+
+/**
+ * Data center cluster markers (issue #2). Country-level model, so these are annotations
+ * — they carry no simulated value. The `driver` is encoded by marker *shape* rather than
+ * an extra hue: the map already spends its color budget on the choropleth, and shape
+ * survives both color-vision deficiency and the dark/light swap.
+ *   filled = interconnection-driven · ring = power-driven · ring with core = both
+ */
+/** Short driver name in the active language, shared by the legend and the marker labels. */
+function driverLabel(driver: Hub['driver'], t: Strings): string {
+  if (driver === 'peering') return t.map.driverPeering;
+  if (driver === 'power') return t.map.driverPower;
+  return t.map.driverBoth;
+}
+
+export function HubMarkers({ hubs, onHover }: Props) {
+  const { t } = useI18n();
+  return (
+    <g aria-label={t.map.clusterLocations}>
+      {hubs.map((h) => {
+        const r = RADIUS[h.sizeClass];
+        const filled = h.driver === 'peering';
+        return (
+          <g
+            key={h.id}
+            tabIndex={0}
+            role="img"
+            aria-label={fmt(t.map.markerLabel, {
+              name: h.name,
+              exchange: h.ixpName
+                ? fmt(t.map.markerExchange, { ixp: h.ixpName })
+                : t.map.markerNoExchange,
+              driver: driverLabel(h.driver, t),
+            })}
+            style={{ cursor: 'pointer' }}
+            onMouseEnter={() => onHover(h)}
+            onMouseLeave={() => onHover(null)}
+            onFocus={() => onHover(h)}
+            onBlur={() => onHover(null)}
+          >
+            {/* halo keeps the marker legible over any choropleth bin */}
+            <circle cx={h.x} cy={h.y} r={r + 1.6} fill="var(--hub-halo)" opacity={0.85} />
+            <circle
+              cx={h.x}
+              cy={h.y}
+              r={r}
+              fill={filled ? 'var(--hub-marker)' : 'none'}
+              stroke="var(--hub-marker)"
+              strokeWidth={1.8}
+            />
+            {h.driver === 'mixed' && (
+              <circle cx={h.x} cy={h.y} r={r * 0.4} fill="var(--hub-marker)" />
+            )}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+/** Legend entries for the marker vocabulary, drawn as tiny inline SVGs. */
+export function HubLegend() {
+  const { t } = useI18n();
+  const item = (label: string, render: React.ReactNode) => (
+    <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+      <svg width={16} height={16} aria-hidden="true">
+        {render}
+      </svg>
+      <span>{label}</span>
+    </span>
+  );
+  return (
+    <>
+      {item(t.map.driverPeering, <circle cx={8} cy={8} r={4.5} fill="var(--hub-marker)" />)}
+      {item(
+        t.map.driverPower,
+        <circle cx={8} cy={8} r={4.5} fill="none" stroke="var(--hub-marker)" strokeWidth={1.8} />,
+      )}
+      {item(
+        t.map.driverBoth,
+        <g>
+          <circle cx={8} cy={8} r={4.5} fill="none" stroke="var(--hub-marker)" strokeWidth={1.8} />
+          <circle cx={8} cy={8} r={1.8} fill="var(--hub-marker)" />
+        </g>,
+      )}
+    </>
+  );
+}

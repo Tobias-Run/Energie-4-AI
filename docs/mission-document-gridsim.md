@@ -76,7 +76,7 @@ The tool exists because the core tension of the next two decades is a timing mis
 
 - **Simulation core:** Pure TypeScript module, framework-free, unit-tested against calibration anchors; deterministic given a seed (reproducibility requirement for research use).
 - **Data layer:** Versioned static JSON bundles (scenario defaults, country parameters, grid pipeline data) with a documented update pipeline; data provenance recorded per parameter.
-- **Licensing:** Open source (MIT or Apache-2.0); data bundles under CC-BY where source licenses permit.
+- **Licensing:** Open source under **MIT** (decided 2026-08-19, issue #1 — the maximally permissive of the two options on the table); data bundles under CC-BY-4.0 to the extent the project holds rights in them.
 - **Quality gates:** V1 calibration reproduction (§5); scenario snapshot tests; independent review of the demand module by at least one external energy-system modeler before public launch.
 - **Honest-limits requirement:** The UI must display model-class limitations (no load flow, annual resolution, corridor not forecast) persistently, not buried in an about page. Scenarios are exploration devices, not predictions — the TYNDP scenario teams say the same about theirs, and they have considerably more staff.
 
@@ -126,4 +126,4 @@ Every model parameter carries a `source_id` referencing this list (or its succes
 
 - Country-level vs. sub-national resolution for DE/FR (hub granularity vs. data availability).
 - Whether to include a gas-bridge/behind-the-meter emissions penalty toggle in v1 or defer to v2.
-- Hosting/branding and whether an EU funding track (e.g., Horizon Europe digital-energy calls) changes licensing or partner requirements.
+- Hosting/branding, and whether an EU funding track (e.g., Horizon Europe digital-energy calls) imposes partner requirements. ~~Licensing~~ is settled: MIT (issue #1); a funding track that demanded a patent grant would require revisiting, but MIT does not block any known track.

@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import type { Levers } from '@energie4ai/sim-core';
+import { scenarioDefaults, type Levers } from '@energie4ai/sim-core';
+import { fmt, useI18n } from '../i18n/index.js';
+import { storiesEn } from '../i18n/stories-en.js';
+import { storiesDe } from '../i18n/stories-de.js';
 
 export interface StoryStep {
   title: string;
@@ -9,51 +12,93 @@ export interface StoryStep {
   levers: Levers;
 }
 
-const BASE: Levers = {
-  computeGrowthMultiplier: 1,
-  extraEfficiencyRate: 0,
-  permittingReform: false,
-};
-const REFORM: Levers = { ...BASE, permittingReform: true };
+export interface Story {
+  id: string;
+  title: string;
+  blurb: string;
+  steps: StoryStep[];
+}
 
-/** P1 story scenario: "Grids Package delivers" (mission document §6). */
-const STEPS: StoryStep[] = [
-  {
-    title: 'The starting grid',
-    text: 'Europe, 2026. Data centers cluster in a handful of hubs — Frankfurt, London, Amsterdam, Paris, Dublin. Grid connection, not chips or capital, is the binding constraint: under baseline rules a new grid corridor takes ~9 years to permit.',
-    year: 2026,
-    metricId: 'dcShareOfDemand',
-    levers: BASE,
-  },
-  {
-    title: 'Business as usual, 2030',
-    text: 'Under today’s permitting rules, EU data center demand grows to the IEA corridor (~+45 TWh vs. 2024). Connection queues form where the pipeline is tightest — Ireland’s de-facto Dublin moratorium pushes new builds toward the Nordics and Iberia.',
-    year: 2030,
-    metricId: 'stressIndex',
-    levers: BASE,
-  },
-  {
-    title: 'The Grids Package passes',
-    text: 'Now flip the permitting-reform lever: the European Grids Package (Dec 2025) caps permitting at ~4–6 years. The delay chain (announced → permitted → built) delivers connection capacity roughly twice as fast.',
-    year: 2030,
-    metricId: 'stressIndex',
-    levers: REFORM,
-  },
-  {
-    title: 'A decade of delivery',
-    text: 'By 2035, faster permitting has drained most connection queues; more of Europe’s captured AI demand is actually built instead of relocating or waiting. Watch Ireland: its stress flag now comes from inference load at system peak, not from the queue.',
-    year: 2035,
-    metricId: 'dcShareOfPeak' as never,
-    levers: REFORM,
-  },
-  {
-    title: 'The honest ending',
-    text: 'By 2045 the corridor logic still holds: reform changes *where and when* stress appears, not whether AI load grows. Remember what this model is — an annual, NTC-level exploration device, not a forecast. Open the assumptions drawer to see every number’s source.',
-    year: 2045,
-    metricId: 'dcShareOfDemand',
-    levers: REFORM,
-  },
-];
+const BASE: Levers = { ...scenarioDefaults.levers };
+const REFORM: Levers = { ...BASE, permittingReform: true };
+const BOOM: Levers = { ...BASE, computeGrowthMultiplier: 1.75 };
+const CAP = scenarioDefaults.hubCapDcShareOfDemand;
+const CAPPED: Levers = { ...BASE, sitingPolicy: 'capped' };
+const EFF: Levers = { ...BASE, extraEfficiencyRate: 0.02 };
+const BOOM_EFF: Levers = { ...BOOM, extraEfficiencyRate: 0.02 };
+const PRICE_BLIND: Levers = { ...BASE, priceSensitivity: 0 };
+const PRICE_STRONG: Levers = { ...BASE, priceSensitivity: 3 };
+const GREEN: Levers = { ...BASE, sitingPolicy: 'renewables' };
+
+const STORY_TEXT = { en: storiesEn, de: storiesDe };
+
+/**
+ * Guided scenarios (mission document §6). Each ends by naming what the model cannot tell you —
+ * the story is a way into the levers, not a claim about the future. Text lives in the locale
+ * dictionaries; only the lever settings and the metric to show live here.
+ */
+function buildStories(locale: 'en' | 'de'): Story[] {
+  const x = STORY_TEXT[locale];
+  const cap = (CAP * 100).toFixed(0);
+  const step = (
+    title: string,
+    text: string,
+    year: number,
+    metricId: string,
+    levers: Levers,
+  ): StoryStep => ({ title, text, year, metricId, levers });
+
+  return [
+    {
+      id: 'grids-package',
+      title: x.gridsPackage.title,
+      blurb: x.gridsPackage.blurb,
+      steps: [
+        step(x.gridsPackage.s1t, x.gridsPackage.s1, 2026, 'dcShareOfDemand', BASE),
+        step(x.gridsPackage.s2t, x.gridsPackage.s2, 2030, 'stressIndex', BASE),
+        step(x.gridsPackage.s3t, x.gridsPackage.s3, 2030, 'stressIndex', REFORM),
+        step(x.gridsPackage.s4t, x.gridsPackage.s4, 2035, 'dcShareOfPeak', REFORM),
+        step(x.gridsPackage.s5t, x.gridsPackage.s5, 2045, 'dcShareOfDemand', REFORM),
+      ],
+    },
+    {
+      id: 'dublin-freeze',
+      title: x.dublinFreeze.title,
+      blurb: x.dublinFreeze.blurb,
+      steps: [
+        step(x.dublinFreeze.s1t, x.dublinFreeze.s1, 2035, 'dcShareOfDemand', BASE),
+        step(x.dublinFreeze.s2t, x.dublinFreeze.s2, 2045, 'dcShareOfDemand', BASE),
+        step(x.dublinFreeze.s3t, fmt(x.dublinFreeze.s3, { cap }), 2045, 'dcShareOfDemand', CAPPED),
+        step(x.dublinFreeze.s4t, x.dublinFreeze.s4, 2045, 'dcEnergyTwh', CAPPED),
+        step(x.dublinFreeze.s5t, x.dublinFreeze.s5, 2045, 'stressIndex', CAPPED),
+      ],
+    },
+    {
+      id: 'efficiency-wall',
+      title: x.efficiencyWall.title,
+      blurb: x.efficiencyWall.blurb,
+      steps: [
+        step(x.efficiencyWall.s1t, x.efficiencyWall.s1, 2045, 'dcShareOfDemand', BASE),
+        step(x.efficiencyWall.s2t, x.efficiencyWall.s2, 2045, 'dcShareOfDemand', EFF),
+        step(x.efficiencyWall.s3t, x.efficiencyWall.s3, 2045, 'dcShareOfDemand', BOOM_EFF),
+        step(x.efficiencyWall.s4t, x.efficiencyWall.s4, 2045, 'dcShareOfPeak', BOOM_EFF),
+        step(x.efficiencyWall.s5t, x.efficiencyWall.s5, 2045, 'dcShareOfDemand', BOOM_EFF),
+      ],
+    },
+    {
+      id: 'nordic-gold-rush',
+      title: x.nordicGoldRush.title,
+      blurb: x.nordicGoldRush.blurb,
+      steps: [
+        step(x.nordicGoldRush.s1t, x.nordicGoldRush.s1, 2045, 'dcEnergyTwh', PRICE_BLIND),
+        step(x.nordicGoldRush.s2t, x.nordicGoldRush.s2, 2045, 'dcEnergyTwh', PRICE_STRONG),
+        step(x.nordicGoldRush.s3t, x.nordicGoldRush.s3, 2045, 'renewablesShare', GREEN),
+        step(x.nordicGoldRush.s4t, x.nordicGoldRush.s4, 2045, 'stressIndex', PRICE_STRONG),
+        step(x.nordicGoldRush.s5t, x.nordicGoldRush.s5, 2045, 'dcShareOfPeak', PRICE_STRONG),
+      ],
+    },
+  ];
+}
 
 interface Props {
   onApply: (step: StoryStep) => void;
@@ -61,51 +106,65 @@ interface Props {
 }
 
 export function StoryMode({ onApply, onExit }: Props) {
-  const [index, setIndex] = useState<number | null>(null);
+  const { t, locale } = useI18n();
+  const [storyId, setStoryId] = useState<string | null>(null);
+  const [index, setIndex] = useState(0);
 
-  const go = (i: number) => {
+  const stories = buildStories(locale);
+  const story = stories.find((s) => s.id === storyId);
+
+  const go = (s: Story, i: number) => {
+    setStoryId(s.id);
     setIndex(i);
-    const step = STEPS[i]!;
-    // dcShareOfPeak isn't a standalone map metric in P1; fall back to stress for that step
-    onApply({
-      ...step,
-      metricId: step.metricId === 'dcShareOfPeak' ? 'stressIndex' : step.metricId,
-    });
+    onApply(s.steps[i]!);
   };
 
-  if (index === null) {
+  if (!story) {
     return (
       <div>
-        <h2>Story mode</h2>
+        <h2>{t.story.title}</h2>
         <p className="muted" style={{ marginTop: 0 }}>
-          &quot;Grids Package delivers&quot; — a guided 5-step tour of the permitting-reform lever.
+          {t.story.intro}
         </p>
-        <button onClick={() => go(0)}>▶ Start story</button>
+        {stories.map((s) => (
+          <div key={s.id} className="lever">
+            <button onClick={() => go(s, 0)} style={{ width: '100%', textAlign: 'left' }}>
+              ▶ {s.title}
+            </button>
+            <div className="muted">{s.blurb}</div>
+          </div>
+        ))}
       </div>
     );
   }
 
-  const step = STEPS[index]!;
+  const step = story.steps[index]!;
   return (
     <div>
       <h2>
-        Story {index + 1}/{STEPS.length}: {step.title}
+        {fmt(t.story.progress, {
+          title: story.title,
+          step: index + 1,
+          total: story.steps.length,
+        })}
       </h2>
+      <p style={{ fontSize: '0.9rem', margin: '0 0 2px', fontWeight: 600 }}>{step.title}</p>
       <p style={{ fontSize: '0.85rem', marginTop: 0 }}>{step.text}</p>
       <div className="story-nav">
-        <button disabled={index === 0} onClick={() => go(index - 1)}>
-          ← Back
+        <button disabled={index === 0} onClick={() => go(story, index - 1)}>
+          {t.story.back}
         </button>
-        <button disabled={index === STEPS.length - 1} onClick={() => go(index + 1)}>
-          Next →
+        <button disabled={index === story.steps.length - 1} onClick={() => go(story, index + 1)}>
+          {t.story.next}
         </button>
         <button
           onClick={() => {
-            setIndex(null);
+            setStoryId(null);
+            setIndex(0);
             onExit();
           }}
         >
-          Exit story
+          {t.story.exit}
         </button>
       </div>
     </div>

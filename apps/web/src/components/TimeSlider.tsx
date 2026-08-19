@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { fmt, useI18n } from '../i18n/index.js';
 
 interface Props {
   year: number;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function TimeSlider({ year, min, max, playing, onYear, onPlaying }: Props) {
+  const { t } = useI18n();
   const yearRef = useRef(year);
   yearRef.current = year;
 
@@ -34,9 +36,9 @@ export function TimeSlider({ year, min, max, playing, onYear, onPlaying }: Props
           onPlaying(!playing);
         }}
         aria-pressed={playing}
-        aria-label={playing ? 'Pause animation' : 'Play 20-year animation'}
+        aria-label={t.time.playLabel}
       >
-        {playing ? '⏸ Pause' : '▶ Play'}
+        {playing ? `⏸ ${t.time.pause}` : `▶ ${t.time.play}`}
       </button>
       <input
         type="range"
@@ -48,7 +50,7 @@ export function TimeSlider({ year, min, max, playing, onYear, onPlaying }: Props
           onPlaying(false);
           onYear(Number(e.target.value));
         }}
-        aria-label="Simulation year"
+        aria-label={fmt(t.time.sliderLabel, { min, max })}
         style={{ flex: 1, minWidth: 160 }}
       />
       <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{year}</strong>

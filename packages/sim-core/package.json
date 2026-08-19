@@ -1,6 +1,7 @@
 {
   "name": "@energie4ai/sim-core",
   "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "description": "Framework-free simulation core for Energie-4-AI: system-dynamics model of AI data center expansion vs. European power supply, 2026-2045.",
