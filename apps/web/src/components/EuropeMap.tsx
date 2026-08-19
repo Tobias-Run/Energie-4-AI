@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react';
-import type { CountryYear } from '@energie4ai/sim-core';
+import { useMemo, useRef, useState } from 'react';
+import { hubs as HUB_DATA, type CountryYear } from '@energie4ai/sim-core';
 import { COUNTRY_SHAPES, MAP_HEIGHT, MAP_WIDTH, MISSING_ON_MAP } from '../lib/geo.js';
 import { BIN_VARS, binIndex, binThresholds, type MetricDef } from '../lib/metrics.js';
+import { HubLegend, HubMarkers, placeHubs, type PlacedHub } from './HubMarkers.js';
 
 interface Props {
   rows: Record<string, CountryYear>;
@@ -19,7 +20,25 @@ interface Hover {
 
 export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
   const [hover, setHover] = useState<Hover | null>(null);
+  const [showHubs, setShowHubs] = useState(true);
+  const [hubHover, setHubHover] = useState<PlacedHub | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const placedHubs = useMemo(() => placeHubs(HUB_DATA), []);
+
+  // Map-canvas coordinates -> container pixels, so the hub tooltip lands correctly
+  // no matter how the SVG is scaled by its container.
+  const hubTooltipPos = (h: PlacedHub) => {
+    const svg = svgRef.current?.getBoundingClientRect();
+    const box = containerRef.current?.getBoundingClientRect();
+    if (!svg || !box) return { x: 0, y: 0 };
+    const scale = svg.width / MAP_WIDTH;
+    return {
+      x: svg.x - box.x + h.x * scale + 12,
+      y: svg.y - box.y + h.y * scale + 12,
+    };
+  };
 
   const onMove = (iso: string) => (e: React.MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -33,6 +52,7 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
   return (
     <div ref={containerRef} style={{ position: 'relative' }}>
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
         role="img"
         aria-label={`Europe map, ${metric.label} in ${year}`}
@@ -81,9 +101,10 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
             />
           );
         })}
+        {showHubs && <HubMarkers hubs={placedHubs} onHover={setHubHover} />}
       </svg>
 
-      {hover && hoverRow && (
+      {hover && hoverRow && !hubHover && (
         <div className="tooltip" style={{ left: hover.x, top: hover.y }}>
           <div className="tt-title">
             {names[hover.iso] ?? hover.iso} · {year}
@@ -104,6 +125,50 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
           </div>
           {hoverRow.flagged && (
             <div className="tt-flag">⚠ stress flag (DC share of peak or adequacy threshold)</div>
+          )}
+        </div>
+      )}
+
+      {hubHover && (
+        <div className="tooltip" style={hubTooltipPos(hubHover)}>
+          <div className="tt-title">
+            {hubHover.name}
+            {hubHover.flapd && ' · FLAP-D'}
+          </div>
+          <div>
+            {hubHover.ixpName ? (
+              <>
+                Internet exchange: <strong>{hubHover.ixpName}</strong>
+              </>
+            ) : (
+              <span className="muted">No internet exchange at this location</span>
+            )}
+          </div>
+          {hubHover.ixpPeakTbps !== null ? (
+            <div className="muted">
+              Peak traffic {hubHover.ixpPeakTbps} Tbit/s (as of {hubHover.asOf})
+            </div>
+          ) : (
+            hubHover.ixpName && (
+              <div className="muted">
+                Size class {hubHover.sizeClass} — no current published figure verified
+              </div>
+            )
+          )}
+          <div className="muted">
+            Cluster driver:{' '}
+            {hubHover.driver === 'peering'
+              ? 'network interconnection'
+              : hubHover.driver === 'power'
+                ? 'power and cooling climate'
+                : 'interconnection and power'}
+          </div>
+          {rows[hubHover.iso] && (
+            <div className="muted">
+              {names[hubHover.iso] ?? hubHover.iso} {year}: DC{' '}
+              {rows[hubHover.iso]!.dcEnergyTwh.toFixed(1)} TWh (country-level — the model does not
+              resolve individual hubs)
+            </div>
           )}
         </div>
       )}
@@ -129,6 +194,22 @@ export function EuropeMap({ rows, names, metric, domainMax, year }: Props) {
           />
           <span>stress flag</span>
         </span>
+      </div>
+
+      <div className="legend" style={{ marginTop: 4 }}>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <input
+            type="checkbox"
+            checked={showHubs}
+            onChange={(e) => {
+              setShowHubs(e.target.checked);
+              if (!e.target.checked) setHubHover(null);
+            }}
+          />
+          <span>Data center clusters</span>
+        </label>
+        {showHubs && <HubLegend />}
+        {showHubs && <span style={{ marginLeft: 'auto' }}>marker size = exchange size class</span>}
       </div>
       {MISSING_ON_MAP.length > 0 && (
         <p className="muted" style={{ margin: '4px 0 0' }}>

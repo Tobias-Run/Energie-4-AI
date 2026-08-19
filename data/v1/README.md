@@ -16,6 +16,7 @@ of every parameter and [`../../docs/sources.bib`](../../docs/sources.bib)) plus 
 | `countries.json`           | Per-country parameters, base year 2024 (demand, DC stock, supply mix, grid pipeline) |
 | `ntc.json`                 | Simplified interconnection network (bidirectional NTCs, GW)                          |
 | `scenario-defaults.json`   | Default ("central") scenario parameter set and lever defaults                        |
+| `hubs.json`                | Data center cluster locations + internet exchange linkage (map annotations only)     |
 | `calibration-anchors.json` | Published corridors the default run must reproduce (validation gate V1)              |
 
 ## Source-tracking rule

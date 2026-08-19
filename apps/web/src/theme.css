@@ -10,6 +10,8 @@
   --series-1: #2a78d6;
   --status-critical: #d03b3b;
   --map-other: #efeeea;
+  --hub-marker: #1c1c1a;
+  --hub-halo: #ffffff;
   /* supply-mix categories (validated categorical slots: green / violet / orange) */
   --mix-ren: #008300;
   --mix-nuc: #4a3aa7;
@@ -40,6 +42,8 @@
     --series-1: #3987e5;
     --status-critical: #e66767;
     --map-other: #242423;
+    --hub-marker: #f5f4f0;
+    --hub-halo: #14140f;
     --mix-ren: #008300;
     --mix-nuc: #9085e9;
     --mix-fossil: #d95926;

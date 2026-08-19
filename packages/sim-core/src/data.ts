@@ -4,11 +4,16 @@ import defaultsJson from '../../../data/v1/scenario-defaults.json';
 import ntcJson from '../../../data/v1/ntc.json';
 import anchorsJson from '../../../data/v1/calibration-anchors.json';
 import benchmarksJson from '../../../data/v1/regional-benchmarks.json';
+import hubsJson from '../../../data/v1/hubs.json';
 
 export interface CountryParams {
   iso: string;
   name: string;
   eu27: boolean;
+  /**
+   * Legacy free-text hub label. Superseded by the `hubs` bundle, which is authoritative
+   * for hub identity, location, and IXP linkage; kept only so the bundle schema is stable.
+   */
   hub: string | null;
   baselineTwh2024: number;
   baselineGrowthPre2030: number;
@@ -27,6 +32,29 @@ export interface CountryParams {
   otherFirmDeclinePerYear: number;
   baseConnectableGwPerYear: number;
   pipelineTightness: number;
+}
+
+/**
+ * A data center cluster location. Display metadata only — the simulation stays at
+ * country level (decision on issue #2), so nothing here feeds the model.
+ */
+export interface Hub {
+  id: string;
+  name: string;
+  iso: string;
+  lat: number;
+  lon: number;
+  /** Part of the FLAP-D cluster (Frankfurt, London, Amsterdam, Paris, Dublin). */
+  flapd: boolean;
+  /** Why the cluster sits here: interconnection density, cheap/clean power, or both. */
+  driver: 'peering' | 'power' | 'mixed';
+  /** Internet exchange point at this location, null where there is none. */
+  ixpName: string | null;
+  /** Published peak traffic; null where no current figure could be verified. */
+  ixpPeakTbps: number | null;
+  /** As-of date for ixpPeakTbps (live figure that drifts), null when unverified. */
+  asOf: string | null;
+  sizeClass: 'major' | 'mid' | 'regional' | 'none';
 }
 
 export interface RegionalBenchmarks {
@@ -93,6 +121,7 @@ export const scenarioDefaults: ScenarioDefaults = defaultsJson as ScenarioDefaul
 export const ntcLinks: NtcLink[] = ntcJson.links as NtcLink[];
 export const calibrationAnchors: CalibrationAnchors = anchorsJson as CalibrationAnchors;
 export const regionalBenchmarks: RegionalBenchmarks = benchmarksJson as RegionalBenchmarks;
+export const hubs: Hub[] = hubsJson.hubs as Hub[];
 
 export const dataVersion = countriesJson.version;
 
@@ -104,4 +133,5 @@ export const provenanceMaps: Record<string, Record<string, string>> = {
   'ntc.json': ntcJson.provenance,
   'calibration-anchors.json': anchorsJson.provenance,
   'regional-benchmarks.json': benchmarksJson.provenance,
+  'hubs.json': hubsJson.provenance,
 };
