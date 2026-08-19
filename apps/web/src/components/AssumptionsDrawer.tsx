@@ -69,7 +69,7 @@ export function AssumptionsDrawer({ metric }: Props) {
         <code>expert-guess</code> marks parameters without a published source (§8.3). External data
         are cited facts used for scientific research and education —{' '}
         <a href={`${REPO}/blob/main/docs/DISCLAIMER.md`}>full statement</a>. Model structure:{' '}
-        <a href={`${REPO}/blob/main/docs/model-notes-p0.md`}>model notes</a>.
+        <a href={`${REPO}/blob/main/docs/model-notes.md`}>model notes</a>.
       </p>
     </details>
   );
