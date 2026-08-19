@@ -42,8 +42,19 @@ export const METRICS: MetricDef[] = [
     value: (r) => r.stressIndex,
     format: (v) => v.toFixed(2),
     explanation:
-      'Annual demand divided by total available resources (domestic low-carbon + legacy firm + gas capacity + NTC import capability). A coarse adequacy proxy — no load flow, no intra-hour dispatch (see model limits).',
-    sourceIds: ['expert-guess'],
+      'Annual demand divided by total available resources (renewables + nuclear + legacy firm + gas capacity + NTC import capability). Import capability is direction-aware and grows along sourced 2024/2030/2040 anchors. A coarse adequacy proxy — no load flow, no intra-hour dispatch (see model limits).',
+    sourceIds: ['ember2026interconnection', 'expert-guess'],
+  },
+  {
+    id: 'dcShareOfPeak',
+    label: 'DC share of peak load',
+    unit: '%',
+    value: (r) => r.dcShareOfPeak,
+    format: (v) => `${(v * 100).toFixed(1)}%`,
+    fixedMax: 0.4,
+    explanation:
+      'Firm (inference) data center draw as a share of national peak load. This is the criterion that actually trips the late-horizon stress flags — in the central run Ireland and Luxembourg cross it while their adequacy ratios stay comfortable. The flexibility lever acts directly on it.',
+    sourceIds: ['noland2024baseload', 'ember2026interconnection', 'expert-guess'],
   },
   {
     id: 'renewablesShare',
@@ -85,8 +96,8 @@ export const METRICS: MetricDef[] = [
     value: (r) => r.emissionsMt,
     format: (v) => `${v.toFixed(1)} Mt`,
     explanation:
-      'Gas dispatched as residual demand × 0.37 Mt/TWh plus legacy firm generation × 0.85 Mt/TWh. Emission factors are expert-guess placeholders pending a sourced dataset.',
-    sourceIds: ['expert-guess'],
+      'Gas dispatched as residual demand × 0.37 Mt/TWh plus legacy firm generation × 0.85 Mt/TWh. These are direct-combustion factors anchored on IPCC AR5; they sit below the lifecycle medians by design, since upstream methane, fuel transport and plant construction are not tracked — so this figure is a lower bound.',
+    sourceIds: ['ipcc2014ar5annex3', 'ember2025eer'],
   },
 ];
 
