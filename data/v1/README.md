@@ -2,6 +2,12 @@
 
 Versioned static JSON parameter bundles for the Energie-4-AI simulation core (mission document §7, §8.3).
 
+**License:** CC-BY-4.0, to the extent this project holds rights in these bundles. They are
+compilations of individually cited facts from third-party publications (see the `source_id`
+of every parameter and [`../../docs/sources.bib`](../../docs/sources.bib)) plus our own
+`expert-guess` estimates; rights in the underlying figures stay with their publishers — see
+[`../../docs/DISCLAIMER.md`](../../docs/DISCLAIMER.md). The application code is MIT.
+
 ## Files
 
 | File                       | Contents                                                                             |

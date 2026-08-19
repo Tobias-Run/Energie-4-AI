@@ -7,7 +7,7 @@
 ![Calibration](<https://img.shields.io/badge/calibration_gate_V1-passing_(22_tests)-brightgreen>)
 ![Simulation](https://img.shields.io/badge/simulation-client--side_TypeScript-blue)
 ![Scope](https://img.shields.io/badge/scope-EU--27_%2B_UK_%2B_NO_%2B_CH-green)
-![License](<https://img.shields.io/badge/license-TBD_(MIT_or_Apache--2.0)-lightgrey>)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 An AI data center is built in **12–24 months**. The grid infrastructure to feed it takes **up to a decade**. Every siting, flexibility, and generation decision made today is a bet on how that gap closes.
 
@@ -104,4 +104,12 @@ All external data (IEA, ENTSO-E/ENTSOG, Ember/ICIS, European Commission, peer-re
 
 ## License
 
-Open source — **MIT or Apache-2.0** (final choice pending, see [mission document §11](docs/mission-document-gridsim.md#11-open-decisions)). Data bundles under CC-BY where source licenses permit.
+Code: **MIT** — see [LICENSE](LICENSE). Chosen as the maximally permissive option; no
+copyleft, no patent clause, no attribution burden beyond the copyright notice.
+
+Data bundles in [`data/`](data/): **CC-BY-4.0**, to the extent the project holds rights
+in them. The bundles are compilations of individually cited facts from third-party
+publications (IEA, ENTSO-E, Ember, European Commission) plus our own `expert-guess`
+estimates — this project cannot grant broader rights in the underlying figures than it
+holds itself, which is why the data cannot go as permissive as the code. See
+[docs/DISCLAIMER.md](docs/DISCLAIMER.md).
