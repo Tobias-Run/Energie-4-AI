@@ -125,10 +125,16 @@ oder _wo_ sie landet? Getestet unter Boom-Bedingungen (×1,75), damit die Anschl
 3. **Die Umverteilung ist klein gegen die Gesamtmenge.** 1,2 TWh Verschiebung bei 146 TWh
    EU-Total sind unter 1 %. Die beiden Karten sind mit bloßem Auge nicht zu unterscheiden;
    der Unterschied steckt in Irlands Queue-Spalte in der Tabellenansicht, nicht im Bild.
-4. **Ehrlicher Vorbehalt:** Der Reform-Effekt bleibt klein, weil die Default-Pipelines
-   außerhalb der Hubs weiterhin `expert-guess` und großzügig angesetzt sind — die
-   Warteschlangen binden fast nur in Irland. Ob die Reform europaweit stärker durchschlägt,
-   entscheidet sich an gehärteten Pipeline-Daten
+4. **Ehrlicher Vorbehalt — inzwischen verschärft:** Der Reform-Effekt bleibt klein, und die
+   Ursache ist nicht nur schlechte Datenlage. Beim Härten der Pipeline-Parameter hat sich
+   gezeigt, dass **die Anschlussrestriktion im Modell gar nicht binden kann**: Die Pipeline
+   wird aus dem eigenen Bedarf eines Landes gespeist und erzeugt mit drei Jahren Verzug
+   ungefähr die Kapazität, die nachgefragt wird. Setzt man Dänemarks Anschlusskapazität auf
+   null, behält es immer noch 8,63 von 13,40 TWh, und die Warteschlange bleibt exakt null.
+   Der Satz „die Reform ändert die Landkarte, nicht das Total" ist deshalb **teilweise ein
+   Artefakt** — kein Genehmigungsparameter kann das Total ändern, solange die Pipeline keine
+   Kapazität zurückhalten kann. Details in [model-notes.md](model-notes.md), Abschnitt
+   „Known defects"; Nachtrag zu
    ([Issue #4](https://github.com/Tobias-Run/Energie-4-AI/issues/4)).
 
 ![Boom ohne Reform 2030](img/cs-B1-boom-noreform-2030.png)

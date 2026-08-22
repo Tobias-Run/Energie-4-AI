@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Per-country parameters, base year 2024, hardened per issues #4/#12: demand and generation split (renewables / nuclear / fossil) approximated from Ember European Electricity Review 2025 (values rounded, quarterly review per §8.3); DC 2024 country split from the ENTSO-E data centre report where published, otherwise expert allocation; growth trajectories NECP/TYNDP-flavored expert estimates. Nuclear deltas may be negative (phase-out) or positive (new builds); the engine floors nuclear at zero. v2.1.0: peakFactor is no longer a flat estimate — it is computed as 2024 peak demand (Ember interconnection data tool, peak_demand.csv) divided by average load (annual demand / 8760 h) for all 29 countries that dataset covers; Great Britain is absent from it and keeps its estimate.",
   "provenance": {
     "baselineTwh2024": "ember2025eer",
@@ -20,7 +20,11 @@
     "baseConnectableGwPerYear": "expert-guess",
     "pipelineTightness": "expert-guess",
     "hub": "iea2025energyai",
-    "countries.GB.peakFactor": "expert-guess"
+    "countries.GB.peakFactor": "expert-guess",
+    "countries.IT.pipelineTightness": "terna2026dcqueue",
+    "countries.NL.pipelineTightness": "tennet2026queue",
+    "countries.DK.pipelineTightness": "energinet2026pause",
+    "countries.IE.pipelineTightness": "cru2025dcconnection"
   },
   "countries": [
     {
@@ -90,7 +94,7 @@
       "otherFirmTwh2024": 15,
       "otherFirmDeclinePerYear": 1.5,
       "baseConnectableGwPerYear": 0.25,
-      "pipelineTightness": 1
+      "pipelineTightness": 0.8
     },
     {
       "iso": "ES",
@@ -182,7 +186,7 @@
       "otherFirmTwh2024": 10,
       "otherFirmDeclinePerYear": 1,
       "baseConnectableGwPerYear": 0.15,
-      "pipelineTightness": 0.5
+      "pipelineTightness": 0.45
     },
     {
       "iso": "BE",
@@ -389,7 +393,7 @@
       "otherFirmTwh2024": 4,
       "otherFirmDeclinePerYear": 0.5,
       "baseConnectableGwPerYear": 0.15,
-      "pipelineTightness": 1
+      "pipelineTightness": 0.15
     },
     {
       "iso": "BG",
@@ -713,5 +717,13 @@
       "baseConnectableGwPerYear": 0.1,
       "pipelineTightness": 1
     }
-  ]
+  ],
+  "pipelineTightnessMapping": {
+    "_note": "pipelineTightness scales a country's nominal large-load connection capability. The EVIDENCE below is sourced per country; the numeric mapping to a 0-1 multiplier is a model convention, not a measured quantity. Countries with no published constraint stay at 1.0 and remain expert-guess.",
+    "0.15": "active national pause on new large-load connections",
+    "0.22": "multi-year de-facto moratorium plus binding conditions on new connections",
+    "0.45": "moratorium in the principal hub region plus multi-year zero-capacity zones elsewhere",
+    "0.7-0.8": "queue several times peak demand, congestion managed by triage without a moratorium",
+    "1.0": "no published constraint found (expert-guess)"
+  }
 }

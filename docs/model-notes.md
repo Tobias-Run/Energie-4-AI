@@ -130,9 +130,53 @@ European Electricity Review 2025), NTC capacities and peak factors (Ember Europe
 Interconnection Data Tool, CC-BY-4.0, ENTSO-E-derived), emission factors (IPCC AR5), permitting
 durations (EC Grids Package), regional benchmarks (IEA, corroborated for the US by LBNL and EPRI).
 
-Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`, `pipelineTightness`,
+`pipelineTightness` is now sourced for the four countries where a TSO has published a binding
+constraint: Denmark (national connection pause, 2026-03-02), Ireland (CRU decision, 2025-12),
+the Netherlands (TenneT queue and the Amsterdam moratorium) and Italy (Terna). The numeric
+mapping from those facts to a 0–1 multiplier is a documented model convention, recorded in
+`data/v1/countries.json` under `pipelineTightnessMapping` — the evidence is sourced, the
+multiplier is not a measured quantity. The remaining 26 countries stay at 1.0 and
+`expert-guess`.
+
+Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`,
 `baseConnectableGwPerYear`, `priceIndex`, `gasCapTwh2024`, all growth-rate fields, both flag
 thresholds, `phantomQueueFactor`, `spillShare`, `allocationGravityExponent`.
+
+## Known defects
+
+These are not simplifications. They are places where the model does not do what its structure
+claims to do, found while sourcing the connection-pipeline parameters.
+
+**The grid-connection constraint cannot bind.** `engine.ts` computes a country's available
+connection capacity as `baseConnectableGwPerYear * pipelineTightness + builtFlow`, where
+`builtFlow` leaves a delay chain whose inflow is that same country's desired connections. Supply
+is therefore a lagged function of demand: the pipeline manufactures roughly whatever capacity is
+wanted, three years late, and the per-country term is only an additive floor on top.
+
+The consequence is measurable. Setting Denmark's `pipelineTightness` to **zero** — no baseline
+connection capability at all — still leaves it with 8.63 of the 13.40 TWh it gets unconstrained
+in the 2045 boom run, and its connection queue stays at exactly zero at every value in between.
+A national moratorium on new large-load connections, which is precisely what Energinet imposed
+in March 2026, cannot be represented in this model at any parameter setting.
+
+Two published results depend on this. The finding in `docs/fallstudien.md` that permitting reform
+"changes the map, not the total" is partly an artefact: the pipeline cannot withhold capacity, so
+no permitting variable can change the total. And the newly sourced tightness values for Denmark,
+Italy and the Netherlands are close to cosmetic until the mechanism is fixed — they are correct,
+and they are a prerequisite for a fix, but on their own they move almost nothing.
+
+Pinned by `packages/sim-core/test/connectionConstraint.test.ts`, which asserts the wrong
+behaviour on purpose so that a fix has to change the tests visibly.
+
+**`phantomQueueFactor` measures the wrong direction.** In the model a larger speculative queue
+_expands_ grid build-out. The sources that quantify speculation describe the opposite response:
+Terna reports 82 GW of data-centre requests against 1.5–2 GW it expects to materialise by 2030
+and triages accordingly; Energinet stopped connecting altogether at 60 GW against a 7 GW peak.
+Oversubscription produces rationing, not proportional construction. The sourced figures are
+therefore deliberately _not_ plugged into this parameter — doing so would push the model to build
+more grid, not less. Its range was instead widened to 1.0–3.0 so that it spans the point where
+Ireland's 2045 flag switches on, which it does between 1.0 and 1.5 — meaning one of the model's
+headline results currently rests on an unsourced parameter sitting at its own tipping point.
 
 ## Known simplifications (honest-limits, §7)
 

@@ -65,9 +65,17 @@ Stating this up front so the review is not spent rediscovering it.
    Luxembourg trip a 0.15 threshold on firm DC draw ÷ peak load, while their adequacy ratios sit at
    0.43–0.78. Both the 0.15 threshold and the 0.85 firm-load share are the numbers that matter, and
    only the latter has a published source.
-3. **The connection pipeline redistributes rather than constrains at EU level.** Every grid
-   parameter scores zero sensitivity on EU-wide DC demand. That may be a real finding or an
-   artefact of the 60% spillover assumption; we cannot currently tell which.
+3. **The connection pipeline cannot constrain at all — this one is now settled, and it is a
+   defect.** Every grid parameter scores zero sensitivity on EU-wide DC demand. We previously
+   listed this as "a real finding or an artefact, we cannot tell which". It is an artefact.
+   A country's available connection capacity is `baseConnectableGwPerYear * pipelineTightness
+   - builtFlow`, and `builtFlow`comes out of a delay chain fed by that same country's desired
+connections — so supply is a lagged function of demand. Setting Denmark's connection
+capability to **zero** still leaves it 8.63 of the 13.40 TWh it gets unconstrained in the
+2045 boom run, with a queue of exactly zero throughout. Energinet's March 2026 national
+connection pause cannot be represented at any parameter value. We would value a reviewer's
+view on the right repair; see "Known defects" in`model-notes.md`, and the deliberately
+wrong-on-purpose `connectionConstraint.test.ts`.
 4. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
    4.22% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
