@@ -20,7 +20,7 @@ export const storiesEn = {
     s1t: 'A system at its limit',
     s1: 'Ireland already runs the most DC-saturated grid in Europe. Follow its share of national demand: even so, it is not the country that ends up flagged — and the reason is the interesting part.',
     s2t: 'Where it ends up',
-    s2: 'By 2045 data centers draw about 20% of Irish electricity, but only 10% of peak load — below the flag line. Ireland\'s own connection constraint binds first: the model gives it the tightest connection pipeline in Europe, reflecting the moratorium in place since 2021 and the conditions the regulator imposed in December 2025. Luxembourg is flagged instead, at 25% of its demand and 17% of peak.',
+    s2: "By 2045 data centers draw about 20% of Irish electricity, but only 10% of peak load — below the flag line. Ireland's own connection constraint binds first: the model gives it the tightest connection pipeline in Europe, reflecting the moratorium in place since 2021 and the conditions the regulator imposed in December 2025. Luxembourg is flagged instead, at 25% of its demand and 17% of peak.",
     s3t: 'The moratorium',
     s3: 'Switch siting policy to "capped hubs": a country stops accepting new connections once DC load passes {cap}% of its own demand. This is what Dublin and Amsterdam actually did — not an EU quota, a local refusal.',
     s4t: 'A cap on top of a cap',
