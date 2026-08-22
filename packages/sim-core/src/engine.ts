@@ -72,6 +72,14 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     state.set(c.iso, {
       dcEnergyTwh: c.dcTwh2024,
       queueGw: 0,
+      // Deliberately the BASELINE permitting duration, not the run's. The initial stocks
+      // represent the world as it stands in the base year, where the backlog accumulated under
+      // today's ~9-year regime. A reform then drains that existing backlog faster, which is a
+      // real effect of the policy rather than an artefact: with the fixed step order the run
+      // starts at exactly the steady flow and rises to about 1.43x over four years before
+      // decaying back. Initialising with the reform duration instead scales the starting stock
+      // down by precisely the factor the drain rate is scaled up, which makes permitting reform
+      // a mathematical no-op — measured, flat 1.000 in every year.
       pipeline: initPipeline(
         c.baseConnectableGwPerYear * c.pipelineTightness,
         d.permittingYearsBaseline,

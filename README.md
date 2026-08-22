@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-P1_interactive_MVP-blue)
-![Calibration](<https://img.shields.io/badge/calibration_gate_V1-passing_(22_tests)-brightgreen>)
+![Calibration](<https://img.shields.io/badge/calibration_gate_V1-passing_(86_tests)-brightgreen>)
 ![Simulation](https://img.shields.io/badge/simulation-client--side_TypeScript-blue)
 ![Scope](https://img.shields.io/badge/scope-EU--27_%2B_UK_%2B_NO_%2B_CH-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -41,7 +41,7 @@ A **system-dynamics / stock-flow simulation** with annual steps — deliberately
 
 - **Simulation core:** pure, framework-free TypeScript (`/packages/sim-core`), deterministic given a seed
 - **UI:** React + TypeScript, D3/deck.gl map layer — no backend, everything in your browser
-- **Calibration gate:** the default run must reproduce published scenario corridors (IEA, ENTSO-E, ICIS/Ember) within ±10% before any release — **currently passing** (see below)
+- **Calibration gate:** the default run must reproduce published scenario corridors (IEA, ENTSO-E, ICIS/Ember) within ±10% before any release — **currently passing, with the caveat below**
 - **Performance:** full 20-year default run currently ~6 ms (budget < 100 ms) · Monte Carlo (200 runs, P2) < 5 s · initial load < 3 s
 
 **Honest limits:** scenarios are exploration devices, not predictions. Model-class limitations (no load flow, annual resolution, corridor not forecast) are displayed persistently in the UI — not buried in an about page.
@@ -50,13 +50,20 @@ A **system-dynamics / stock-flow simulation** with annual steps — deliberately
 
 The default run reproduces the published corridors (enforced by `packages/sim-core/test/calibration.test.ts`):
 
-| Anchor                                 | Source            | Target   | Model |
-| -------------------------------------- | ----------------- | -------- | ----- |
-| Global DC demand 2030                  | IEA (2025)        | ~945 TWh | 945.0 |
-| EU-27 DC demand growth 2024→2030       | IEA (2025)        | ~+45 TWh | +45.0 |
-| EU-27 DC demand growth 2025→2030       | ENTSO-E (2026)    | > +50%   | +54%  |
-| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | ~4.5%    | 4.4%  |
-| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | ~5.7%    | 5.6%  |
+| Anchor                                 | Source            | Target   | Model  |
+| -------------------------------------- | ----------------- | -------- | ------ |
+| Global DC demand 2030                  | IEA (2025)        | ~945 TWh | 945.0  |
+| EU-27 DC demand growth 2024→2030       | IEA (2025)        | ~+45 TWh | +43.93 |
+| EU-27 DC demand growth 2025→2030       | ENTSO-E (2026)    | > +50%   | +53.0% |
+| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | ~4.5%    | 4.18%  |
+| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | ~5.7%    | 5.32%  |
+
+**How much this gate proves.** An external review established that three of these five anchors are
+arithmetic identities of the model's own construction rather than tests, that the two share anchors
+sit at the lean edge of tolerance, and that they conflict with the volume anchors drawn from the
+same publications. Treat the gate as regression protection; it is not validation. See issues
+[#25](https://github.com/Tobias-Run/Energie-4-AI/issues/25) and
+[#26](https://github.com/Tobias-Run/Energie-4-AI/issues/26), and `docs/model-notes.md`.
 
 ## Development
 

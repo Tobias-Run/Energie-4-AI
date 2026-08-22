@@ -5,8 +5,10 @@ Audience: external energy-system reviewers (quality gate, mission document §7, 
 **Status:** post-P2. This file was previously called `model-notes-p0.md` and described the P0
 prototype; by the time the P2 work landed it misdescribed the model in four material ways, so it
 has been rewritten against the running code rather than patched. Every figure below is read from a
-default run at data bundle **v2.1.0** — if you find one that disagrees with the code, the code is
-right and this file has drifted again.
+default run at data bundle **v2.2.0**. This file drifted once before and an external review caught
+it in four places at once, so the figures marked below are now produced by `modelFacts()` in
+sim-core and checked against this file by `test/docsConsistency.test.ts` — a number here that
+disagrees with the code fails the build.
 
 ## What this model is
 
@@ -70,9 +72,15 @@ proxy.
   computed from 2024 peak demand ÷ average load, not guessed.
 
 **In the central run the late-horizon flags come from the peak-share criterion, not adequacy.** In
-2045 Ireland and Luxembourg trip it at 15.5% and 16.5% while their adequacy ratios sit at 0.43–0.78,
-far below the 0.9 line. Anyone reviewing the adequacy formula should know it is not what produces
-the headline result.
+2045 only Luxembourg trips it, at 16.94%. Ireland sits at 10.03% of peak and is not flagged — its
+own connection ceiling holds it there (see "Repaired defects"). Anyone reviewing the adequacy
+formula should know it is not what produces the headline result.
+
+The adequacy criterion is close to inert, and a reviewer should know how close. It fires only on
+base-year data: Poland is flagged in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903, and from 2027
+onward nothing reaches the 0.9 line again — the 2045 maximum is 0.750. Every parameter feeding it
+therefore scores a sensitivity of exactly zero at the 2045 tornado horizon. Tracked as B2 in
+issue #30.
 
 The flexibility lever removes enrolled load from the peak contribution entirely, on the assumption
 that it curtails exactly when needed — an optimistic reading, which is why the lever stops at 50%.
@@ -95,8 +103,9 @@ one-at-a-time sensitivity and does not capture interactions; the corridor does.
 
 Two results from that machinery a reviewer should see early:
 
-- **Flag frequencies say more than the flags.** For 2045 the deterministic run names Ireland alone;
-  across sampled ranges Luxembourg is flagged in ~56% of runs and Ireland in ~48%.
+- **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 69.5% of runs, Latvia in
+  5.0% and Estonia in 2.5%. Ireland appears in none.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -105,17 +114,25 @@ Two results from that machinery a reviewer should see early:
 
 Enforced in `packages/sim-core/test/calibration.test.ts`, ±10% unless noted. Default-run values:
 
-| Anchor                      | Target  | Model     |
-| --------------------------- | ------- | --------- |
-| Global DC demand 2030       | 945 TWh | 945 TWh   |
-| EU-27 DC increase 2024→2030 | +45 TWh | +44.8 TWh |
-| EU-27 DC growth 2025→2030   | ≥ +50%  | pass      |
-| DC share of EU demand 2030  | 4.5%    | 4.22%     |
-| DC share of EU demand 2035  | 5.7%    | 5.36%     |
+| Anchor                      | Target  | Model      | What it tests              |
+| --------------------------- | ------- | ---------- | -------------------------- |
+| Global DC demand 2030       | 945 TWh | 945 TWh    | nothing — an identity      |
+| EU-27 DC increase 2024→2030 | +45 TWh | +43.93 TWh | almost nothing — see below |
+| EU-27 DC growth 2025→2030   | ≥ +50%  | +53.0%     | little — same curve        |
+| DC share of EU demand 2030  | 4.5%    | 4.18%      | the denominator            |
+| DC share of EU demand 2035  | 5.7%    | 5.32%      | the denominator            |
 
-Both share anchors sit on the low side of their tolerance band. That is worth a reviewer's
-attention: the model reproduces the absolute TWh anchors closely but runs slightly lean on share,
-which means the exogenous baseline demand trajectory may be a touch high.
+**Read this gate as regression protection, not as validation.** Three of the five anchors are
+arithmetic identities of the model's own construction: `k` in the logistic is solved so the curve
+passes through 945 at 2030, and the EU capture share was set to the +45 TWh anchor. Only the two
+share anchors can fail, and both sit at the lean edge of tolerance. The base year of the model's
+own anchor series — 3% → 4.5% → 5.7% — is not checked at all; the model starts 2024 at 2.61%.
+Tracked in issue #25.
+
+The two share anchors and the volume anchors also come from sources that disagree with each other:
+the published range for Europe's 2030 DC demand is 109 TWh (IEA) to 168 TWh (Ember/ICIS), and the
+share anchor comes from the same publication as the volume level the model misses by 20%. The gate
+passes both only because ±10% is wide enough to cover the contradiction. Tracked in issue #26.
 
 ## Data provenance
 
@@ -176,6 +193,23 @@ and the flag list stays `[LU]`, but Ireland's own figure swings between 7.6 and 
 aggregates are robust to it; country-level statements are not.
 
 Pinned by `packages/sim-core/test/connectionConstraint.test.ts`.
+
+**Pipeline initialisation was not a fixed point (fixed).** `stepPipeline` added the year's inflow
+to the announced stock _before_ computing outflows, so a share of a connection announced today
+finished construction in the same year, and `initPipeline` overshot its own steady state by 37.04%
+in the first year. Outflows are now taken from the stocks as they stand at the start of the year.
+The initialisation is an exact fixed point — a steady inflow of 1 returns exactly 1.000000 in every
+year — and a one-off announcement now builds nothing for two years before deliveries start, which
+is a minimum lead time emerging from the step order rather than an added rule.
+
+This was raised by the external review, which additionally proposed calling `initPipeline` with the
+permitting duration the run actually uses. **We tested that and did not adopt it.** Scaling the
+initial stock by the reform duration reduces it by precisely the factor the drain rate is increased,
+so permitting reform becomes a mathematical no-op: measured, a flat 1.000 in every year, identical
+to the baseline. The base-year stocks represent a backlog accumulated under today's ~9-year regime,
+and a reform draining that backlog faster is a real effect of the policy. With the step order fixed
+it is no longer an instantaneous jump: the run starts at exactly the steady flow and rises to about
+1.43× over four years before decaying back.
 
 **`phantomQueueFactor` measures the wrong direction (open).** In the model a larger
 speculative queue _expands_ grid build-out. The sources that quantify speculation describe the
