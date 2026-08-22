@@ -131,8 +131,10 @@ oder _wo_ sie landet?
 ![Boom ohne Reform 2030](img/cs-B1-boom-noreform-2030.png)
 _B1: Boom ohne Reform, 2030, Stress-Index._
 
-![Boom mit Reform 2030](img/cs-B2-boom-reform-2030.png)
-_B2: Boom mit Reform, 2030 — der Unterschied steckt in den Queue-Spalten der Tabellenansicht._
+Ein zweites Bild für B2 gibt es bewusst nicht: Die beiden Karten sind bei dieser Metrik
+**byte-identisch** (gleiche Prüfsumme). Das ist kein Darstellungsfehler, sondern der Befund —
+die Reform verschiebt Anschlusszeitpunkte und Warteschlangen, nicht das Kartenbild. Der
+Unterschied steht in der Queue-Spalte der Tabellenansicht und in der Tabelle oben.
 
 ---
 
