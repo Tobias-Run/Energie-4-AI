@@ -4,18 +4,16 @@ import { runSimulation } from '../src/index.js';
 import type { Levers } from '../src/types.js';
 
 /**
- * Characterisation tests for the grid-connection constraint.
+ * The grid-connection constraint.
  *
- * These pin behaviour that is KNOWN TO BE WRONG. They exist so that a future fix to the
- * pipeline mechanism shows up as a deliberate, visible test change rather than a silent
- * shift in results. See docs/model-notes.md, "Known defects".
+ * These tests began life as characterisation tests pinning a defect: a country's connection
+ * capability used to be ADDED to the pipeline output, and the pipeline is fed by that same
+ * country's desired connections, so supply was a lagged function of demand and the constraint
+ * could not bind. Denmark kept 8.63 of 13.40 TWh with its capability set to zero.
  *
- * The defect: `availableGw = baseConnectableGwPerYear * pipelineTightness + builtFlow`
- * (engine.ts). `builtFlow` comes out of a delay chain whose inflow is the country's own
- * desired connections, so the pipeline manufactures roughly whatever capacity is demanded,
- * three years late. The per-country term is only an additive floor on top of that, which
- * means a national connection moratorium — the thing Denmark actually did in March 2026 —
- * cannot be represented, however small pipelineTightness is set.
+ * The capability now caps what enters the pipeline instead. These tests assert the repaired
+ * behaviour: the constraint binds, queues form, and permitting duration still matters below
+ * the ceiling.
  */
 const BOOM: Levers = {
   computeGrowthMultiplier: 1.75,
@@ -26,43 +24,45 @@ const BOOM: Levers = {
   priceSensitivity: 1,
 };
 
-function dkAt2045(tightness: number) {
+function dkAt2045(tightness: number, levers: Levers = BOOM) {
   const dk = countries.find((c) => c.iso === 'DK')!;
   const original = dk.pipelineTightness;
   try {
     dk.pipelineTightness = tightness;
-    const r = runSimulation({ levers: BOOM, params: { scenarioDefaults, globalCompute } });
+    const r = runSimulation({ levers, params: { scenarioDefaults, globalCompute } });
     return r.countries['DK']![r.years.indexOf(2045)]!;
   } finally {
     dk.pipelineTightness = original;
   }
 }
 
-describe('connection constraint (characterisation — documents a known defect)', () => {
-  it('a country keeps most of its data centres even with zero connection capability', () => {
+describe('connection constraint', () => {
+  it('binds: zero connection capability leaves almost no data centre load', () => {
     const unconstrained = dkAt2045(1);
     const zero = dkAt2045(0);
-
-    // Denmark still absorbs well over half its unconstrained load with the per-country
-    // connection term switched off entirely. If a fix makes the constraint bind, this
-    // ratio drops and the test must be revisited.
-    const retained = zero.dcEnergyTwh / unconstrained.dcEnergyTwh;
-    expect(retained).toBeGreaterThan(0.6);
-    expect(retained).toBeLessThan(0.7);
+    // Only the 2024 installed base survives; nothing new can connect.
+    expect(zero.dcEnergyTwh).toBeLessThan(unconstrained.dcEnergyTwh * 0.25);
   });
 
-  it('never queues anything, even under a modelled national moratorium', () => {
-    // A queue is the observable signature of a binding connection constraint. The current
-    // mechanism produces none for Denmark at any tightness, including zero.
-    for (const tightness of [1, 0.5, 0.15, 0]) {
-      expect(dkAt2045(tightness).queueGw).toBe(0);
+  it('queues what it cannot connect', () => {
+    // A queue is the observable signature of a binding constraint. Under a modelled
+    // moratorium Denmark accumulates one; unconstrained it does not.
+    expect(dkAt2045(0).queueGw).toBeGreaterThan(0);
+    expect(dkAt2045(1).queueGw).toBe(0);
+  });
+
+  it('responds monotonically to tightness', () => {
+    const values = [0, 0.15, 0.5, 1].map((t) => dkAt2045(t).dcEnergyTwh);
+    for (let i = 1; i < values.length; i++) {
+      expect(values[i]!).toBeGreaterThan(values[i - 1]!);
     }
   });
 
-  it('responds to tightness only weakly, and not at all EU-wide', () => {
-    const strict = dkAt2045(0.15);
-    const loose = dkAt2045(1);
-    // An 85% cut in connection capability moves Danish DC load by well under a fifth.
-    expect(Math.abs(1 - strict.dcEnergyTwh / loose.dcEnergyTwh)).toBeLessThan(0.2);
+  it('still lets permitting duration matter below the ceiling', () => {
+    // The ceiling limits the sustainable rate; permitting governs how fast the delay chain
+    // delivers during a ramp. Reform must therefore still move a constrained country.
+    const withoutReform = dkAt2045(0.15, BOOM);
+    const withReform = dkAt2045(0.15, { ...BOOM, permittingReform: true });
+    expect(withReform.dcEnergyTwh).toBeGreaterThan(withoutReform.dcEnergyTwh * 1.05);
   });
 });

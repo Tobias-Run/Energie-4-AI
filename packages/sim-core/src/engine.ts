@@ -131,13 +131,21 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       const availableGw = new Map<string, number>();
       for (const c of countries) {
         const s = state.get(c.iso)!;
+        // The country's own commissioning capability caps what can ENTER the pipeline, not
+        // what leaves it. It used to be added to the pipeline output, which made supply a
+        // lagged function of demand — the chain is fed by the country's own desired
+        // connections, so it manufactured whatever was wanted and the constraint could never
+        // bind; a national moratorium was unrepresentable at any parameter value. Capping the
+        // inflow instead keeps both mechanisms live: the ceiling limits the sustainable rate,
+        // while permitting duration still governs how fast the chain delivers during a ramp.
+        const capabilityGw = c.baseConnectableGwPerYear * c.pipelineTightness;
         const builtFlow = stepPipeline(
           s.pipeline,
-          desiredGw.get(c.iso)! * d.phantomQueueFactor,
+          Math.min(desiredGw.get(c.iso)! * d.phantomQueueFactor, capabilityGw),
           permittingYears,
           d.constructionYears,
         );
-        availableGw.set(c.iso, c.baseConnectableGwPerYear * c.pipelineTightness + builtFlow);
+        availableGw.set(c.iso, builtFlow);
       }
 
       const servedGw = new Map<string, number>();
