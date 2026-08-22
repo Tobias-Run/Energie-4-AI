@@ -32,14 +32,19 @@ describe('P2 levers (issue #6)', () => {
   it('capped siting holds saturated systems at the cap and clears their flags', () => {
     const capped = at({ ...BASE, sitingPolicy: 'capped' });
     const market = at(BASE);
-    for (const iso of ['IE', 'LU']) {
-      expect(market.share(iso), `${iso} uncapped`).toBeGreaterThan(d.hubCapDcShareOfDemand);
-      // The cap is tested at the start of each year against the previous year's share, so a
-      // country can overshoot by one year of additions before the moratorium bites — the same
-      // way a real moratorium is declared after the threshold is observed, not before.
-      expect(capped.share(iso), `${iso} capped`).toBeLessThan(d.hubCapDcShareOfDemand * 1.02);
-      expect(capped.row(iso).dcEnergyTwh).toBeLessThan(market.row(iso).dcEnergyTwh);
-    }
+
+    // Luxembourg is the only country that still passes the cap on its own demand. Ireland
+    // used to as well; since the connection constraint was repaired its own pipeline refuses
+    // the load first, leaving it just under the line at ~19.9% against a 20% cap.
+    expect(market.share('LU'), 'LU uncapped').toBeGreaterThan(d.hubCapDcShareOfDemand);
+    expect(market.share('IE'), 'IE uncapped').toBeLessThan(d.hubCapDcShareOfDemand);
+    expect(market.share('IE'), 'IE uncapped').toBeGreaterThan(d.hubCapDcShareOfDemand * 0.9);
+
+    // The cap is tested at the start of each year against the previous year's share, so a
+    // country can overshoot by one year of additions before the moratorium bites — the same
+    // way a real moratorium is declared after the threshold is observed, not before.
+    expect(capped.share('LU'), 'LU capped').toBeLessThan(d.hubCapDcShareOfDemand * 1.02);
+    expect(capped.row('LU').dcEnergyTwh).toBeLessThan(market.row('LU').dcEnergyTwh);
     expect(capped.agg.flaggedRegions).toEqual([]);
   });
 

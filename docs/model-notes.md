@@ -130,9 +130,60 @@ European Electricity Review 2025), NTC capacities and peak factors (Ember Europe
 Interconnection Data Tool, CC-BY-4.0, ENTSO-E-derived), emission factors (IPCC AR5), permitting
 durations (EC Grids Package), regional benchmarks (IEA, corroborated for the US by LBNL and EPRI).
 
-Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`, `pipelineTightness`,
+`pipelineTightness` is now sourced for the four countries where a TSO has published a binding
+constraint: Denmark (national connection pause, 2026-03-02), Ireland (CRU decision, 2025-12),
+the Netherlands (TenneT queue and the Amsterdam moratorium) and Italy (Terna). The numeric
+mapping from those facts to a 0–1 multiplier is a documented model convention, recorded in
+`data/v1/countries.json` under `pipelineTightnessMapping` — the evidence is sourced, the
+multiplier is not a measured quantity. The remaining 26 countries stay at 1.0 and
+`expert-guess`.
+
+Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`,
 `baseConnectableGwPerYear`, `priceIndex`, `gasCapTwh2024`, all growth-rate fields, both flag
 thresholds, `phantomQueueFactor`, `spillShare`, `allocationGravityExponent`.
+
+## Repaired defects
+
+**The grid-connection constraint could not bind (fixed).** A country's available connection
+capacity used to be `baseConnectableGwPerYear * pipelineTightness + builtFlow`, where
+`builtFlow` leaves a delay chain whose inflow is that same country's desired connections.
+Supply was therefore a lagged function of demand: the pipeline manufactured roughly whatever
+capacity was wanted and the per-country term was only an additive floor. Setting Denmark's
+`pipelineTightness` to **zero** still left it 8.63 of the 13.40 TWh it got unconstrained in
+the 2045 boom run, with a queue of exactly zero throughout. A national moratorium — precisely
+what Energinet imposed in March 2026 — was unrepresentable at any parameter value.
+
+The capability now caps what **enters** the pipeline instead of supplementing what leaves it.
+Both mechanisms stay live: the ceiling limits the sustainable connection rate, while
+permitting duration still governs how fast the chain delivers during a ramp. Capping the
+outflow instead was tried and rejected — it made permitting reform completely inert, because
+the ceiling then bound in every year that mattered.
+
+Three results changed, and all three are published in `docs/fallstudien.md`:
+
+- **Ireland is no longer flagged.** Its own connection limit holds it at 19.9% of national
+  demand and 10.2% of peak, below the 15% line, and it is now completely insensitive to the
+  compute boom — 8.7 TWh in the central, boom and boom-plus-efficiency runs alike.
+- **Permitting reform became measurable.** The three countries with a sourced connection
+  constraint gain double digits by 2030 (NL +11%, DK +12%, IE +4%) and their queues shrink.
+  Previously the lever moved almost nothing, because nothing could be withheld.
+- **Efficiency now moves the flag list**, taking Latvia off it in the boom run. It previously
+  changed the level only.
+
+The trade is that `baseConnectableGwPerYear`, still `expert-guess`, became the binding
+parameter. Its leverage was measured: over a ×0.5 to ×2 range the EU total moves 221 → 219 TWh
+and the flag list stays `[LU]`, but Ireland's own figure swings between 7.6 and 11.0 TWh. EU
+aggregates are robust to it; country-level statements are not.
+
+Pinned by `packages/sim-core/test/connectionConstraint.test.ts`.
+
+**`phantomQueueFactor` measures the wrong direction (open).** In the model a larger
+speculative queue _expands_ grid build-out. The sources that quantify speculation describe the
+opposite response: Terna reports 82 GW of data-centre requests against 1.5–2 GW it expects to
+materialise by 2030 and triages accordingly; Energinet stopped connecting altogether at 60 GW
+against a 7 GW peak. Oversubscription produces rationing, not proportional construction. The
+sourced figures are therefore deliberately _not_ plugged into this parameter — doing so would
+push the model to build more grid, not less. Its range was widened to 1.0–3.0 instead.
 
 ## Known simplifications (honest-limits, §7)
 

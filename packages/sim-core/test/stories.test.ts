@@ -36,24 +36,29 @@ describe('story: Grids Package delivers', () => {
 });
 
 describe('story: Dublin freeze spreads', () => {
-  it('claims Ireland reaches about 30% of its own demand by 2045', () => {
-    expect(at(BASE).share('IE')).toBeGreaterThan(0.25);
-    expect(at(BASE).share('IE')).toBeLessThan(0.35);
+  it('claims Ireland reaches about 20% of its own demand by 2045', () => {
+    expect(at(BASE).share('IE')).toBeGreaterThan(0.17);
+    expect(at(BASE).share('IE')).toBeLessThan(0.23);
   });
 
-  it('claims Ireland is flagged, alongside Luxembourg', () => {
-    expect(at(BASE).flags).toContain('IE');
+  it('claims Ireland is NOT flagged because its connection constraint binds first', () => {
+    // Ireland has the tightest connection pipeline in the model (moratorium since 2021 plus
+    // the CRU's December 2025 conditions), which holds its draw below the peak-share line.
+    expect(at(BASE).flags).not.toContain('IE');
     expect(at(BASE).flags).toContain('LU');
   });
 
-  it('claims capping takes Ireland from roughly 15 to roughly 9 TWh and clears its flag', () => {
+  it('claims the siting cap barely moves Ireland, and clears Luxembourg instead', () => {
     const market = at(BASE);
     const capped = at({ ...BASE, sitingPolicy: 'capped' });
-    expect(market.dc('IE')).toBeGreaterThan(13);
-    expect(market.dc('IE')).toBeLessThan(17);
-    expect(capped.dc('IE')).toBeGreaterThan(7);
-    expect(capped.dc('IE')).toBeLessThan(11);
-    expect(capped.flags).not.toContain('IE');
+    // Ireland is already refusing this load via its connection pipeline, so a second refusal
+    // mechanism has almost nothing left to take.
+    expect(market.dc('IE')).toBeGreaterThan(7);
+    expect(market.dc('IE')).toBeLessThan(11);
+    expect(Math.abs(1 - capped.dc('IE') / market.dc('IE'))).toBeLessThan(0.1);
+    // Luxembourg is where the lever actually bites.
+    expect(market.flags).toContain('LU');
+    expect(capped.flags).not.toContain('LU');
   });
 
   it('claims the load reappears elsewhere rather than disappearing', () => {

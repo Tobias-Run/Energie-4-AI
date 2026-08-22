@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Per-parameter uncertainty ranges for the Monte Carlo mode and the scenario corridors (mission document §5.5, issue #5). Each entry is a triangular distribution given as low / central / high, where `central` must equal the value in the underlying bundle. Paths address the parameter in its bundle: `scenarioDefaults.*` and `globalCompute.*`. Two kinds of entry live here and should not be confused: ranges taken from a publication's own scenario spread or reported range (source_id names it), and ranges on model-internal calibration parameters that have no published equivalent (marked expert-guess) — for those the range IS the honest statement, and the central value alone would be false precision. `stressFlagThreshold` is included deliberately: it is a definitional choice, not a physical quantity, and the corridor should show how much a flag depends on where the line is drawn.",
   "distribution": "triangular",
   "parameters": {
@@ -67,10 +67,10 @@
       "source_id": "expert-guess"
     },
     "scenarioDefaults.phantomQueueFactor": {
-      "low": 1.2,
+      "low": 1.0,
       "central": 1.5,
-      "high": 2.5,
-      "rationale": "Speculative inflation of connection queues (the same project queued at several sites). Widely acknowledged, almost never quantified — hence the deliberately wide range.",
+      "high": 3.0,
+      "rationale": "Speculative inflation of connection queues. No longer unquantified: Terna reports 82 GW of data-centre connection requests against 1.5-2 GW it expects to materialise by 2030 (~40x), and Energinet paused connections at a 60 GW queue against ~7 GW of national peak demand. Those figures are NOT plugged in directly, because they measure a different quantity than this parameter drives: here a larger queue expands grid build-out, whereas the same sources show TSOs responding to oversubscription with triage and moratoria instead. The range is widened to span the point where Ireland's 2045 flag switches on (it flips between 1.0 and 1.5), so the corridor shows that flag as uncertain rather than definite. See docs/model-notes.md, 'Known defects'.",
       "source_id": "expert-guess"
     },
     "scenarioDefaults.spillShare": {
