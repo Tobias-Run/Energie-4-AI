@@ -6,11 +6,14 @@
 > Register für Parameterquellen nach §8.3, und nichts in der Datenschicht ruht auf dem Folgenden.
 > Wer das Modell prüft, kann dieses Dokument überspringen.
 >
-> **Verifikationshinweis.** Die beiden Artikel, die den Anstoß gaben, waren aus der
-> Arbeitsumgebung heraus nicht abrufbar — beide Domains sperrt der Egress-Proxy. Ihr Inhalt ist
-> über Websuche rekonstruiert, nicht im Original gelesen. Die Zahlen unten stammen deshalb aus
-> den jeweils genannten Primär- und Sekundärquellen, nicht aus den beiden Artikeln. Wo eine
-> Angabe nur über die Rekonstruktion vorliegt, steht es dabei.
+> **Verifikationshinweis.** Die Quellenlage ist hier zweigeteilt, und das Dokument hält beides
+> auseinander. Der **Aktionsplan** in Abschnitt „Wechselseitige Befähigung" ist eine amtliche
+> Primärquelle, die im Volltext vorlag und vollständig gelesen wurde. Die **beiden Artikel**, die
+> den Anstoß gaben, waren dagegen aus der Arbeitsumgebung heraus nicht abrufbar — beide Domains
+> sperrt der Egress-Proxy. Ihr Inhalt ist über Websuche rekonstruiert, nicht im Original gelesen;
+> die Zahlen zu Investitionen und Netzausbau stammen deshalb aus den jeweils genannten Primär- und
+> Sekundärquellen, nicht aus den Artikeln. Wo eine Angabe nur über die Rekonstruktion vorliegt,
+> steht es an der Stelle dabei.
 
 ## Warum das überhaupt hierher gehört
 
@@ -112,6 +115,63 @@ Modell bildet das mit keinem Parameter ab — `pipelineTightness` fasst Genehmig
 und Personal zu einer Zahl zusammen. Der chinesische Ansatz macht sichtbar, dass das eine
 Vereinfachung ist, keine Vollständigkeit.
 
+## Der Aktionsplan „Wechselseitige Befähigung von KI und Energie" (April 2026)
+
+Anders als das Material oben ist dies eine **Primärquelle, vollständig gelesen**: 《关于促进人工智能与
+能源双向赋能的行动方案》, gemeinsam erlassen von Entwicklungs- und Reformkommission (NDRC),
+Energiebehörde (NEA), Industrieministerium (MIIT) und Datenbehörde, Aktenzeichen 国能发科技〔2026〕34号,
+datiert 8. April 2026, veröffentlicht am 9. Mai 2026. Er setzt die Staatsratsvorgabe „KI+" (国发〔2025〕11号)
+für den Energiesektor um.
+
+**双向赋能 — „wechselseitige Befähigung" — steht im Titel.** Energie trägt die KI (Abschnitte 2–4),
+und die KI soll den Energiesektor umbauen (Abschnitte 5–7). Beide Richtungen sind erklärtes Programm.
+
+Zielmarken: bis **2027** ein „sicheres, grünes, wirtschaftliches" Energieversorgungssystem für die
+KI-Entwicklung im Aufbau, Interaktionsfähigkeit zwischen sauberer Erzeugung und Rechenanlagen deutlich
+verbessert; bis **2030** sollen die saubere Versorgung der Rechenanlagen und die energiespezifische
+KI-Technik „Weltspitzenniveau" erreichen.
+
+### Vier Stellen, an denen der Plan unsere Regler direkt berührt
+
+| Unser Modell                                                                    | Was der Plan vorsieht                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sitingPolicy: 'renewables'` — Zubau neigt sich zu Systemen mit hohem EE-Anteil | Abschnitt 2 (一): Große Neue-Energie-Basen und die nationalen Rechenknoten werden **gemeinsam geplant**; Rechenanlagen sollen sich „in neuenergiereichen Regionen geordnet sammeln", ausdrücklich um „Neue Energie **vor Ort** aufzunehmen". Das ist unser Regler als tatsächliches Planungsinstrument — und die Begründung ist nicht Klimarhetorik, sondern **Abregelungsvermeidung**.                                            |
+| `flexibilityShare` — angemeldete Last zählt nicht mehr zur Spitze               | Abschnitt 3 (七): **Klassifizierung der Anlagen nach Aufgabentyp**, Direktleitungsprivilegien nur für Anlagen „mit flexibler Regelfähigkeit". Abschnitt 4 (八): Preissignale steuern **netz- und regionenübergreifende Rechenlast-Verschiebung**; Anlagen sollen „als laststeitige flexibel regelbare Ressource am Netzbetrieb teilnehmen". (九): Zugang zu Regelenergie- und Demand-Response-Märkten, mehrjährige Grünstrom-PPAs. |
+| **nicht modelliert** (Eigenerzeugung, Issue #3)                                 | Abschnitt 2 (二): **Kernkraft und Wasserstoff per Direktleitung** für Rechenanlagen; netzbildende Speicher (构网型储能) zur aktiven Stützung des Systems. Abschnitt 3 (四): Notstrom weg vom Dieselaggregat.                                                                                                                                                                                                                       |
+| `pue2024` → `pueFloor`, `extraEfficiencyRate`                                   | Abschnitt 3 (六): PUE, EE-Anteil, Grünstromquote und **Abwärmenutzung** werden **Prüfkriterien der Genehmigung** für Neu- und Ausbauten. Das ist Effizienz als Zulassungsbedingung, nicht als technischer Trend — eine Unterscheidung, die unser Effizienzregler nicht trifft.                                                                                                                                                     |
+
+Das ist der schärfste Gegensatz zum ENTSO-E-Befund. ENTSO-E beschreibt die Aufteilung der
+Verantwortung im Colocation-Modell — der Betreiber kontrolliert die Anlage, nicht die Workloads der
+Mieter — als **strukturelle Flexibilitätsbarriere**, und stellt fest, dass Lastverschiebung dort
+„gegenwärtig nicht üblich" ist. Der chinesische Plan greift genau diese Barriere mit drei
+Instrumenten an: Klassifizierung nach Aufgabentyp, Preissignal und Marktzugang. Europa hofft auf
+Flexibilität; hier wird sie bepreist.
+
+### Und jetzt die Einschränkung, die zählt
+
+Die Rückrichtung — **wie der Energiesektor von KI profitiert** — ist im Plan ausführlich, aber
+**vollständig qualitativ**. Der Sonderkasten in Abschnitt 5 listet einen langen Szenarienkatalog:
+Prognose für Wind- und Solarleistung, intelligente Dispatch-Entscheidung für integrierte
+Wasser-Wind-Solar-Großbasen, **automatische Erzeugung von Netzausbauplänen**, Zustandsbewertung und
+Fehlerdiagnose von Hochspannungs- und HGÜ-Betriebsmitteln, Katastrophenfrühwarnung für wichtige
+Übertragungskorridore, Simulation und Bewertung von **Strommarktregeln**, virtuelle Kraftwerke,
+Fahrzeug-Netz-Interaktion, grüner Wasserstoff, bis hin zur Steuerung von Fusionsanlagen.
+
+**In diesem gesamten Teil steht keine einzige quantifizierte Zielgröße.** Keine TWh, kein
+Prozentsatz Effizienzgewinn, kein vermiedener Kapazitätsausbau. Die einzige Zahl im ganzen Dokument
+neben den Jahreszahlen ist „**mehr als fünf** branchenspezifische Großmodelle" in Netz, Erzeugung,
+Kohle und Öl/Gas (Abschnitt 7, 十七).
+
+Für dieses Modell heißt das: Der Plan **behauptet** die wechselseitige Befähigung und benennt sehr
+konkret, **wo** sie stattfinden soll — aber nicht, **wie viel** sie bringt. Er kann deshalb keinen
+einzigen Parameter setzen. Wer aus „KI spart Energie im Netzbetrieb" eine Zahl im Modell machen
+wollte, müsste sie erfinden; genau das verbietet die Ankerdisziplin aus #25.
+
+Was er dagegen leistet: Er zeigt, dass drei Dinge, die unser Modell als **Regler**, als **Grenze**
+oder gar nicht führt — Standortsteuerung, bepreiste Flexibilität, Eigenerzeugung hinter dem
+Zählpunkt — anderswo geltendes Recht mit Ressortzuständigkeit, Finanzierungskanälen (REITs, grüne
+Anleihen) und Monitoringpflicht sind.
+
 ## Was daraus folgen könnte — und was ausdrücklich nicht
 
 Möglich, wenn jemand die Primärquellen beibringt:
@@ -125,6 +185,8 @@ Nicht möglich und nicht beabsichtigt:
 
 - ein Szenario „Europa baut wie China". Dafür bräuchte es Genehmigungsdauern, die keine der hier
   zitierten Quellen nennt.
+- eine Zahl für den Nutzen von KI im Energiesystem. Der Aktionsplan benennt die Anwendungsfelder
+  vollständig und den Ertrag mit keiner einzigen Größe.
 - irgendeine Zahl aus diesem Dokument in `data/`. Der Punkt des Kalibrierungs-Gates ist, dass
   Anker aus Quellen kommen, die das Modell widerlegen können — Pressematerial und
   Investitionsankündigungen leisten das nicht.
@@ -139,6 +201,13 @@ Anstoß (vom Projekteigner beigesteuert, **aus dieser Umgebung nicht abrufbar**)
 - „Jetzt zieht China der Welt auch noch beim Stromnetz davon", Focus, Januar 2026 (Videobeitrag)
   —
   <https://www.focus.de/earth/jetzt-zieht-china-der-welt-auch-noch-beim-stromnetz-davon_0908335a-fe60-4de6-9a5d-f874f4e3dcb7.html>
+
+Primärquelle, vollständig gelesen:
+
+- 国家发展改革委、国家能源局、工业和信息化部、国家数据局，《关于促进人工智能与能源双向赋能的行动方案》
+  (Aktionsplan zur Förderung der wechselseitigen Befähigung von künstlicher Intelligenz und
+  Energie), 国能发科技〔2026〕34号, 8. April 2026, veröffentlicht 9. Mai 2026 —
+  <https://ciecc.ec.com.cn/swyj/zcfg/2026/5/e52e63bed54d45e8abf1457.html>
 
 Belege für die Zahlen oben:
 
