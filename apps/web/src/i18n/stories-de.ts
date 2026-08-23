@@ -43,7 +43,7 @@ export const storiesDe: typeof storiesEn = {
     s4t: 'Wo Effizienz doch greift',
     s4: 'Wechseln Sie zum RZ-Anteil an der Spitzenlast. Effizienz dünnt die Ränder der Karte aus — die kleinen Systeme, die kurz vor dem Kippen standen. Sie wirkt stärker darauf, wer geflaggt wird, als auf die Gesamtkurve.',
     s5t: 'Die Mauer steckt in den Annahmen',
-    s5: 'Der PUE kann eine physikalische Untergrenze nicht unterschreiten, und das Modell wendet Effizienz auf neue Last an, nicht auf den Bestand. Beides sind Annahmen, die Sie im Annahmen-Bereich einsehen können — und beides ist der Grund, warum die Kurve sich biegt statt zu brechen.',
+    s5: 'Der PUE kann eine physikalische Untergrenze nicht unterschreiten, und das Modell wendet Effizienz auf neue Last an, nicht auf den Bestand — nichts bereits Gebautes wird nachgerüstet. Beides sind Annahmen, die Sie im Annahmen-Bereich einsehen können, und beides ist der Grund, warum die Kurve sich biegt statt zu brechen. Der Hebel wirkt auf die globale Nachfrage, nicht auf Europas Anteil daran: Es ist eine Technologieannahme über die Welt, kein Anteilsverlust Europas.',
   },
   nordicGoldRush: {
     title: 'Nordischer Goldrausch',

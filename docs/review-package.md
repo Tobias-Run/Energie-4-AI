@@ -91,7 +91,9 @@ Stating this up front so the review is not spent rediscovering it.
    reviewer may consider it the wrong construct.
 6. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
    This is a large part of why efficiency bends the curve rather than breaking it, and it is an
-   assumption rather than a finding.
+   assumption rather than a finding. Note this is now the _only_ remaining caveat on the lever: it
+   previously also multiplied European additions alone, which made it indistinguishable from Europe
+   losing capture share. It acts on the global increment since issue #27.
 
 ## What is deliberately out of scope
 

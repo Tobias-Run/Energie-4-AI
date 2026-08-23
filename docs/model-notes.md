@@ -211,6 +211,24 @@ and a reform draining that backlog faster is a real effect of the policy. With t
 it is no longer an instantaneous jump: the run starts at exactly the steady flow and rises to about
 1.43× over four years before decaying back.
 
+**The efficiency lever did not model efficiency (fixed).** `efficiencyFactor()` multiplied only
+the European additions, leaving the global driver untouched. That made the lever arithmetically
+indistinguishable from Europe capturing less compute: at 3%/yr the global curve did not move at
+all while Europe's share of global DC energy fell from 8.41% to 6.88% by 2045. For a policy
+audience that is the wrong statement — the same chips run elsewhere, at the same efficiency, and
+Europe simply gets fewer of them.
+
+Efficiency is a technology assumption about the world, so it now acts on the global increment.
+Europe's share of global demand stays put when the lever moves (8.40% → 8.75% at 2%/yr; the small
+rise is the un-retrofitted 2024 base growing as a proportion of a slower-growing total). European
+demand still falls by the same amount it did before — the arithmetic for Europe is unchanged, which
+is why no case-study figure moved. What changed is that the global total now falls too: 2,594 →
+2,171 TWh in 2045 at 2%/yr.
+
+Efficiency still applies to new capacity only; nothing already built is retrofitted. That is a
+separate limitation, listed under honest limits, and it is the reason the curve bends rather than
+breaks. Pinned by `packages/sim-core/test/efficiencyLever.test.ts`.
+
 **`phantomQueueFactor` measures the wrong direction (open).** In the model a larger
 speculative queue _expands_ grid build-out. The sources that quantify speculation describe the
 opposite response: Terna reports 82 GW of data-centre requests against 1.5–2 GW it expects to

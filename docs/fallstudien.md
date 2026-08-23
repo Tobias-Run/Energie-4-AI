@@ -87,6 +87,15 @@ und wie viel davon können zusätzliche Effizienzgewinne der Rechenzentren wiede
    Lettland von der Flag-Liste**. Anders als in der ersten P2-Fassung wirkt Effizienz damit
    nicht nur auf die Menge, sondern auch auf die Ränder — weil die gedeckelten Hubs Last in
    kleine Systeme abdrängen, wo Mengenreduktion über Schwellen entscheidet.
+
+   _Zur Lesart:_ Der Hebel wirkt seit
+   [Issue #27](https://github.com/Tobias-Run/Energie-4-AI/issues/27) auf den **globalen**
+   Zuwachs. Vorher multiplizierte er allein die europäischen Zubauten, womit „Effizienz"
+   rechnerisch dasselbe war wie „Europa bekommt weniger Compute" — dieselben Chips liefen
+   woanders, mit derselben Effizienz. Die europäischen Zahlen sind dadurch unverändert
+   geblieben; verändert hat sich, dass jetzt auch die Weltnachfrage sinkt (2 594 → 2 171 TWh
+   in 2045) und Europas Anteil daran stabil bleibt.
+
 3. **Irland ist gegen den Boom vollständig unempfindlich: 8,6 TWh in allen drei Szenarien.**
    Seine Anschlussgrenze bindet in jedem Fall zuerst. Das ist die sichtbarste Folge der
    Pipeline-Korrektur — und es ist die Aussage, die das Modell über ein Land mit Moratorium

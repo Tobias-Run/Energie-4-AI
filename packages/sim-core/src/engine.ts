@@ -95,17 +95,28 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
   const aggregates: YearAggregates[] = [];
   let congestionIndex2024 = 0;
 
-  let prevGlobal = globalDcDemandTwh(BASE_YEAR, gc, levers.computeGrowthMultiplier);
+  // `baseTwh` is the published energy curve (IEA); `globalTwh` is that curve after the
+  // efficiency lever has acted on it. They differ only when the lever is off its default.
+  let prevBaseTwh = globalDcDemandTwh(BASE_YEAR, gc, levers.computeGrowthMultiplier);
+  let globalTwh = prevBaseTwh;
 
   for (let year = BASE_YEAR; year <= cfg.endYear; year++) {
     // --- compute demand module: global driver and Europe's captured additions ---
-    const globalTwh = globalDcDemandTwh(year, gc, levers.computeGrowthMultiplier);
-    const globalAdditions = Math.max(0, globalTwh - prevGlobal);
-    prevGlobal = globalTwh;
+    //
+    // Efficiency acts on the GLOBAL increment, not on Europe's slice of it. It used to
+    // multiply only the European additions, which left the global curve untouched and made
+    // the lever arithmetically indistinguishable from Europe losing capture share: the same
+    // chips ran elsewhere at the same efficiency and Europe simply got fewer of them. As a
+    // technology assumption it belongs to the world, so Europe's share of global demand now
+    // stays put when the lever moves. Like every other efficiency effect here it applies to
+    // new capacity only — there is no retrofit of installed stock (see honest limits).
+    const baseTwh = globalDcDemandTwh(year, gc, levers.computeGrowthMultiplier);
+    const globalAdditions = Math.max(0, baseTwh - prevBaseTwh) * efficiencyFactor(year, levers);
+    prevBaseTwh = baseTwh;
+    globalTwh += globalAdditions;
 
     if (year > BASE_YEAR) {
-      const eff = efficiencyFactor(year, levers);
-      const euAdditionsTwh = euCaptureShare(year, d) * globalAdditions * eff;
+      const euAdditionsTwh = euCaptureShare(year, d) * globalAdditions;
 
       // Allocate EU additions by gravity/price weights; non-EU countries have their own capture.
       let weights = new Map<string, number>();
@@ -131,7 +142,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         const s = state.get(c.iso)!;
         const additionsTwh = c.eu27
           ? (euAdditionsTwh * weights.get(c.iso)!) / weightSum
-          : (d.captureShareOfGlobalAdditions.nonEu[c.iso] ?? 0) * globalAdditions * eff;
+          : (d.captureShareOfGlobalAdditions.nonEu[c.iso] ?? 0) * globalAdditions;
         desiredGw.set(c.iso, connectionGwForEnergy(additionsTwh, d) + s.queueGw);
       }
 
