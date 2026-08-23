@@ -324,3 +324,11 @@ push the model to build more grid, not less. Its range was widened to 1.0–3.0 
   index. It is an index, not a cost model.
 - No feedback from new load onto prices, and none from stress onto siting beyond the explicit
   levers.
+- `pipelineTightness` collapses permitting throughput, construction capacity and skilled labour
+  into a single number per country. That the third of those is a constraint at all is invisible
+  here.
+- **Nothing outside Europe is represented on the supply side.** Non-European regions enter only as
+  exogenous demand benchmarks (§4.2), so the model's central result — that grid connection binds
+  before generation does — has no international reference point and can read as a law of nature
+  rather than a policy outcome. [`kontrast-china.md`](kontrast-china.md) sets one alongside it as
+  an outlook; nothing in that document enters the model.

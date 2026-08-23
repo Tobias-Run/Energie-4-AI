@@ -131,6 +131,7 @@ npm run lint && npm run format:check && npm run typecheck
 - 📚 [**Source base**](docs/sources.bib) — peer-reviewed anchors and planning/agency literature the model calibrates against
 - 🔍 [**Reviewer package**](docs/review-package.md) — start here for an external review: what to check, and the six weaknesses we already know about
 - 🧮 [**Model notes**](docs/model-notes.md) — module-by-module description of the running model, its calibration and its limits
+- 🌏 [**Kontrast China**](docs/kontrast-china.md) — outlook only: China's grid buildout as a counterfactual to Europe's connection constraint. Nothing in it enters the model (German)
 - 📊 [**Fallstudien**](docs/fallstudien.md) — three worked case studies with permalinks and screenshots (German)
 - ⚖️ [**Data usage & fair use statement**](docs/DISCLAIMER.md) — external data are used for scientific research and education; provenance rules and takedown contact
 
