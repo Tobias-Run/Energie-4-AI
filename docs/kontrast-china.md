@@ -32,7 +32,7 @@ zu behaupten, das Modell könne ihn rechnen.
 | ----------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Netzinvestition, Fünfjahreszeitraum | **4 Bio. RMB ≈ 580 Mrd. USD** geplant 2026–2030, +40 % gegenüber dem Vorplan | **584 Mrd. EUR** _Bedarf_ bis 2030 (REPowerEU/Aktionsplan); im Grids Package inzwischen **1,2 Bio. EUR** für 2024–2040 |
 | Jahresinvestition                   | > 650 Mrd. RMB ≈ 89 Mrd. USD (2025), nach 600 Mrd. (2024)                    | —                                                                                                                      |
-| Höchstspannungs-Fernleitungen (UHV) | 38 Strecken bis Ende 2024 in Betrieb; **15 weitere** geplant 2026–2030       | kein vergleichbares Programm                                                                                           |
+| Höchstspannungs-Fernleitungen (UHV) | 38 Strecken bis Ende 2024 in Betrieb; **15 weitere** geplant 2026–2030       | keine UHV-Spannungsebene; HVDC-Ausbau eine Klasse darunter (siehe unten)                                               |
 
 **Der Punkt ist nicht das Geld.** Die beiden großen Zahlen liegen in derselben Größenordnung —
 rund 580 Mrd. USD gegen rund 584 Mrd. EUR. Der Unterschied ist, dass die eine ein **Budget** ist
@@ -43,6 +43,52 @@ Investition und Kilometer, nicht Wartezeit.
 
 Das ist auch der Grund, warum sich daraus **kein Regler ableiten lässt**. Ein „China-Modus" wäre
 eine Behauptung über Genehmigungsdauern, für die keine der obigen Quellen eine Zahl liefert.
+
+## Warum Europa keine UHV-Leitungen hat
+
+Die Zeile oben ist erklärungsbedürftig, weil sie leicht als Rückstand gelesen wird. Europa baut
+sehr wohl Gleichstrom-Fernleitungen — nur eine Spannungsklasse tiefer und in anderem Zuschnitt:
+
+|           | Changji–Guquan (China, seit 2019) | SuedLink (Deutschland, im Bau)   |
+| --------- | --------------------------------- | -------------------------------- |
+| Spannung  | ± 1.100 kV                        | ± 525 kV                         |
+| Länge     | 3.324 km                          | rund 700–750 km                  |
+| Kapazität | 12 GW                             | 4 GW (2 × 2 GW)                  |
+| Bauweise  | Freileitung                       | **Erdkabel**                     |
+| Kosten    | nicht belastbar erhoben           | rund 10 Mrd. EUR (Kabelverträge) |
+
+Dass Europa in dieser Klasse nichts baut, hat überwiegend **strukturelle, nicht politische**
+Gründe:
+
+1. **Entfernung.** Die Mehrkosten der UHV-Technik amortisieren sich erst über sehr lange Strecken.
+   Chinas Erzeugungsbasen in Xinjiang, der Inneren Mongolei und Sichuan liegen 2.000–3.000 km von
+   den Lastzentren an der Ostküste. Europas längste plausible Korridore — Nordsee nach
+   Süddeutschland, Iberien nach Mitteleuropa — liegen bei 1.000–1.500 km, meist darunter. Auf
+   diesen Distanzen genügt ± 525 kV.
+2. **Netztopologie.** Europa hat ein **vermaschtes** 400-kV-Netz, gewachsen zwischen vielen
+   mittelgroßen Lastzentren, die historisch nahe an ihrer Erzeugung lagen. China hat **radiale**
+   Punkt-zu-Punkt-Korridore von wenigen Riesenerzeugern zu wenigen Megastädten. Ein Maschennetz
+   braucht Verstärkung und Kuppelkapazität, keine Überlagerungsebene. Genau deshalb ist die
+   NTC-Matrix dieses Modells die richtige Abstraktion für Europa — und wäre für China die falsche.
+3. **Zahl der Entscheider.** State Grid ist ein staatlicher Betreiber mit nationalem
+   Planungsmandat. Europa hat rund 40 Übertragungsnetzbetreiber in über 30 Rechtsräumen; eine
+   grenzüberschreitende Leitung braucht Kostenaufteilungsvereinbarungen und Genehmigungen in jedem
+   davon. Eine Strecke über acht Provinzen eines Unternehmens ist nicht dasselbe wie eine über acht
+   Regulierungsregime.
+4. **Akzeptanz.** SuedLink ist der klarste Beleg: Die Trasse wurde weitgehend **unterirdisch**
+   ausgeführt, was Kosten und Bauzeit erheblich erhöht hat. Europa zahlt einen hohen Aufpreis
+   genau dafür, die Masten zu vermeiden, die China frei stellt. Das ist derselbe Widerstand, den
+   der Genehmigungsregler dieses Modells mit neun Jahren abbildet.
+5. **Andere Erzeugungsgeografie.** Europas Erneuerbare sind verteilt — Wind über viele Länder,
+   Solar im Süden — und der Kontinent ist klein genug, dass Marktkopplung plus mäßige
+   Kuppelkapazität den größten Teil des Ausgleichseffekts hebt.
+
+**Und hier schließt sich der Kreis zum Modell.** Die Tornado-Analyse ergibt, dass `ntcUtilization`
+den EU-Gesamtwert um **exakt 0,000** bewegt: Auf EU-Ebene verschiebt das Übertragungsnetz Last, es
+entfernt sie nicht. Das ist keine Merkwürdigkeit des Modells, sondern dieselbe Aussage von der
+anderen Seite — Europas Engpass sind die letzten Kilometer und die Genehmigung, nicht die 3.000
+Kilometer dazwischen. Europa hat keine UHV-Leitungen, weil es Chinas Entfernungsproblem nicht hat.
+Es hat ein Anschlussproblem, und dafür hilft keine Spannungsebene.
 
 ## Die Roboterflotte
 
@@ -105,6 +151,11 @@ Belege für die Zahlen oben:
   <https://www.enerdata.net/publications/daily-energy-news/china-plans-15-new-ultra-high-voltage-transmission-lines-2030.html>
 - Europäischer Netzinvestitionsbedarf, 584 Mrd. EUR bis 2030 bzw. 1,2 Bio. EUR bis 2040 —
   <https://strategicenergy.eu/europe-grids-2030-rgi-new-package/>
+- Changji–Guquan, ± 1.100 kV, 3.324 km, 12 GW —
+  <https://www.nsenergybusiness.com/projects/changji-guquan-uhvdc-transmission-project/>
+- SuedLink, ± 525 kV, rund 700 km, 4 GW, Erdkabel —
+  <https://www.nsenergybusiness.com/projects/suedlink-hvdc-power-transmission-project/> und
+  <https://www.enerdata.net/publications/daily-energy-news/germany-begins-construction-700-km-suedlink-transmission-project.html>
 - Roboterbeschaffung 2026 —
   <https://interestingengineering.com/ai-robotics/china-8500-robots-power-grid>
 
