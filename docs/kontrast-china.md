@@ -187,6 +187,40 @@ Nicht möglich und nicht beabsichtigt:
   zitierten Quellen nennt.
 - eine Zahl für den Nutzen von KI im Energiesystem. Der Aktionsplan benennt die Anwendungsfelder
   vollständig und den Ertrag mit keiner einzigen Größe.
+- ein Regler „KI entlastet das Netz", auch nicht auf Basis der IEA-Zahlen. **Begründet nicht durch
+  Vorsicht, sondern durch Messung** — siehe unten.
+
+### Die Gegenrichtung ist bei der IEA beziffert — und trotzdem kein Regler
+
+Anders als der chinesische Aktionsplan quantifiziert die IEA in _Energy and AI_ (2025) den Nutzen:
+bis zu **175 GW zusätzliche Übertragungskapazität in bestehenden Leitungen** ohne Neubau, 30–50 %
+kürzere Ausfalldauern durch KI-gestützte Fehlerortung, rund 1.400 Mt CO₂ weniger im Jahr 2035 im
+Fall breiter Anwendung. Das ist dieselbe Publikation, die schon als `iea2025energyai` in
+[`sources.bib`](sources.bib) steht. Es wäre also nicht einmal eine neue Quelle nötig.
+
+Der Grund, es trotzdem nicht zu bauen, ist ein gemessener. Der IEA-Effekt ist im Kern eine
+**höhere Auslastung vorhandener Leitungen** — und das ist in diesem Modell exakt der Parameter
+`ntcUtilization`. Verdreifacht man ihn von 0,30 auf 0,90, ergibt sich im Jahr 2045:
+
+| Größe                   | u = 0,30    | u = 0,90        |
+| ----------------------- | ----------- | --------------- |
+| EU-27 RZ-Bedarf         | 217,938 TWh | **217,938 TWh** |
+| Emissionen Europa       | 25,69 Mt    | **25,69 Mt**    |
+| Anschluss-Warteschlange | 0,007 GW    | **0,007 GW**    |
+| Ausgelöste Flags        | LU          | **LU**          |
+| höchster Stressindex    | PL 0,7499   | PL 0,6887       |
+
+**Nichts bewegt sich außer dem länderscharfen Stressindex** (Polen −8 %). Der Grund ist derselbe,
+aus dem Europa keine UHV-Leitungen hat: Übertragung **verschiebt** in diesem Modell Last, sie
+entfernt sie nicht. Die Belastung durch KI landet dort, wo der Engpass bindet — beim Anschluss
+neuer Last in einzelnen Ländern. Die Entlastung durch KI landet dort, wo er nicht bindet — bei der
+Ausnutzung bestehender Korridore. **Die beiden Effekte gleichen sich nicht aus; sie treffen sich
+nicht einmal.**
+
+Ein Regler, der einen bezifferten Nutzen einbaut und dann null anzeigt, würde die Aussage eher
+verdunkeln als schärfen. Die Aussage selbst — dass Last und Entlastung an verschiedenen Stellen des
+Systems angreifen — ist der Befund und steht hier.
+
 - irgendeine Zahl aus diesem Dokument in `data/`. Der Punkt des Kalibrierungs-Gates ist, dass
   Anker aus Quellen kommen, die das Modell widerlegen können — Pressematerial und
   Investitionsankündigungen leisten das nicht.
