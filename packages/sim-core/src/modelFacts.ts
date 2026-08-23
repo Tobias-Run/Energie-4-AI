@@ -1,3 +1,4 @@
+import { calibrationReport } from './calibration.js';
 import { dataVersion, scenarioDefaults } from './data.js';
 import { runSimulation } from './engine.js';
 import { runMonteCarlo } from './modules/monteCarlo.js';
@@ -17,6 +18,11 @@ import { runMonteCarlo } from './modules/monteCarlo.js';
  */
 export interface ModelFacts {
   dataVersion: string;
+  /** The gate's computed verdict, quoted verbatim wherever the gate is described. */
+  calibrationVerdict: string;
+  calibrationPassed: boolean;
+  /** Every anchor as `id: deviation%`, for the tables in the README and the model notes. */
+  anchorDeviations: Array<{ id: string; label: string; tier: string; model: string; dev: string }>;
   /** Calibration anchors, as documented in the gate. */
   global2030Twh: string;
   euIncrease2024to2030Twh: string;
@@ -47,6 +53,7 @@ export function modelFacts(): ModelFacts {
   const eu2025 = at(2025).euDcTwh;
   const eu2030 = at(2030).euDcTwh;
 
+  const gate = calibrationReport(r);
   const mc = runMonteCarlo({ levers, runs: 200, seed: 1 });
   const mcFlagFrequency = Object.entries(mc.flagFrequency)
     .sort((a, b) => b[1] - a[1])
@@ -54,6 +61,18 @@ export function modelFacts(): ModelFacts {
 
   return {
     dataVersion,
+    calibrationVerdict: gate.verdict,
+    calibrationPassed: gate.passed,
+    anchorDeviations: gate.anchors.map((a) => ({
+      id: a.id,
+      label: a.label,
+      tier: a.tier,
+      model:
+        typeof a.model === 'number'
+          ? a.model.toFixed(a.unit === 'share' ? 4 : a.unit === 'ratio' ? 3 : 2)
+          : a.model.join(', '),
+      dev: a.deviation === undefined ? '—' : `${(a.deviation * 100).toFixed(1)}%`,
+    })),
     global2030Twh: at(2030).globalDcTwh.toFixed(0),
     euIncrease2024to2030Twh: (eu2030 - eu2024).toFixed(2),
     euGrowth2025to2030Pct: pct(eu2030 / eu2025 - 1, 1),

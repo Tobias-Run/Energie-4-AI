@@ -57,6 +57,40 @@ describe('documentation matches the model', () => {
     });
   });
 
+  describe('the calibration verdict, wherever it is published', () => {
+    // The gate said "passing" for months while it was reproducing its own inputs. The verdict is
+    // now computed, and the two documents that state it must state the computed one — including
+    // the count of missed anchors, which is the part a future change is most likely to leave stale.
+    const missed = facts.calibrationVerdict.match(/(\d+) of (\d+)/)!;
+
+    it('is negative, and both documents say so', () => {
+      expect(facts.calibrationPassed).toBe(false);
+      for (const [name, doc] of [
+        ['model-notes.md', modelNotes],
+        ['README.md', readme],
+      ] as const) {
+        expect(doc, `${name} must state the verdict`).toContain(
+          `${missed[1]} of ${missed[2]} independent anchors missed`,
+        );
+        expect(doc, `${name} must not claim the gate passes`).not.toMatch(
+          /gate[^.]{0,40}currently passing/i,
+        );
+      }
+    });
+
+    it('quotes the deviation of every missed anchor', () => {
+      for (const id of ['europeDc2035TwhMin', 'europeItPower2024Gw', 'euItPower2024Gw']) {
+        const a = facts.anchorDeviations.find((x) => x.id === id)!;
+        // Deviations are written with a minus sign in prose, so compare the magnitude.
+        const magnitude = a.dev.replace('-', '');
+        expect(modelNotes, `model-notes.md should quote ${id} at ${magnitude}`).toContain(
+          magnitude,
+        );
+        expect(readme, `README.md should quote ${id} at ${magnitude}`).toContain(magnitude);
+      }
+    });
+  });
+
   describe('README.md', () => {
     it('quotes the calibration figures the model produces', () => {
       for (const value of [
@@ -70,7 +104,10 @@ describe('documentation matches the model', () => {
     });
 
     it('does not carry the superseded rounded figures', () => {
-      for (const stale of ['+45.0 |', '+54%', '4.4%', '5.6%']) {
+      // Only the two that stay unambiguous. The share figures used to be blocked here too, but
+      // '5.6%' is now a legitimate deviation in the anchor table; they are positively asserted
+      // against modelFacts above, which is the stronger check anyway.
+      for (const stale of ['+45.0 |', '+54%']) {
         expect(readme, `README.md still contains the stale figure ${stale}`).not.toContain(stale);
       }
     });

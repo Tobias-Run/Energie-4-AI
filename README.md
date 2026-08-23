@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-P1_interactive_MVP-blue)
-![Calibration](<https://img.shields.io/badge/calibration_gate_V1-passing_(86_tests)-brightgreen>)
+![Calibration](<https://img.shields.io/badge/calibration_gate_V1-failing_(3_of_9_anchors_missed)-red>)
 ![Simulation](https://img.shields.io/badge/simulation-client--side_TypeScript-blue)
 ![Scope](https://img.shields.io/badge/scope-EU--27_%2B_UK_%2B_NO_%2B_CH-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -41,29 +41,52 @@ A **system-dynamics / stock-flow simulation** with annual steps — deliberately
 
 - **Simulation core:** pure, framework-free TypeScript (`/packages/sim-core`), deterministic given a seed
 - **UI:** React + TypeScript, D3/deck.gl map layer — no backend, everything in your browser
-- **Calibration gate:** the default run must reproduce published scenario corridors (IEA, ENTSO-E, ICIS/Ember) within ±10% before any release — **currently passing, with the caveat below**
+- **Calibration gate:** the default run is measured against published anchors (IEA, ENTSO-E, ICIS/Ember) at ±10% — **currently failing on 3 of 9 independent anchors, see below**
 - **Performance:** full 20-year default run currently ~6 ms (budget < 100 ms) · Monte Carlo (200 runs, P2) < 5 s · initial load < 3 s
 
 **Honest limits:** scenarios are exploration devices, not predictions. Model-class limitations (no load flow, annual resolution, corridor not forecast) are displayed persistently in the UI — not buried in an about page.
 
 ## Calibration gate V1 — status
 
-The default run reproduces the published corridors (enforced by `packages/sim-core/test/calibration.test.ts`):
+**FAILING — 3 of 9 independent anchors missed.** Computed by `packages/sim-core/src/calibration.ts`,
+enforced by `packages/sim-core/test/calibration.test.ts`.
 
-| Anchor                                 | Source            | Target   | Model  |
-| -------------------------------------- | ----------------- | -------- | ------ |
-| Global DC demand 2030                  | IEA (2025)        | ~945 TWh | 945.0  |
-| EU-27 DC demand growth 2024→2030       | IEA (2025)        | ~+45 TWh | +43.93 |
-| EU-27 DC demand growth 2025→2030       | ENTSO-E (2026)    | > +50%   | +53.0% |
-| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | ~4.5%    | 4.18%  |
-| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | ~5.7%    | 5.32%  |
+This gate read "passing" for months. It was not measuring the model. An external review
+([#25](https://github.com/Tobias-Run/Energie-4-AI/issues/25),
+[#26](https://github.com/Tobias-Run/Energie-4-AI/issues/26)) established that three of its five
+anchors were reproduced by the model's own construction, that the base year was never checked, and
+that the two anchors capable of failing came from a publication whose volume estimate the model
+misses by a fifth. The anchor set was rebuilt around anchors that can come out negative — and three
+of them do. The red badge is the finding, not a defect in the build.
 
-**How much this gate proves.** An external review established that three of these five anchors are
-arithmetic identities of the model's own construction rather than tests, that the two share anchors
-sit at the lean edge of tolerance, and that they conflict with the volume anchors drawn from the
-same publications. Treat the gate as regression protection; it is not validation. See issues
-[#25](https://github.com/Tobias-Run/Energie-4-AI/issues/25) and
-[#26](https://github.com/Tobias-Run/Energie-4-AI/issues/26), and `docs/model-notes.md`.
+| Anchor                                 | Source            | Target    | Model  | Deviation  |
+| -------------------------------------- | ----------------- | --------- | ------ | ---------- |
+| Europe DC demand 2024 (base year)      | ENTSO-E (2026)    | 87 TWh    | 82.13  | −5.6%      |
+| Europe DC demand 2030                  | ENTSO-E (2026)    | ≥ 134 TWh | 134.58 | +0.4%      |
+| Five largest DC countries 2024         | ENTSO-E (2026)    | set       | match  | —          |
+| Countries ENTSO-E names individually   | ENTSO-E (2026)    | set of 14 | match  | —          |
+| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | 4.5%      | 4.18%  | −7.0%      |
+| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | 5.7%      | 5.32%  | −6.6%      |
+| **Europe DC demand 2035**              | ENTSO-E (2026)    | ≥ 199 TWh | 185.18 | **−6.9%**  |
+| **Europe installed IT power 2024**     | ENTSO-E (2026)    | 12.7 GW   | 10.30  | **−18.9%** |
+| **EU-27 installed IT power 2024**      | ENTSO-E (2026)    | 9.9 GW    | 8.42   | **−14.9%** |
+
+Three further anchors are reproduced by the model's own arithmetic and are kept as regression
+protection only. They no longer count toward the verdict:
+
+| Construction anchor         | Source     | Target  | Model  |
+| --------------------------- | ---------- | ------- | ------ |
+| Global DC demand 2030       | IEA (2025) | 945 TWh | 945.0  |
+| EU-27 DC increase 2024→2030 | IEA (2025) | +45 TWh | +43.93 |
+| EU-27 DC growth 2025→2030   | ENTSO-E    | > +50%  | +53.0% |
+
+`k` in the logistic is solved so the global curve passes through 945 at 2030, and the EU capture
+share was set to the +45 TWh anchor.
+
+**Published sources disagree by more than any lever in this model.** Europe's 2030 DC demand is
+109 TWh (IEA), ≥134 TWh (ENTSO-E) or 168 TWh (Ember/ICIS): a 54% spread. ENTSO-E is the designated
+authority; the other readings are measured and reported rather than hidden in a tolerance. Details
+in [`docs/model-notes.md`](docs/model-notes.md).
 
 ## Development
 
@@ -78,7 +101,7 @@ npm run lint && npm run format:check && npm run typecheck
 
 | Phase                    | Duration | Deliverable                                                                | Status         |
 | ------------------------ | -------- | -------------------------------------------------------------------------- | -------------- |
-| **P0 — Model prototype** | 6 weeks  | TypeScript simulation core passing calibration gate V1                     | ✅ done        |
+| **P0 — Model prototype** | 6 weeks  | TypeScript simulation core, measured against calibration gate V1           | ✅ done        |
 | **P1 — Interactive MVP** | 8 weeks  | Map + time slider + 3 levers + 1 story scenario                            | ✅ MVP in repo |
 | **P2 — Full lever set**  | 8 weeks  | All levers, Monte Carlo, compare mode, permalinks, external modeler review | ⏳             |
 | **P3 — Public launch**   | 4 weeks  | Story mode, EN/DE, accessibility audit (WCAG 2.1 AA), open-source release  | ⏳             |

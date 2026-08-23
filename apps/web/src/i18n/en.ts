@@ -194,6 +194,14 @@ export const en = {
     sources: 'Sources:',
     footer:
       'Source IDs resolve to docs/sources.bib; expert-guess marks parameters without a published source (§8.3). External data are cited facts used for scientific research and education — full statement. Model structure: model notes.',
+    calibrationTitle: 'Calibration gate V1',
+    calibrationStatusFailing: 'FAILING — {missed} of {total} independent anchors missed',
+    calibrationStatusPassing: 'passing — {total} of {total} independent anchors met',
+    calibrationIntro:
+      'The model is measured against published anchors at ±10%. Anchors it reproduces by its own construction — the global 2030 level and the EU capture share were fitted to theirs — are kept as regression protection and excluded from this verdict.',
+    calibrationMissedLabel: 'Anchors the model does not reproduce',
+    calibrationSpread:
+      'Published estimates for Europe’s 2030 data centre demand: 109 TWh (IEA), at least 134 TWh (ENTSO-E) and 168 TWh (Ember/ICIS). This model follows ENTSO-E and produces {model} TWh. The 54% spread between sources is wider than the effect of any lever in this panel.',
     rowCapturePre: 'EU capture of global DC additions (pre-2030)',
     rowCapturePost: 'EU capture of global DC additions (post-2030)',
     rowPue: 'Average PUE 2024 → floor',

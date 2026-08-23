@@ -112,27 +112,95 @@ Two results from that machinery a reviewer should see early:
 
 ## Calibration (validation gate V1)
 
-Enforced in `packages/sim-core/test/calibration.test.ts`, ±10% unless noted. Default-run values:
+**Verdict: FAILING — 3 of 9 independent anchors missed.** Computed by
+`packages/sim-core/src/calibration.ts`, enforced by `test/calibration.test.ts`.
 
-| Anchor                      | Target  | Model      | What it tests              |
-| --------------------------- | ------- | ---------- | -------------------------- |
-| Global DC demand 2030       | 945 TWh | 945 TWh    | nothing — an identity      |
-| EU-27 DC increase 2024→2030 | +45 TWh | +43.93 TWh | almost nothing — see below |
-| EU-27 DC growth 2025→2030   | ≥ +50%  | +53.0%     | little — same curve        |
-| DC share of EU demand 2030  | 4.5%    | 4.18%      | the denominator            |
-| DC share of EU demand 2035  | 5.7%    | 5.32%      | the denominator            |
+The gate reported "passing" for months and the claim did not hold. An external review (issues #25,
+#26) established that three of its five anchors were arithmetic identities of the model's own
+construction, that the base year was never checked at all, and that the two anchors which could
+fail came from a publication whose volume estimate the model misses by a fifth. The anchor set has
+been rebuilt around what can actually come out negative — and it does.
 
-**Read this gate as regression protection, not as validation.** Three of the five anchors are
-arithmetic identities of the model's own construction: `k` in the logistic is solved so the curve
-passes through 945 at 2030, and the EU capture share was set to the +45 TWh anchor. Only the two
-share anchors can fail, and both sit at the lean edge of tolerance. The base year of the model's
-own anchor series — 3% → 4.5% → 5.7% — is not checked at all; the model starts 2024 at 2.61%.
-Tracked in issue #25.
+Anchors now carry a **tier**, and only the independent tier decides the verdict.
 
-The two share anchors and the volume anchors also come from sources that disagree with each other:
-the published range for Europe's 2030 DC demand is 109 TWh (IEA) to 168 TWh (Ember/ICIS), and the
-share anchor comes from the same publication as the volume level the model misses by 20%. The gate
-passes both only because ±10% is wide enough to cover the contradiction. Tracked in issue #26.
+### Construction tier — reproduced by the model's own arithmetic
+
+| Anchor                      | Source  | Target  | Model  | Deviation |
+| --------------------------- | ------- | ------- | ------ | --------- |
+| Global DC demand 2030       | IEA     | 945 TWh | 945.00 | 0.0%      |
+| EU-27 DC increase 2024→2030 | IEA     | +45 TWh | +43.93 | −2.4%     |
+| EU-27 DC growth 2025→2030   | ENTSO-E | ≥ +50%  | +53.0% | —         |
+
+`k` in the logistic is solved so the global curve passes through 945 at 2030, and the European
+capture share was set to the +45 TWh anchor: 0.085 × (945 − 415) = 45.05. These are regression
+protection. They establish nothing about the model and no longer count toward the verdict.
+
+### Independent tier — the anchors that decide the verdict
+
+| Anchor                               | Source  | Target    | Model  | Deviation  | Status |
+| ------------------------------------ | ------- | --------- | ------ | ---------- | ------ |
+| Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%      | met    |
+| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%      | met    |
+| Five largest DC countries 2024       | ENTSO-E | set       | match  | —          | met    |
+| Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —          | met    |
+| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%      | met    |
+| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%      | met    |
+| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%**  | missed |
+| **Europe installed IT power 2024**   | ENTSO-E | 12.7 GW   | 10.30  | **−18.9%** | missed |
+| **EU-27 installed IT power 2024**    | ENTSO-E | 9.9 GW    | 8.42   | **−14.9%** | missed |
+
+**What the three misses mean.**
+
+_Installed IT power_ is the largest discrepancy in the model and the most informative. ENTSO-E
+counts over 10,500 European facilities above 50 kW totalling ≈12.7 GW of IT power supply, 9.9 GW of
+it in the EU-27. The model carries 10.30 and 8.42 GW. Because `dcItLoadGw` divides utilisation back
+out, this anchor tests the base-year volume, the PUE trajectory and the `itUtilization` assumption
+at once — and `itUtilization` (0.65) is an `expert-guess`. This is the first test that guess has
+ever faced.
+
+_The 2035 level_ is measured against ENTSO-E's **lower** bound. The same figure gives 254 TWh as its
+maximum, so against ENTSO-E's upper bound the shortfall is 27%, not 7%.
+
+_The base year is now checked at all,_ which it previously was not. The model's own anchor series
+runs 3% → 4.5% → 5.7%, and the model starts 2024 at **2.61%** of EU-27 demand — 13% below the start
+of the series it is calibrated against. The two base-year anchors above are what put a test under
+that number for the first time; both come out negative.
+
+_The 2030 level, which the model meets, is also a floor._ ENTSO-E labels 134 TWh `2030 (min)`. The
+model clears it by 0.4%. Reading that as agreement with ENTSO-E is a mistake this document made
+before: it is agreement with the bottom of ENTSO-E's range.
+
+### Contested tier — measured, not enforced
+
+The published estimates for Europe's 2030 DC demand do not agree with each other:
+
+| Reading                 | Value    | Model  | Deviation |
+| ----------------------- | -------- | ------ | --------- |
+| IEA _Energy and AI_     | 109 TWh  | 134.58 | +23.5%    |
+| ENTSO-E (authoritative) | ≥134 TWh | 134.58 | +0.4%     |
+| Ember/ICIS              | 168 TWh  | 134.58 | −19.9%    |
+
+**The published range is 109–168 TWh — a 54% spread, wider than any lever in this model.** No value
+satisfies both ends within ±10%, so no model can. **ENTSO-E is the designated authority** (European
+scope, published by the association of European TSOs, most recent at May 2026); the other readings
+are recorded and reported rather than absorbed into a tolerance.
+
+An earlier version of this file explained the lean share anchors with "the exogenous baseline demand
+trajectory may be a touch high." That was wrong, and wrong in the opposite direction: for the model
+to reach 4.5% at its own DC volume, EU-27 demand in 2030 would have to fall below its 2024 level in
+the middle of electrification. The cause was never the denominator — it was a conflict between
+sources that the ±10% tolerance was wide enough to hide.
+
+### What this gate still does not establish
+
+- **ENTSO-E is not independent of the IEA.** Its figures are a synthesis of IEA _Energy and AI_
+  (2025), EUDCA _State of European Data Centres 2025_ and an Accenture multi-source consolidation.
+  Treating both as separate anchors overstates how much independent evidence the model is held to.
+- **The country distribution is tested as a set, not as an order.** ENTSO-E ranks France ahead of
+  the UK, Spain ahead of Italy, and Norway seventh; the model does none of those. The set of
+  fourteen matches, which is what the allocation module is held to for now.
+- **Ireland is not checked against national statistics.** The single most concentrated case in the
+  model has no anchor of its own.
 
 ## Data provenance
 
