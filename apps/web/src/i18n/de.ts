@@ -201,6 +201,14 @@ export const de: typeof en = {
     sources: 'Quellen:',
     footer:
       'Quellen-IDs verweisen auf docs/sources.bib; expert-guess markiert Parameter ohne veröffentlichte Quelle (§8.3). Externe Daten sind zitierte Fakten für wissenschaftliche Forschung und Bildung — vollständige Erklärung. Modellstruktur: Modellnotizen.',
+    calibrationTitle: 'Kalibrierungs-Gate V1',
+    calibrationStatusFailing: 'NICHT BESTANDEN — {missed} von {total} unabhängigen Ankern verfehlt',
+    calibrationStatusPassing: 'bestanden — {total} von {total} unabhängigen Ankern erreicht',
+    calibrationIntro:
+      'Das Modell wird an veröffentlichten Ankerwerten mit ±10 % gemessen. Anker, die es durch die eigene Konstruktion reproduziert — das globale Niveau 2030 und der EU-Anteil wurden auf sie angepasst —, dienen nur noch als Regressionsschutz und zählen für dieses Urteil nicht mit.',
+    calibrationMissedLabel: 'Anker, die das Modell nicht reproduziert',
+    calibrationSpread:
+      'Veröffentlichte Schätzungen für Europas RZ-Strombedarf 2030: 109 TWh (IEA), mindestens 134 TWh (ENTSO-E) und 168 TWh (Ember/ICIS). Dieses Modell folgt ENTSO-E und liefert {model} TWh. Die Spannweite von 54 % zwischen den Quellen ist größer als die Wirkung jedes Reglers in diesem Panel.',
     rowCapturePre: 'EU-Anteil am globalen RZ-Zubau (vor 2030)',
     rowCapturePost: 'EU-Anteil am globalen RZ-Zubau (ab 2030)',
     rowPue: 'Durchschnittlicher PUE 2024 → Untergrenze',

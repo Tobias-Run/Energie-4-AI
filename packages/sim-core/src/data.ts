@@ -111,14 +111,27 @@ export interface ScenarioDefaults {
   levers: import('./types.js').Levers;
 }
 
+/**
+ * One entry of the validation gate. `tier` records what the anchor is capable of establishing:
+ * `construction` anchors are reproduced by the model's own arithmetic and cannot fail,
+ * `independent` anchors decide the gate verdict, and `contested` anchors come from sources that
+ * disagree with the designated authority and are reported rather than enforced (issues #25, #26).
+ */
+export interface CalibrationAnchor {
+  tier: 'construction' | 'independent' | 'contested';
+  comparison: 'within' | 'atLeast' | 'setEquals';
+  value: number | string[];
+  tolerance?: number;
+  unit: string;
+  label: string;
+  note: string;
+}
+
 export interface CalibrationAnchors {
-  anchors: {
-    globalDc2030Twh: { value: number; tolerance: number };
-    euDcIncrease2024to2030Twh: { value: number; tolerance: number };
-    euDcGrowthRatio2025to2030Min: { value: number };
-    euDcShareOfDemand2030: { value: number; tolerance: number };
-    euDcShareOfDemand2035: { value: number; tolerance: number };
-  };
+  version: string;
+  authoritativeVolumeSource: { sourceId: string; rationale: string };
+  anchors: Record<string, CalibrationAnchor>;
+  provenance: Record<string, string>;
 }
 
 /**

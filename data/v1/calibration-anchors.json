@@ -1,18 +1,147 @@
 {
-  "version": "1.0.0",
-  "description": "Validation gate V1: the default run must reproduce these published scenario corridors within the stated tolerance (mission document §5, §10.1).",
+  "version": "2.0.0",
+  "description": "Validation gate V1 (mission document §5, §10.1). Anchors are grouped by what they can actually establish. Only the 'independent' tier is capable of failing the model; the gate verdict is computed from that tier alone and is published unrounded, including when it is negative.",
+  "authoritativeVolumeSource": {
+    "sourceId": "entsoe2026datacentres",
+    "rationale": "European scope, published by the association of European TSOs, most recent of the candidates (May 2026). Its own figures are a synthesis of IEA 'Energy and AI' (2025), EUDCA 'State of European Data Centres 2025' and an Accenture multi-source consolidation — so it is a secondary source, and it is NOT independent of the IEA anchors above. That is a limitation of the anchor set, recorded here rather than in a footnote."
+  },
   "anchors": {
-    "globalDc2030Twh": { "value": 945, "tolerance": 0.1 },
-    "euDcIncrease2024to2030Twh": { "value": 45, "tolerance": 0.1 },
-    "euDcGrowthRatio2025to2030Min": { "value": 1.5 },
-    "euDcShareOfDemand2030": { "value": 0.045, "tolerance": 0.1 },
-    "euDcShareOfDemand2035": { "value": 0.057, "tolerance": 0.1 }
+    "globalDc2030Twh": {
+      "tier": "construction",
+      "comparison": "within",
+      "value": 945,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "Global DC demand 2030",
+      "note": "Reproduced by construction: k in the logistic is solved so the curve passes through this point. Kept as regression protection; it establishes nothing about the model."
+    },
+    "euDcIncrease2024to2030Twh": {
+      "tier": "construction",
+      "comparison": "within",
+      "value": 45,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "EU-27 DC increase 2024→2030",
+      "note": "Reproduced by construction: the EU capture share was set to this anchor (0.085 × (945 − 415) = 45.05)."
+    },
+    "euDcGrowthRatio2025to2030Min": {
+      "tier": "construction",
+      "comparison": "atLeast",
+      "value": 1.5,
+      "unit": "ratio",
+      "label": "EU-27 DC growth 2025→2030",
+      "note": "Follows from the same curve as the two anchors above. Retained because it is the one figure ENTSO-E states as a headline, but it cannot fail independently."
+    },
+    "europeDc2024Twh": {
+      "tier": "independent",
+      "comparison": "within",
+      "value": 87,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "Europe DC demand 2024 (base year)",
+      "note": "ENTSO-E Figure 1, 'Europe (as total TWh)'. Tests the base year, which no anchor previously checked."
+    },
+    "europeDc2030TwhMin": {
+      "tier": "independent",
+      "comparison": "atLeast",
+      "value": 134,
+      "unit": "TWh",
+      "label": "Europe DC demand 2030",
+      "note": "ENTSO-E Figure 1 labels this value '2030 (min)'. It is a lower bound, not a central estimate — the model sitting on it is agreement with ENTSO-E's floor, not with its expectation."
+    },
+    "europeDc2035TwhMin": {
+      "tier": "independent",
+      "comparison": "atLeast",
+      "value": 199,
+      "unit": "TWh",
+      "label": "Europe DC demand 2035",
+      "note": "ENTSO-E Figure 1, '2035 (min)'; the same figure gives 254 TWh as '2035 (max)'. The lower bound is used, so this is the mildest form of the test."
+    },
+    "europeItPower2024Gw": {
+      "tier": "independent",
+      "comparison": "within",
+      "value": 12.7,
+      "tolerance": 0.1,
+      "unit": "GW",
+      "label": "Europe installed IT power 2024",
+      "note": "ENTSO-E §1.1: 'over 10,500 data centre facilities across Europe with at least 50 kW of IT power, with capacity totalling approximately 12.7 GW in IT power supply'. Compared against dcItLoadGw, which divides utilisation back out and is therefore an installed-capacity stock, not an average load. This anchor tests PUE and the itUtilization assumption as well as the volume path."
+    },
+    "euItPower2024Gw": {
+      "tier": "independent",
+      "comparison": "within",
+      "value": 9.9,
+      "tolerance": 0.1,
+      "unit": "GW",
+      "label": "EU-27 installed IT power 2024",
+      "note": "ENTSO-E §1.1 footnote 5: 'Around 9.9 GW of which is in EU27 countries.'"
+    },
+    "europeTopFiveSet2024": {
+      "tier": "independent",
+      "comparison": "setEquals",
+      "value": ["DE", "FR", "GB", "NL", "IE"],
+      "unit": "ISO set",
+      "label": "Five largest DC countries 2024",
+      "note": "ENTSO-E Figure 1 names its countries in rank order; the leading five are taken as a set, because the figure's ordering may follow a projection year rather than 2024."
+    },
+    "europeNamedCountrySet2024": {
+      "tier": "independent",
+      "comparison": "setEquals",
+      "value": ["DE", "FR", "GB", "NL", "IE", "ES", "NO", "IT", "SE", "FI", "PL", "DK", "BE", "CH"],
+      "unit": "ISO set",
+      "label": "Countries ENTSO-E names individually",
+      "note": "ENTSO-E Figure 1 breaks out these fourteen and aggregates the rest as 'Others'. The model's fourteen largest must be the same fourteen. Tests the allocation module's country distribution, which nothing previously did."
+    },
+    "euDcShareOfDemand2030": {
+      "tier": "independent",
+      "comparison": "within",
+      "value": 0.045,
+      "tolerance": 0.1,
+      "unit": "share",
+      "label": "DC share of EU-27 demand 2030",
+      "note": "Retained despite coming from a contested source: what it tests is the exogenous demand denominator, and Ember's EU demand projection is not the figure ENTSO-E disagrees with. Read together with europeDc2030TwhEmber below."
+    },
+    "euDcShareOfDemand2035": {
+      "tier": "independent",
+      "comparison": "within",
+      "value": 0.057,
+      "tolerance": 0.1,
+      "unit": "share",
+      "label": "DC share of EU-27 demand 2035",
+      "note": "As above."
+    },
+    "europeDc2030TwhEmber": {
+      "tier": "contested",
+      "comparison": "within",
+      "value": 168,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "Europe DC demand 2030 — Ember/ICIS reading",
+      "note": "Not blocking, because the model follows the designated authority instead. Recorded and published so the disagreement is a stated finding rather than something absorbed by a tolerance."
+    },
+    "europeDc2030TwhIea": {
+      "tier": "contested",
+      "comparison": "within",
+      "value": 109,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "Europe DC demand 2030 — IEA reading",
+      "note": "The lower end of the published range. Together with the Ember reading it brackets Europe's 2030 DC demand at 109–168 TWh: a 54% spread between published sources, wider than any lever in this model."
+    }
   },
   "provenance": {
     "globalDc2030Twh": "iea2025energyai",
     "euDcIncrease2024to2030Twh": "iea2025energyai",
     "euDcGrowthRatio2025to2030Min": "entsoe2026datacentres",
+    "europeDc2024Twh": "entsoe2026datacentres",
+    "europeDc2030TwhMin": "entsoe2026datacentres",
+    "europeDc2035TwhMin": "entsoe2026datacentres",
+    "europeItPower2024Gw": "entsoe2026datacentres",
+    "euItPower2024Gw": "entsoe2026datacentres",
+    "europeTopFiveSet2024": "entsoe2026datacentres",
+    "europeNamedCountrySet2024": "entsoe2026datacentres",
     "euDcShareOfDemand2030": "ember2025grids",
-    "euDcShareOfDemand2035": "ember2025grids"
+    "euDcShareOfDemand2035": "ember2025grids",
+    "europeDc2030TwhEmber": "ember2025grids",
+    "europeDc2030TwhIea": "iea2025energyai"
   }
 }

@@ -342,3 +342,21 @@ svg g[tabindex]:focus-visible circle {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Calibration verdict inside the assumptions drawer. Red is used only for the headline; the
+   anchor rows below reuse the ordinary assumption-row styling so a negative verdict reads as
+   information rather than as an error state in the page. */
+.calibration {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.calibration h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.calibration-failing {
+  color: var(--status-critical);
+  font-size: 0.8rem;
+}

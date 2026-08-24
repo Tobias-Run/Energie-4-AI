@@ -57,14 +57,22 @@ lever settings and data-bundle version in the header.
 
 Stating this up front so the review is not spent rediscovering it.
 
-1. **`ntcUtilization` (0.3)** is a flat share of nameplate NTC treated as firm annual import
-   capability, identical in every hour and every direction of stress. It stands in for the flow
-   model we do not have, it is unsourced, and it feeds the adequacy criterion directly. We think
-   this is the weakest consequential number in the model.
-2. **The peak-share criterion produces the headline result, not adequacy.** In 2045 Ireland and
-   Luxembourg trip a 0.15 threshold on firm DC draw ÷ peak load, while their adequacy ratios sit at
-   0.43–0.78. Both the 0.15 threshold and the 0.85 firm-load share are the numbers that matter, and
-   only the latter has a published source.
+1. **`ntcUtilization` (0.3) is unsourced and structurally crude — but it has no consequence, and
+   we were wrong to call it the most consequential.** It is a flat share of nameplate NTC treated
+   as firm annual import capability, identical in every hour and every direction of stress, and it
+   stands in for the flow model we do not have. An external review measured its swing across its
+   own uncertainty range (0.2–0.45): **exactly 0.000**, on EU DC demand and on the flag count
+   alike. The reason is finding 2 below — the adequacy criterion it feeds essentially never fires.
+   The parameters that actually move the corridor are `saturationTwh` (84.1 TWh),
+   `demand2030Twh` (84.0) and the two capture shares (72.9 and 26.2); all fifteen others together
+   move it by less than 0.9 TWh.
+2. **The peak-share criterion produces the headline result, and the adequacy criterion is close to
+   inert.** In 2045 only Luxembourg trips the 0.15 threshold on firm DC draw ÷ peak load, at
+   16.94%; Ireland sits at 10.03% and is not flagged. Adequacy fires only on base-year data —
+   Poland in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903 — and never again; the 2045 maximum is
+   0.750. Both the 0.15 threshold and the 0.85 firm-load share are the numbers that matter, and
+   only the latter has a published source. Whether a criterion that reacts only to the starting
+   data belongs in the flag logic at all is an open question (issue #30, B2).
 3. **The connection pipeline could not constrain at all — found, fixed, and worth checking.**
    Every grid parameter used to score zero sensitivity on EU-wide DC demand. That turned out
    to be an artefact: available capacity was a per-country floor _plus_ the output of a delay
@@ -83,7 +91,9 @@ Stating this up front so the review is not spent rediscovering it.
    reviewer may consider it the wrong construct.
 6. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
    This is a large part of why efficiency bends the curve rather than breaking it, and it is an
-   assumption rather than a finding.
+   assumption rather than a finding. Note this is now the _only_ remaining caveat on the lever: it
+   previously also multiplied European additions alone, which made it indistinguishable from Europe
+   losing capture share. It acts on the global increment since issue #27.
 
 ## What is deliberately out of scope
 

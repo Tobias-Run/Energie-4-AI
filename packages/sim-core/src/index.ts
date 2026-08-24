@@ -32,3 +32,7 @@ export type {
 export { uncertaintyRanges } from './data.js';
 export type { UncertaintyRange } from './data.js';
 export { mulberry32 } from './rng.js';
+export { modelFacts } from './modelFacts.js';
+export type { ModelFacts } from './modelFacts.js';
+export { calibrationReport, authoritativeVolumeSource } from './calibration.js';
+export type { CalibrationReport, AnchorResult, AnchorTier } from './calibration.js';

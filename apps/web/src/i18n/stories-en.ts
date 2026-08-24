@@ -40,7 +40,7 @@ export const storiesEn = {
     s4t: 'Where efficiency does bite',
     s4: 'Switch to DC share of peak load. Efficiency thins out the edges of the map — the small systems that were about to tip. It works on who gets flagged more than on the aggregate curve.',
     s5t: 'The wall is in the assumptions',
-    s5: 'PUE cannot fall below a physical floor, and the model applies efficiency to new load, not to installed stock. Both are assumptions you can inspect in the drawer — and both are why the curve bends rather than breaks.',
+    s5: "PUE cannot fall below a physical floor, and the model applies efficiency to new load, not to installed stock — nothing already built gets retrofitted. Both are assumptions you can inspect in the drawer, and both are why the curve bends rather than breaks. The lever acts on global demand, not on Europe's slice of it: this is a technology assumption about the world, not Europe losing its share of it.",
   },
   nordicGoldRush: {
     title: 'Nordic gold rush',
