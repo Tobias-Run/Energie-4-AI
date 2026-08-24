@@ -346,6 +346,33 @@ the denominator while keeping the firm draw in the numerator, which is inconsist
 direction and lands 0.5–0.6 pp lower. At system peak the shiftable part is by construction shifted
 away, so both halves use the firm draw here.
 
+### Three presentation defects, fixed together (issues #35, #31 C2/C4)
+
+**Congestion cost moved the wrong way.** The figure was normalised against the base-year index _of
+the same run_, so a parameter that changed 2024 stress moved numerator and denominator together.
+`ntcUtilization` moved the denominator more, and the reported cost therefore **rose** as import
+capability rose — €3.455 bn at 30% utilisation against €3.505 bn at 90%, while the stress it is
+built from fell in every country. It is now normalised against a fixed reference computed from
+default parameters, so it falls monotonically with import capability and is comparable across
+runs. (The defect survived unnoticed partly because mutating the module-level defaults, as a naive
+sensitivity check does, moves the reference too and reproduces the old behaviour. The regression
+test perturbs a cloned parameter set, the way `runMonteCarlo` does.)
+
+**PUE was displayed as an assumption.** `pueAt()` feeds `itLoadGwFromEnergy()` and nothing else;
+its swing on demand is exactly 0.000. Shown in the assumptions drawer next to capture shares and
+permitting durations, it reads to any professional audience as a demand driver. Both it and
+`itUtilization` are now labelled as the conversion they are — and `itUtilization` is now shown at
+all, because since the ENTSO-E capacity anchors landed it is the `expert-guess` that carries a
+failed gate anchor (#34).
+
+**The reproducibility promise tested nothing.** A single run draws no random numbers, so asserting
+that two runs at the same seed agree compared two identical deterministic computations.
+`mulberry32(cfg.seed)` was called and its result discarded; that dead call is gone. The tests now
+assert the two real properties: a single run is seed-_independent_, and the Monte Carlo sampler is
+seed-dependent and reproducible. `startYear` likewise bounds nothing — the integration always
+begins at the 2024 data base year, because 2045 depends on every year in between — and is now
+documented as the reporting convention it is.
+
 ## Known simplifications (honest-limits, §7)
 
 - Annual energy balances only. No load flow, no intra-hour or representative-day dispatch, no
@@ -362,7 +389,9 @@ away, so both halves use the firm draw here.
   of stress.
 - The renewables siting tilt uses generation mix, not carbon intensity.
 - Congestion cost is a proxy: the €4.3 bn EU 2024 baseline scaled by the demand-weighted stress
-  index. It is an index, not a cost model.
+  index **relative to a fixed reference — the default 2024 European system**. It is an index, not
+  a cost model. The default run therefore returns exactly €4.3 bn in 2024; a run with different
+  parameters does not, which is the point.
 - No feedback from new load onto prices, and none from stress onto siting beyond the explicit
   levers.
 - `peakFactor` is held constant across the whole horizon. Two real effects push it in opposite

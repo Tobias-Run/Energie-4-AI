@@ -45,7 +45,13 @@ export function AssumptionsDrawer({ metric, levers }: Props) {
       `${effectiveSaturationTwh(globalCompute, levers.computeGrowthMultiplier).toFixed(0)} TWh`,
       'expert-guess',
     ],
+    // PUE and IT utilisation feed `itLoadGwFromEnergy` and nothing else. They were shown here as
+    // plain assumptions, which a professional audience reads as demand drivers; their swing on
+    // demand is exactly 0.000 (issue #31, C2). What they do drive is the installed-capacity
+    // figure the ENTSO-E anchors compare against — which the model currently misses by 15-19%
+    // (issue #34), so they are labelled as the conversion they are.
     [t.drawer.rowPue, `${d.pue2024} → ${d.pueFloor}`, 'koronen2020datacentres'],
+    [t.drawer.rowItUtilization, `${(d.itUtilization * 100).toFixed(0)}%`, 'expert-guess'],
     [t.drawer.rowFirm, `${(d.firmLoadShare * 100).toFixed(0)}%`, 'noland2024baseload'],
     [
       t.drawer.rowPermitting,

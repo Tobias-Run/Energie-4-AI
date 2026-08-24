@@ -6,7 +6,6 @@ import {
   ntcLinks,
   scenarioDefaults,
 } from './data.js';
-import { mulberry32 } from './rng.js';
 import type { CountryYear, Levers, SimConfig, SimulationResult, YearAggregates } from './types.js';
 import {
   allocationWeight,
@@ -29,6 +28,42 @@ import {
   renewablesTwh,
 } from './modules/supplyGrid.js';
 import { assessAdequacy } from './modules/stressAdequacy.js';
+
+/**
+ * The 2024 demand-weighted stress index under **default** parameters — the fixed reference the
+ * congestion figure is expressed against.
+ *
+ * Congestion cost is a proxy: a euro baseline scaled by how much worse the system's
+ * demand-weighted stress has become since 2024. It used to divide by the base-year index *of the
+ * same run*, which meant any parameter that changed 2024 stress moved numerator and denominator
+ * together. `ntcUtilization` moved the denominator more, so the reported cost ROSE as import
+ * capability rose — monotonically, in the wrong direction (issue #35): €3.455 bn at u=0.30 against
+ * €3.505 bn at u=0.90, while the stress it is built from fell everywhere.
+ *
+ * Against a fixed reference the figure is comparable across runs and means something statable:
+ * congestion relative to the default 2024 European system. In the default run 2024 still returns
+ * exactly the euro baseline; in a perturbed run it does not, which is correct — a differently
+ * assumed system has different congestion in 2024 too.
+ *
+ * Computed from data rather than from a nested run: in the base year demand, generation and gas
+ * caps come straight from the bundle, and import capability depends only on the default
+ * `ntcUtilization`.
+ */
+function referenceCongestionIndex2024(): number {
+  const importCap = importCapTwhByCountry(ntcLinks, scenarioDefaults, BASE_YEAR);
+  let numerator = 0;
+  let denominator = 0;
+  for (const c of countries) {
+    const total = c.baselineTwh2024 + c.dcTwh2024;
+    const nonGas =
+      renewablesTwh(c, BASE_YEAR) + nuclearTwh(c, BASE_YEAR) + otherFirmTwh(c, BASE_YEAR);
+    const resources = nonGas + c.gasCapTwh2024 + (importCap[c.iso] ?? 0);
+    const stress = resources > 0 ? total / resources : 1;
+    numerator += stress * total;
+    denominator += total;
+  }
+  return numerator / denominator;
+}
 
 export const DEFAULT_CONFIG: SimConfig = {
   startYear: 2026,
@@ -57,8 +92,6 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
   const levers: Levers = cfg.levers;
   const d = cfg.params?.scenarioDefaults ?? scenarioDefaults;
   const gc = cfg.params?.globalCompute ?? globalCompute;
-  // Reserved for Monte Carlo parameter perturbation (P2); the default run draws nothing.
-  mulberry32(cfg.seed);
 
   const permittingYears = levers.permittingReform
     ? d.permittingYearsReform
@@ -93,7 +126,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     countries.map((c) => [c.iso, []]),
   );
   const aggregates: YearAggregates[] = [];
-  let congestionIndex2024 = 0;
+  const congestionReference = referenceCongestionIndex2024();
 
   // `baseTwh` is the published energy curve (IEA); `globalTwh` is that curve after the
   // efficiency lever has acted on it. They differ only when the lever is off its default.
@@ -273,7 +306,6 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     }
 
     const congestionIndex = congestionNumerator / congestionDenominator;
-    if (year === BASE_YEAR) congestionIndex2024 = congestionIndex;
 
     aggregates.push({
       year,
@@ -286,7 +318,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       euNuclearTwh: euNuc,
       euFossilGenTwh: euFossil,
       europeEmissionsMt: europeEmissions,
-      congestionCostBnEur: d.congestionBaselineBnEur2024 * (congestionIndex / congestionIndex2024),
+      congestionCostBnEur: d.congestionBaselineBnEur2024 * (congestionIndex / congestionReference),
       euQueueGw: euQueue,
       flaggedRegions: flagged,
     });
