@@ -290,7 +290,7 @@ export function App() {
               />
             </div>
 
-            <AssumptionsDrawer metric={metric} />
+            <AssumptionsDrawer metric={metric} levers={levers} />
             <DataTable rows={rows} names={NAMES} metric={metric} year={year} />
           </main>
 

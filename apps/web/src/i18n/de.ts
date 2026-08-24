@@ -211,6 +211,7 @@ export const de: typeof en = {
       'Veröffentlichte Schätzungen für Europas RZ-Strombedarf 2030: 109 TWh (IEA), mindestens 134 TWh (ENTSO-E) und 168 TWh (Ember/ICIS). Dieses Modell folgt ENTSO-E und liefert {model} TWh. Die Spannweite von 54 % zwischen den Quellen ist größer als die Wirkung jedes Reglers in diesem Panel.',
     rowCapturePre: 'EU-Anteil am globalen RZ-Zubau (vor 2030)',
     rowCapturePost: 'EU-Anteil am globalen RZ-Zubau (ab 2030)',
+    rowSaturation: 'Globale Bedarfsobergrenze bei dieser Wachstumseinstellung',
     rowPue: 'Durchschnittlicher PUE 2024 → Untergrenze',
     rowFirm: 'Firmer (Inferenz-)Anteil der RZ-Last',
     rowPermitting: 'Genehmigungsdauer (Ausgangszustand / Reform)',

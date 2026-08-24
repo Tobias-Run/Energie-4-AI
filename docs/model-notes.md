@@ -26,7 +26,11 @@ The core (`packages/sim-core`) simulates annually from base year **2024** throug
 reports 2026+). 30 countries: EU-27 plus GB, NO, CH. Modules, executed per year:
 
 **1. Compute demand.** Global DC electricity demand follows a logistic curve through two IEA
-anchors (415 TWh in 2024, 945 TWh in 2030), saturating at an expert-guess ceiling of 3,000 TWh.
+anchors (415 TWh in 2024, 945 TWh in 2030), approaching an expert-guess ceiling of **3,000 TWh in
+the base case**. That ceiling is not fixed across scenarios: the compute-growth lever scales growth
+above the 2024 base, so it scales the ultimate growth too — `ceiling(m) = 415 + (3,000 − 415) × m`,
+which is **4,938.75 TWh at ×1.75**. The curve never exceeds its own ceiling; earlier versions of
+this file asserted a fixed 3,000 and were wrong about that (issue #30, B4).
 The EU-27 captures a share of global _additions_ — 8.5% pre-2030 (IEA), 6.5% after (Ember/ICIS);
 GB/NO/CH carry separate small capture shares. Additions are allocated across countries by a
 gravity weight (existing stock^0.7) tilted by relative electricity price, and modified by the

@@ -1,5 +1,6 @@
 import { calibrationReport } from './calibration.js';
-import { dataVersion, scenarioDefaults } from './data.js';
+import { effectiveSaturationTwh } from './modules/computeDemand.js';
+import { dataVersion, globalCompute, scenarioDefaults } from './data.js';
 import { runSimulation } from './engine.js';
 import { runMonteCarlo } from './modules/monteCarlo.js';
 
@@ -23,6 +24,9 @@ export interface ModelFacts {
   calibrationPassed: boolean;
   /** Every anchor as `id: deviation%`, for the tables in the README and the model notes. */
   anchorDeviations: Array<{ id: string; label: string; tier: string; model: string; dev: string }>;
+  /** Base-case demand ceiling, and the ceiling the boom lever setting actually approaches. */
+  saturationBaseTwh: string;
+  saturationBoomTwh: string;
   /** Calibration anchors, as documented in the gate. */
   global2030Twh: string;
   euIncrease2024to2030Twh: string;
@@ -61,6 +65,10 @@ export function modelFacts(): ModelFacts {
 
   return {
     dataVersion,
+    saturationBaseTwh: effectiveSaturationTwh(globalCompute, 1).toLocaleString('en-US'),
+    saturationBoomTwh: effectiveSaturationTwh(globalCompute, 1.75).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+    }),
     calibrationVerdict: gate.verdict,
     calibrationPassed: gate.passed,
     anchorDeviations: gate.anchors.map((a) => ({

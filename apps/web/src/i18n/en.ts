@@ -204,6 +204,7 @@ export const en = {
       'Published estimates for Europe’s 2030 data centre demand: 109 TWh (IEA), at least 134 TWh (ENTSO-E) and 168 TWh (Ember/ICIS). This model follows ENTSO-E and produces {model} TWh. The 54% spread between sources is wider than the effect of any lever in this panel.',
     rowCapturePre: 'EU capture of global DC additions (pre-2030)',
     rowCapturePost: 'EU capture of global DC additions (post-2030)',
+    rowSaturation: 'Global demand ceiling at this growth setting',
     rowPue: 'Average PUE 2024 → floor',
     rowFirm: 'Firm (inference) share of DC load',
     rowPermitting: 'Permitting duration (baseline / reform)',

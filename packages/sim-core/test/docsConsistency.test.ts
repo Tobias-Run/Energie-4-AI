@@ -57,6 +57,15 @@ describe('documentation matches the model', () => {
     });
   });
 
+  describe('the saturation ceiling', () => {
+    // The notes asserted a fixed 3,000 TWh while the compute-growth lever scales it. Both
+    // figures are now generated, so the claim and the arithmetic cannot drift apart again.
+    it('quotes the base-case ceiling and the one the boom setting approaches', () => {
+      expect(modelNotes).toContain(facts.saturationBaseTwh);
+      expect(modelNotes).toContain(facts.saturationBoomTwh);
+    });
+  });
+
   describe('the calibration verdict, wherever it is published', () => {
     // The gate said "passing" for months while it was reproducing its own inputs. The verdict is
     // now computed, and the two documents that state it must state the computed one — including

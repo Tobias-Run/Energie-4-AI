@@ -2,9 +2,36 @@ import { BASE_YEAR, type GlobalComputeParams, type ScenarioDefaults } from '../d
 import type { Levers } from '../types.js';
 
 /**
+ * The ceiling the curve actually approaches, given the compute-growth lever.
+ *
+ * `saturationTwh` in the data bundle is the ceiling of the **base case**. The lever scales
+ * growth above the 2024 base — which is what its label promises, "a multiplier on the IEA
+ * base-case global growth" — so it scales the ultimate growth too, and the ceiling moves with it:
+ *
+ *     ceiling(m) = demand2024 + (saturation − demand2024) × m
+ *
+ * At the default ×1.00 this is exactly `saturationTwh`; at ×1.75 it is 4,938.75 TWh.
+ *
+ * An external review filed this as "the growth lever breaks the documented saturation" (issue #30,
+ * B4), because the global curve reaches 4,228 TWh in 2045 at ×1.75 against a documented ceiling of
+ * 3,000. Measured, the curve does not overshoot anything: it approaches a *different* ceiling that
+ * the lever sets, and 4,228 is below it. The defect was in the documentation, which asserted a
+ * fixed ceiling, not in the arithmetic.
+ *
+ * The alternative repair — scaling the growth constant instead, so every scenario converges on
+ * 3,000 — was measured and rejected: it puts 2045 at 2,971 TWh against the base case's 2,594, a
+ * spread of 14.5%, which would leave the boom scenario with almost no long-run divergence to show.
+ * A scenario ceiling that moves with the scenario is the honest reading of this lever; a fixed one
+ * would make the lever mostly cosmetic after 2040.
+ */
+export function effectiveSaturationTwh(p: GlobalComputeParams, growthMultiplier: number): number {
+  return p.demand2024Twh + (p.saturationTwh - p.demand2024Twh) * growthMultiplier;
+}
+
+/**
  * Global DC electricity demand (TWh): logistic curve through the two IEA anchor points
- * (415 TWh in 2024, 945 TWh in 2030), saturating at an expert-guess ceiling.
- * The compute-growth lever scales cumulative growth relative to the 2024 base.
+ * (415 TWh in 2024, 945 TWh in 2030), approaching `effectiveSaturationTwh` for the run's
+ * compute-growth setting.
  */
 export function globalDcDemandTwh(
   year: number,
@@ -15,6 +42,8 @@ export function globalDcDemandTwh(
   const k = -Math.log((p.saturationTwh / p.demand2030Twh - 1) / a) / (2030 - BASE_YEAR);
   const t = year - BASE_YEAR;
   const base = p.saturationTwh / (1 + a * Math.exp(-k * t));
+  // Identical arithmetic to before, written so the ceiling above is visibly the limit of this
+  // expression as t grows: base → saturationTwh, so the result → effectiveSaturationTwh.
   return p.demand2024Twh + (base - p.demand2024Twh) * growthMultiplier;
 }
 
