@@ -20,6 +20,8 @@ const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.met
 
 const modelNotes = read('../../../docs/model-notes.md');
 const readme = read('../../../README.md');
+const reviewPackage = read('../../../docs/review-package.md');
+const fallstudien = read('../../../docs/fallstudien.md');
 const facts = modelFacts();
 
 describe('documentation matches the model', () => {
@@ -54,6 +56,32 @@ describe('documentation matches the model', () => {
       }
       // Ireland must not be listed as a flagged country: it appears in no sampled run.
       expect(facts.mcFlagFrequency.map((f) => f.iso)).not.toContain('IE');
+    });
+  });
+
+  describe('docs/review-package.md and docs/fallstudien.md', () => {
+    // Both quote model output and neither was covered when C1 was fixed, so both went stale the
+    // first time the peak construct changed (issue #30, B1). The reviewer package and the case
+    // studies are the two documents an outsider actually reads; they belong under the same guard.
+    it('review package quotes the peak shares the model produces', () => {
+      expect(reviewPackage).toContain(facts.luPeakShare2045Pct);
+      expect(reviewPackage).toContain(facts.iePeakShare2045Pct);
+    });
+
+    it('case studies quote the peak shares, in their own number format', () => {
+      expect(fallstudien).toContain(facts.luPeakShare2045PctDe);
+      expect(fallstudien).toContain(facts.luPeakShare2045BoomPctDe);
+      expect(fallstudien).toContain(facts.iePeakShare2045PctDe);
+    });
+
+    it('case studies name the countries the boom run actually flags', () => {
+      // The single figure most likely to be left behind: it is prose in three places and a
+      // screenshot caption, and it changes whenever the flag arithmetic changes.
+      expect(facts.flags2045Boom).toBe('LT, EE, LV, LU');
+      for (const iso of facts.flags2045Boom.split(', ')) {
+        const name = { LT: 'Litauen', EE: 'Estland', LV: 'Lettland', LU: 'Luxemburg' }[iso]!;
+        expect(fallstudien, `fallstudien.md should name ${name}`).toContain(name);
+      }
     });
   });
 

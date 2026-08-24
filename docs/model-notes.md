@@ -73,10 +73,14 @@ proxy.
 - _Adequacy:_ stress index = demand ÷ total resources (renewables + nuclear + legacy firm + gas cap
   - import capability). Flags above 0.9.
 - _Peak share:_ firm DC draw ÷ national peak load, flags above 0.15. `peakFactor` per country is
-  computed from 2024 peak demand ÷ average load, not guessed.
+  computed from 2024 peak demand ÷ average load, not guessed — and it is applied to the **baseline**
+  load only. Data centre load is near-flat and does not peak with heating and lighting, so the peak
+  is `baseline × peakFactor + DC firm draw`. Applying the factor to total demand, as this model did
+  until #30/B1 was fixed, inflated the denominator exactly where DC load was largest and diluted
+  every share below.
 
 **In the central run the late-horizon flags come from the peak-share criterion, not adequacy.** In
-2045 only Luxembourg trips it, at 16.94%. Ireland sits at 10.03% of peak and is not flagged — its
+2045 only Luxembourg trips it, at 18.37%. Ireland sits at 11.09% of peak and is not flagged — its
 own connection ceiling holds it there (see "Repaired defects"). Anyone reviewing the adequacy
 formula should know it is not what produces the headline result.
 
@@ -108,8 +112,8 @@ one-at-a-time sensitivity and does not capture interactions; the corridor does.
 Two results from that machinery a reviewer should see early:
 
 - **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 69.5% of runs, Latvia in
-  5.0% and Estonia in 2.5%. Ireland appears in none.
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 76.5% of runs, Latvia in
+  8.0%, Estonia in 6.0%, Lithuania and Malta in 2.5% each. Ireland appears in none.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -250,8 +254,8 @@ the ceiling then bound in every year that mattered.
 
 Three results changed, and all three are published in `docs/fallstudien.md`:
 
-- **Ireland is no longer flagged.** Its own connection limit holds it at 19.9% of national
-  demand and 10.2% of peak, below the 15% line, and it is now completely insensitive to the
+- **Ireland is no longer flagged.** Its own connection limit holds it at 19.58% of national
+  demand and 11.09% of peak, below the 15% line, and it is now completely insensitive to the
   compute boom — 8.7 TWh in the central, boom and boom-plus-efficiency runs alike.
 - **Permitting reform became measurable.** The three countries with a sourced connection
   constraint gain double digits by 2030 (NL +11%, DK +12%, IE +4%) and their queues shrink.
@@ -309,6 +313,39 @@ against a 7 GW peak. Oversubscription produces rationing, not proportional const
 sourced figures are therefore deliberately _not_ plugged into this parameter — doing so would
 push the model to build more grid, not less. Its range was widened to 1.0–3.0 instead.
 
+### The peak-load denominator (issue #30, B1)
+
+`peakLoadGw` applied the country's 2024 peak factor to **total** demand, data centre load included.
+That factor describes the baseline load shape — heating, lighting, industry — from a year in which
+data centres were a small part of it. Data centre load is near-flat, so scaling it by a peaking
+factor it does not have inflated the denominator, and it did so most in exactly the countries where
+the data centre share was largest. The numerator meanwhile used the flat firm draw, so the two
+halves of the ratio described different systems.
+
+The peak is now `baseline × peakFactor + DC firm draw`, using the same firm draw the numerator uses.
+
+| 2045, central | before | after  |
+| ------------- | ------ | ------ |
+| Luxembourg    | 16.94% | 18.37% |
+| Ireland       | 10.03% | 11.09% |
+| Estonia       | 8.33%  | 9.01%  |
+
+**The flag list changes in the boom run**, which is what makes this more than a rounding matter:
+`LV, LU` becomes `LT, EE, LV, LU`. Estonia goes from 14.59% to 16.82% and Lithuania from 13.11% to
+15.06%, both crossing the 15% line they previously sat under. Monte Carlo frequencies move with it.
+
+A second consequence is worth stating because it cuts against the tool's own optimism: **the
+flexibility lever now has to work harder.** Luxembourg's share falls 18.37 → 16.84 → 15.26 → 13.61%
+at 0 / 10 / 20 / 30% participation, so clearing its flag takes 30% enrolment where 20% used to do
+it — half the lever's range for one country. Shedding load lowers the system peak as well as the
+data centre's own contribution, so the share falls sub-proportionally rather than in step with the
+lever, which is the arithmetically correct behaviour and the less flattering one.
+
+Note on provenance: the external review's counter-calculation for B1 put the **full** DC average in
+the denominator while keeping the firm draw in the numerator, which is inconsistent in the opposite
+direction and lands 0.5–0.6 pp lower. At system peak the shiftable part is by construction shifted
+away, so both halves use the firm draw here.
+
 ## Known simplifications (honest-limits, §7)
 
 - Annual energy balances only. No load flow, no intra-hour or representative-day dispatch, no
@@ -328,6 +365,11 @@ push the model to build more grid, not less. Its range was widened to 1.0–3.0 
   index. It is an index, not a cost model.
 - No feedback from new load onto prices, and none from stress onto siting beyond the explicit
   levers.
+- `peakFactor` is held constant across the whole horizon. Two real effects push it in opposite
+  directions and neither is modelled: electrification of heat and transport raises the baseline
+  peak, while a growing share of near-flat data centre load lowers the system's overall peakiness.
+  The construct is now at least self-consistent (issue #30, B1), but it is still a 2024 shape
+  carried unchanged to 2045.
 - `pipelineTightness` collapses permitting throughput, construction capacity and skilled labour
   into a single number per country. That the third of those is a constraint at all is invisible
   here.

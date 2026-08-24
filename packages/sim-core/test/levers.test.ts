@@ -57,13 +57,32 @@ describe('P2 levers (issue #6)', () => {
     expect(green.row('FR').dcEnergyTwh).toBeLessThan(market.row('FR').dcEnergyTwh);
   });
 
-  it('flexibility lowers the peak contribution proportionally and leaves demand alone', () => {
+  it('flexibility lowers the peak contribution sub-proportionally and leaves demand alone', () => {
     const base = at(BASE);
     const flex = at({ ...BASE, flexibilityShare: 0.2 });
     expect(flex.agg.euDcTwh).toBeCloseTo(base.agg.euDcTwh, 6);
-    expect(flex.row('IE').dcShareOfPeak).toBeCloseTo(base.row('IE').dcShareOfPeak * 0.8, 6);
-    // the late-horizon flags are peak-share driven, so flexibility clears them
-    expect(flex.agg.flaggedRegions.length).toBeLessThan(base.agg.flaggedRegions.length);
+
+    // This assertion used to read `× 0.8` exactly. That held only while the denominator ignored
+    // data centre load. Now that the peak is baseline-peak + DC firm draw (issue #30, B1),
+    // shedding 20% of the firm draw shrinks the system peak too, so the share falls by less than
+    // 20% — the identity below rather than the naive one.
+    const b = base.row('IE');
+    const baselinePeakGw = b.peakLoadGw * (1 - b.dcShareOfPeak);
+    const dcFirmGw = b.peakLoadGw * b.dcShareOfPeak;
+    const predicted = (dcFirmGw * 0.8) / (baselinePeakGw + dcFirmGw * 0.8);
+
+    expect(flex.row('IE').dcShareOfPeak).toBeCloseTo(predicted, 9);
+    expect(flex.row('IE').dcShareOfPeak).toBeLessThan(b.dcShareOfPeak);
+    expect(flex.row('IE').dcShareOfPeak).toBeGreaterThan(b.dcShareOfPeak * 0.8);
+
+    // The late-horizon flags are peak-share driven, so flexibility clears them — but it now
+    // takes more of the lever than it did. Under the old construct 20% cleared Luxembourg;
+    // with the diluted denominator removed, LU sits at 15.26% at 20% flexibility, still over
+    // the 15% line, and needs 30% to clear. Measured: 18.37 / 16.84 / 15.26 / 13.61% at
+    // 0 / 10 / 20 / 30% flexibility. That is half the lever's range to clear one country.
+    expect(flex.agg.flaggedRegions).toEqual(base.agg.flaggedRegions);
+    const more = at({ ...BASE, flexibilityShare: 0.3 });
+    expect(more.agg.flaggedRegions.length).toBeLessThan(base.agg.flaggedRegions.length);
   });
 
   it('price sensitivity steers siting toward cheap power', () => {
