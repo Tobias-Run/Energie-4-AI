@@ -80,7 +80,7 @@ proxy.
   every share below.
 
 **In the central run the late-horizon flags come from the peak-share criterion, not adequacy.** In
-2045 only Luxembourg trips it, at 18.37%. Ireland sits at 11.09% of peak and is not flagged — its
+2045 only Luxembourg trips it, at 18.35%. Ireland sits at 11.09% of peak and is not flagged — its
 own connection ceiling holds it there (see "Repaired defects"). Anyone reviewing the adequacy
 formula should know it is not what produces the headline result.
 
@@ -113,7 +113,7 @@ Two results from that machinery a reviewer should see early:
 
 - **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
   alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 76.5% of runs, Latvia in
-  8.0%, Estonia in 6.0%, Lithuania and Malta in 2.5% each. Ireland appears in none.
+  6.5%, Estonia in 5.5%, Malta in 2.5% and Lithuania in 1.5%. Ireland appears in none.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -326,16 +326,18 @@ The peak is now `baseline × peakFactor + DC firm draw`, using the same firm dra
 
 | 2045, central | before | after  |
 | ------------- | ------ | ------ |
-| Luxembourg    | 16.94% | 18.37% |
+| Luxembourg    | 16.94% | 18.35% |
 | Ireland       | 10.03% | 11.09% |
-| Estonia       | 8.33%  | 9.01%  |
 
-**The flag list changes in the boom run**, which is what makes this more than a rounding matter:
-`LV, LU` becomes `LT, EE, LV, LU`. Estonia goes from 14.59% to 16.82% and Lithuania from 13.11% to
-15.06%, both crossing the 15% line they previously sat under. Monte Carlo frequencies move with it.
+**The flag list changed in the boom run**, which is what makes this more than a rounding matter.
+Estonia went from 14.59% to 16.82% and Lithuania from 13.11% to 15.06%, both crossing a 15% line
+they had sat under. Monte Carlo frequencies moved with it. (Lithuania has since fallen back below
+the line — see the lead-time section below. It has been on both sides of the threshold twice in one
+day of corrections, which is the best available evidence for how little the flag list is worth as a
+robust quantity.)
 
 A second consequence is worth stating because it cuts against the tool's own optimism: **the
-flexibility lever now has to work harder.** Luxembourg's share falls 18.37 → 16.84 → 15.26 → 13.61%
+flexibility lever now has to work harder.** Luxembourg's share falls 18.35 → 16.84 → 15.26 → 13.61%
 at 0 / 10 / 20 / 30% participation, so clearing its flag takes 30% enrolment where 20% used to do
 it — half the lever's range for one country. Shedding load lowers the system peak as well as the
 data centre's own contribution, so the share falls sub-proportionally rather than in step with the
@@ -372,6 +374,39 @@ assert the two real properties: a single run is seed-_independent_, and the Mont
 seed-dependent and reproducible. `startYear` likewise bounds nothing — the integration always
 begins at the 2024 data base year, because 2045 depends on every year in between — and is now
 documented as the reporting convention it is.
+
+### The delay chain had no lead-time distribution (issue #28, A4)
+
+Each phase was one well-mixed stock, which drains exponentially. The mean residence time was right
+and everything else about the timing was wrong: a share of every announcement left almost at once,
+and the remainder trailed off in a tail that never quite ended. Fixing the step order (#29) stopped
+same-year delivery, but the shape stayed exponential.
+
+Each phase is now three sub-stages in series — an Erlang-3 chain. Same mean, far less dispersion,
+and a genuine minimum: the six sub-stages take six annual steps to traverse, so **nothing at all
+arrives before year seven**.
+
+Cumulative delivery of a 1 GW announcement, nominal 9 + 3 years:
+
+| Year        | 1    | 2    | 4     | 8     | 12    | 20    |
+| ----------- | ---- | ---- | ----- | ----- | ----- | ----- |
+| First-order | 3.7% | 9.5% | 23.4% | 49.3% | 67.8% | ~85%  |
+| Erlang-3    | 0%   | 0%   | 0%    | 11.1% | 53.2% | 94.1% |
+
+This is also why permitting reform read as a weak lever. Against a first-order lag, moving 9 years
+to 5 smears across the whole response function; against this chain it moves an edge. At year 8 the
+baseline has delivered 11.1% and the reform 47.5%. Ireland's 2045 volume responds to the lever for
+the first time: 8.56 TWh baseline against 8.96 with reform.
+
+The boom flag list moves again as a result — `LT, EE, LV, LU` back to `EE, LV, LU`, because
+Lithuania sat at 15.06%, six hundredths of a point over the line. The renewables-siting case still
+pushes it back over. A threshold that three separate corrections have flipped in both directions is
+a threshold, not a finding.
+
+**What this construct still cannot do.** At the default three-year construction duration the
+sub-stage transfer rate is exactly 1, so construction is a rigid three-year shift register with no
+dispersion at all — every project takes exactly three years to build. Permitting keeps its spread
+because its duration is longer than the stage count. Real construction times vary; this does not.
 
 ## Known simplifications (honest-limits, §7)
 

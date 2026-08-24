@@ -77,7 +77,7 @@ describe('documentation matches the model', () => {
     it('case studies name the countries the boom run actually flags', () => {
       // The single figure most likely to be left behind: it is prose in three places and a
       // screenshot caption, and it changes whenever the flag arithmetic changes.
-      expect(facts.flags2045Boom).toBe('LT, EE, LV, LU');
+      expect(facts.flags2045Boom).toBe('EE, LV, LU');
       for (const iso of facts.flags2045Boom.split(', ')) {
         const name = { LT: 'Litauen', EE: 'Estland', LV: 'Lettland', LU: 'Luxemburg' }[iso]!;
         expect(fallstudien, `fallstudien.md should name ${name}`).toContain(name);

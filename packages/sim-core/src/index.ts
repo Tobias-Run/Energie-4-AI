@@ -12,7 +12,7 @@ export {
 export type { Levers, SimConfig, CountryYear, YearAggregates, SimulationResult } from './types.js';
 export { globalDcDemandTwh, effectiveSaturationTwh } from './modules/computeDemand.js';
 export { pueAt } from './modules/electricityDemand.js';
-export { stepPipeline, initPipeline } from './modules/gridPipeline.js';
+export { stepPipeline, initPipeline, announcedGw, permittedGw } from './modules/gridPipeline.js';
 export {
   benchmarkTwh,
   benchmarkRegions,
