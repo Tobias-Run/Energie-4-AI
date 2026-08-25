@@ -189,6 +189,9 @@ Nicht möglich und nicht beabsichtigt:
   vollständig und den Ertrag mit keiner einzigen Größe.
 - ein Regler „KI entlastet das Netz", auch nicht auf Basis der IEA-Zahlen. **Begründet nicht durch
   Vorsicht, sondern durch Messung** — siehe unten.
+- irgendeine Zahl aus diesem Dokument in `data/`. Der Punkt des Kalibrierungs-Gates ist, dass
+  Anker aus Quellen kommen, die das Modell widerlegen können — Pressematerial und
+  Investitionsankündigungen leisten das nicht.
 
 ### Die Gegenrichtung ist bei der IEA beziffert — und trotzdem kein Regler
 
@@ -220,10 +223,6 @@ nicht einmal.**
 Ein Regler, der einen bezifferten Nutzen einbaut und dann null anzeigt, würde die Aussage eher
 verdunkeln als schärfen. Die Aussage selbst — dass Last und Entlastung an verschiedenen Stellen des
 Systems angreifen — ist der Befund und steht hier.
-
-- irgendeine Zahl aus diesem Dokument in `data/`. Der Punkt des Kalibrierungs-Gates ist, dass
-  Anker aus Quellen kommen, die das Modell widerlegen können — Pressematerial und
-  Investitionsankündigungen leisten das nicht.
 
 ## Quellen
 
