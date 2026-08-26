@@ -12,9 +12,14 @@
  * Three is the largest value that stays stable at every sampled duration. The per-stage transfer
  * rate is `k / duration`, and an annual explicit step needs that at or below 1; construction runs
  * at 3 years and the reform permitting duration is sampled as low as 4, so k = 3 sits exactly at
- * the edge for construction and comfortably inside it for permitting. `stagesFor` clamps anyway,
- * so a shorter duration degrades to fewer stages rather than to a stock that drains more than it
- * holds (issue #28).
+ * the edge for construction and comfortably inside it for permitting (issue #28).
+ *
+ * `stagesFor` sizes the array, but only at initialisation — and `engine.ts` initialises with the
+ * *baseline* permitting duration even when a lever shortens the step duration, deliberately, or
+ * reform would be a mathematical no-op. So the stage count cannot adapt to the duration used per
+ * step, and the rate is clamped where it is computed instead. Below `duration = k` the chain
+ * saturates at one stage per year: the lead time stops shortening rather than the stocks going
+ * negative (issue #43).
  */
 const STAGES_PER_PHASE = 3;
 
@@ -42,7 +47,11 @@ export const permittedGw = (s: PipelineState) => s.permitted.reduce((a, b) => a 
  * lead time when the step order was fixed (issue #29).
  */
 function advancePhase(stages: number[], durationYears: number, inflowGw: number): number {
-  const rate = stages.length / durationYears;
+  // A stage cannot pass on more than it holds in one annual step. Without this clamp a duration
+  // shorter than the stage count drives the rate above 1 and the stocks oscillate into negative
+  // territory — and at moderate overshoot (rate 1.5) the *cumulative* delivery still looks
+  // correct while intermediate stocks sit at -5 GW, so the aggregate hides it (issue #43).
+  const rate = Math.min(1, stages.length / durationYears);
   const outflow = stages.map((stock) => stock * rate);
   for (let i = 0; i < stages.length; i++) {
     stages[i] += (i === 0 ? inflowGw : outflow[i - 1]!) - outflow[i]!;

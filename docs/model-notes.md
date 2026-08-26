@@ -408,6 +408,44 @@ sub-stage transfer rate is exactly 1, so construction is a rigid three-year shif
 dispersion at all — every project takes exactly three years to build. Permitting keeps its spread
 because its duration is longer than the stage count. Real construction times vary; this does not.
 
+### The same chain drained more than it held (issue #43)
+
+Found while measuring something else, and it is a defect in the repair above rather than in the
+original model.
+
+The stage count comes from `stagesFor` at initialisation; the duration comes from the lever at each
+step. `engine.ts` initialises with the **baseline** permitting duration even when reform is on —
+deliberately, because sizing the starting backlog for the reform duration would make reform a
+mathematical no-op. So the array holds three stages sized by nine years while a step may use a much
+shorter duration, and the transfer rate `k / duration` was free to exceed 1.
+
+Measured, initialising at 9 + 3 and stepping a 1 GW impulse:
+
+| Step duration | Rate | Cumulative delivery | Lowest stock |
+| ------------- | ---- | ------------------- | ------------ |
+| 3 years       | 1.00 | 1.000               | 0            |
+| 2 years       | 1.50 | **0.998**           | **−5.06 GW** |
+| 1 year        | 3.00 | −4.18 × 10⁸         | −4.78 × 10⁹  |
+
+The middle row is the one worth keeping. At moderate overshoot the **cumulative delivery still
+reads 0.998** while the stocks underneath sit at minus five gigawatts. An aggregate check passes;
+only outright divergence is visible from the total. The regression tests therefore assert on stocks
+and outflows, not on sums.
+
+The rate is now clamped at 1 where it is computed, which is the graceful degradation the module
+comment already claimed and did not have: below `duration = k` the chain saturates at one stage per
+year, so the lead time stops shortening instead of the arithmetic breaking down.
+
+**No published figure moves.** The clamp binds only below a three-year duration, and nothing
+reachable crosses that — the lever offers 9 or 5, the sampler draws no lower than 4, construction is
+fixed at 3 and therefore sat exactly on the boundary rather than inside it. The defect was reachable
+only through `runSimulation({ params })`, which is a public export, and it failed silently: no throw,
+no `NaN`, just a well-formed result object full of nonsense.
+
+The pre-existing stability test did not catch it because it initialised and stepped with the _same_
+duration, so `stagesFor` always matched. That assumption is now written into the test rather than
+left implicit.
+
 ## Known simplifications (honest-limits, §7)
 
 - Annual energy balances only. No load flow, no intra-hour or representative-day dispatch, no
