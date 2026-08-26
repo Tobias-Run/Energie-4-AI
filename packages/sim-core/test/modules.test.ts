@@ -3,7 +3,9 @@ import { scenarioDefaults } from '../src/data.js';
 import {
   globalDcDemandTwh,
   pueAt,
+  announcedGw,
   initPipeline,
+  permittedGw,
   stepPipeline,
   runSimulation,
 } from '../src/index.js';
@@ -47,7 +49,7 @@ describe('electricity demand module', () => {
 describe('grid pipeline delay chain', () => {
   it('conserves volume: total built never exceeds total inflow plus initial stocks', () => {
     const state = initPipeline(1, 9, 3);
-    const initial = state.announcedGw + state.permittedGw;
+    const initial = announcedGw(state) + permittedGw(state);
     let inflow = 0;
     let built = 0;
     for (let i = 0; i < 30; i++) {
@@ -55,8 +57,8 @@ describe('grid pipeline delay chain', () => {
       built += stepPipeline(state, 2, 9, 3);
     }
     expect(built).toBeLessThanOrEqual(initial + inflow + 1e-9);
-    expect(state.announcedGw).toBeGreaterThanOrEqual(0);
-    expect(state.permittedGw).toBeGreaterThanOrEqual(0);
+    expect(announcedGw(state)).toBeGreaterThanOrEqual(0);
+    expect(permittedGw(state)).toBeGreaterThanOrEqual(0);
   });
 
   it('permitting reform delivers more connection capacity by 2035', () => {

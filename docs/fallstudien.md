@@ -40,7 +40,7 @@ bindet die Restriktion, es entstehen echte Warteschlangen, und die Genehmigungsd
 unterhalb der Obergrenze wirksam. Details in [model-notes.md](model-notes.md).
 
 **Was sich dadurch geändert hat:** Irland ist **nicht mehr geflaggt**. Seine eigene
-Anschlussgrenze deckelt es bei 19,6 % der Landesnachfrage und 10,0 % der Spitzenlast, unter
+Anschlussgrenze deckelt es bei 19,6 % der Landesnachfrage und 11,1 % der Spitzenlast, unter
 der 15-%-Schwelle. Luxemburg ist im Zentralszenario das einzige geflaggte Land. Und Effizienz
 bewegt die Flag-Liste jetzt sehr wohl — in der ersten P2-Fassung tat sie es nicht.
 
@@ -74,19 +74,22 @@ und wie viel davon können zusätzliche Effizienzgewinne der Rechenzentren wiede
 | ------------------------ | ---------------- | ------------------- | ------------------- |
 | DC-Nachfrage 2035        | 152 TWh (5,3 %)  | 217 TWh (7,4 %)     | 198 TWh (6,8 %)     |
 | DC-Nachfrage 2045        | 218 TWh (6,7 %)  | **336 TWh (9,9 %)** | **283 TWh (8,5 %)** |
-| Stress-Flags 2045        | LU               | **LV, LU**          | **LU**              |
+| Stress-Flags 2045        | LU               | **EE, LV, LU**      | **LU**              |
 | Irland: DC 2045          | 8,6 TWh (19,6 %) | 8,6 TWh (19,6 %)    | 8,6 TWh (19,6 %)    |
-| Luxemburg: Anteil Spitze | 16,9 %           | 24,7 %              | 21,9 %              |
+| Luxemburg: Anteil Spitze | 18,4 %           | 27,7 %              | 24,3 %              |
 | Deutschland: DC 2045     | 40,5 TWh (7,0 %) | 53,8 TWh (9,1 %)    | 47,9 TWh (8,2 %)    |
 
 **Befunde:**
 
 1. **Der Boom hebt den DC-Anteil an der EU-Stromnachfrage auf 9,9 %** und die Nachfrage um
    +118 TWh über den Zentralpfad — grob der heutige Jahresverbrauch der Niederlande.
-2. **2 %/Jahr Zusatz-Effizienz kauft ~53 TWh zurück** (336 → 283 TWh, −16 %) und **nimmt
-   Lettland von der Flag-Liste**. Anders als in der ersten P2-Fassung wirkt Effizienz damit
-   nicht nur auf die Menge, sondern auch auf die Ränder — weil die gedeckelten Hubs Last in
-   kleine Systeme abdrängen, wo Mengenreduktion über Schwellen entscheidet.
+2. **2 %/Jahr Zusatz-Effizienz kauft ~53 TWh zurück** (335 → 283 TWh, −16 %) und **räumt
+   Estland und Lettland von der Flag-Liste** — von drei geflaggten Ländern bleibt eines. Anders als in der ersten P2-Fassung wirkt Effizienz damit nicht nur auf die Menge,
+   sondern auch auf die Ränder — weil die gedeckelten Hubs Last in kleine Systeme abdrängen,
+   wo Mengenreduktion über Schwellen entscheidet. Dass hier drei statt eines Landes fallen,
+   liegt an der Korrektur des Spitzenlast-Nenners (Issue #30, B1): Die baltischen Systeme
+   lagen vorher knapp unter der 15-%-Linie, weil ihr RZ-Anteil an der Spitze systematisch zu
+   klein gerechnet wurde.
 
    _Zur Lesart:_ Der Hebel wirkt seit
    [Issue #27](https://github.com/Tobias-Run/Energie-4-AI/issues/27) auf den **globalen**
@@ -100,14 +103,14 @@ und wie viel davon können zusätzliche Effizienzgewinne der Rechenzentren wiede
    Seine Anschlussgrenze bindet in jedem Fall zuerst. Das ist die sichtbarste Folge der
    Pipeline-Korrektur — und es ist die Aussage, die das Modell über ein Land mit Moratorium
    überhaupt erst treffen kann.
-4. **Luxemburg trägt den Boom stattdessen:** 16,9 % → 24,7 % der Spitzenlast. Klein,
+4. **Luxemburg trägt den Boom stattdessen:** 18,4 % → 27,7 % der Spitzenlast. Klein,
    importabhängig, ohne Anschlussbeschränkung im Modell — es nimmt auf, was Irland abweist.
 
 ![Zentralszenario 2035](img/cs-A0-central-2035.png)
 _Referenz: Zentralszenario 2035 — DC-Anteil an der Stromnachfrage._
 
 ![Boom 2045](img/cs-A1-boom-2045.png)
-_A1 „Boom" 2045: 336 TWh, 9,9 % — Lettland und Luxemburg geflaggt._
+_A1 „Boom" 2045: 335 TWh, 9,9 % — Estland, Lettland und Luxemburg geflaggt._
 
 ![Boom + Effizienz 2045](img/cs-A2-boomeff-2045.png)
 _A2 „Boom + Effizienz" 2045: 283 TWh, 8,5 % — Lettland fällt wieder heraus._
@@ -125,10 +128,10 @@ oder _wo_ sie landet?
 | Kennzahl                | B1 ohne Reform       | B2 mit Reform            |
 | ----------------------- | -------------------- | ------------------------ |
 | EU-27 DC 2030 / 2035    | 144 / 217 TWh        | 144 / 216 TWh            |
-| **Irland** DC 2030      | 7,1 TWh (Q 0,063 GW) | **7,3 TWh** (Q 0,060 GW) |
-| **Niederlande** DC 2030 | 10,5 TWh (Q 0,050)   | **11,5 TWh** (Q 0,036)   |
-| **Dänemark** DC 2030    | 3,0 TWh (Q 0,028)    | **3,3 TWh** (Q 0,024)    |
-| Schweden DC 2030        | 10,8 TWh             | 10,8 TWh                 |
+| **Irland** DC 2030      | 7,1 TWh (Q 0,063 GW) | **7,3 TWh** (Q 0,057 GW) |
+| **Niederlande** DC 2030 | 10,5 TWh (Q 0,050)   | **11,7 TWh** (Q 0,020)   |
+| **Dänemark** DC 2030    | 3,0 TWh (Q 0,028)    | **3,4 TWh** (Q 0,019)    |
+| Schweden DC 2030        | 10,8 TWh             | 10,7 TWh                 |
 | Spanien DC 2030         | 9,2 TWh              | 8,9 TWh                  |
 | Norwegen DC 2030        | 4,8 TWh              | 4,5 TWh                  |
 
@@ -137,25 +140,35 @@ oder _wo_ sie landet?
 1. **Die Reform ändert das EU-Total nicht — sie ändert die Landkarte.** 144 TWh mit und ohne.
    Verdrängte Nachfrage findet über den Spillover-Mechanismus ohnehin ein Zuhause.
 2. **Sie wirkt jetzt messbar dort, wo es klemmt.** Die drei Länder mit belegter
-   Anschlussbeschränkung gewinnen spürbar: Niederlande +9,5 %, Dänemark +10 %, Irland
-   +3 %. Schweden, Spanien und Norwegen geben spiegelbildlich ab. In der vorherigen Fassung
-   war dieser Effekt nicht darstellbar, weil die Restriktion nicht band.
+   Anschlussbeschränkung gewinnen spürbar: Niederlande **+11,4 %**, Dänemark **+13,3 %**,
+   Irland +2,8 %. Schweden, Spanien und Norwegen geben spiegelbildlich ab. In der ersten
+   P2-Fassung war dieser Effekt gar nicht darstellbar, weil die Restriktion nicht band; seit
+   der Überarbeitung der Vorlaufzeit ([#28](https://github.com/Tobias-Run/Energie-4-AI/issues/28))
+   ist er zusätzlich deutlicher, weil die Reform jetzt eine Kante verschiebt statt eine Kurve
+   zu verschmieren.
 3. **Die Warteschlangen schrumpfen, verschwinden aber nicht.** Die Niederlande gehen von
-   0,050 auf 0,036 GW zurück — schnellere Genehmigung räumt einen Teil des Rückstaus ab, die
-   physische Anschlusskapazität bleibt aber die Obergrenze. Das ist der inhaltliche Kern:
+   0,050 auf 0,020 GW zurück (−60 %) — schnellere Genehmigung räumt einen großen Teil des
+   Rückstaus ab, die physische Anschlusskapazität bleibt aber die Obergrenze. Das ist der inhaltliche Kern:
    **Genehmigungsreform beschleunigt, sie erweitert nicht.**
 4. **Ehrlicher Vorbehalt:** `baseConnectableGwPerYear` ist weiterhin `expert-guess` und seit
    der Korrektur der bindende Parameter. Über eine Bandbreite von ×0,5 bis ×2 bleiben
-   EU-Total (221 → 219 TWh) und Flag-Liste stabil, Irlands Einzelwert schwankt aber zwischen
-   7,6 und 11,0 TWh. Länderaussagen aus dieser Fallstudie tragen diese Unsicherheit mit.
+   EU-Total (222 → 219 TWh) und Flag-Liste (`LU`) stabil, Irlands Einzelwert schwankt aber
+   zwischen 7,5 und 10,6 TWh. Länderaussagen aus dieser Fallstudie tragen diese Unsicherheit mit.
 
 ![Boom ohne Reform 2030](img/cs-B1-boom-noreform-2030.png)
 _B1: Boom ohne Reform, 2030, Stress-Index._
 
-Ein zweites Bild für B2 gibt es bewusst nicht: Die beiden Karten sind bei dieser Metrik
-**byte-identisch** (gleiche Prüfsumme). Das ist kein Darstellungsfehler, sondern der Befund —
-die Reform verschiebt Anschlusszeitpunkte und Warteschlangen, nicht das Kartenbild. Der
-Unterschied steht in der Queue-Spalte der Tabellenansicht und in der Tabelle oben.
+![Boom mit Reform 2030](img/cs-B2-boom-reform-2030.png)
+_B2: Boom mit Reform, 2030, Stress-Index._
+
+**Korrektur gegenüber der vorigen Fassung.** Dort stand, ein zweites Bild für B2 erübrige sich,
+weil die beiden Karten bei dieser Metrik **byte-identisch** seien — und das war damals gemessen
+richtig. Seit der Überarbeitung der Vorlaufzeit
+([#28](https://github.com/Tobias-Run/Energie-4-AI/issues/28)) stimmt es nicht mehr: Die
+Prüfsummen unterscheiden sich, weil die Reform jetzt genug Last nach NL, DK und IE verschiebt,
+um deren Stress-Index sichtbar zu bewegen. Der Unterschied bleibt klein — die Reform verschiebt
+Anschlusszeitpunkte und Warteschlangen, nicht die Gesamtmenge —, aber er ist nicht mehr null.
+Deshalb steht das Bild jetzt hier.
 
 ---
 
@@ -176,44 +189,56 @@ Spitzenlast**, weil daran das Flag-Kriterium hängt (Schwelle 15 %).
 
 | Kennzahl             | C1 Referenz | C2 Flex 20 % | C3 Erneuerbare     | C4 Gedeckelt |
 | -------------------- | ----------- | ------------ | ------------------ | ------------ |
-| EU-27 DC-Nachfrage   | 336 TWh     | 336 TWh      | 335 TWh            | 336 TWh      |
-| Stress-Flags         | LV, LU      | **LU**       | **LT, EE, LV, LU** | **keine**    |
+| EU-27 DC-Nachfrage   | 335 TWh     | 335 TWh      | 335 TWh            | 335 TWh      |
+| Stress-Flags         | EE, LV, LU  | **LU**       | **LT, EE, LV, LU** | **LU**       |
 | Emissionen (Europa)  | 30 Mt       | 30 Mt        | **28 Mt**          | 30 Mt        |
-| LU: Anteil an Spitze | 24,7 %      | 19,8 %       | 25,5 %             | 14,1 %       |
-| LV: Anteil an Spitze | 15,2 %      | 12,2 %       | 16,6 %             | 11,9 %       |
-| EE: Anteil an Spitze | 14,6 %      | 11,7 %       | 16,7 %             | 10,8 %       |
+| LU: Anteil an Spitze | 27,7 %      | 23,5 %       | 28,8 %             | 15,4 %       |
+| LV: Anteil an Spitze | 16,5 %      | 13,6 %       | 18,2 %             | 13,2 %       |
+| EE: Anteil an Spitze | 16,6 %      | 13,8 %       | 19,1 %             | 11,9 %       |
+| LT: Anteil an Spitze | 15,0 %      | 12,4 %       | 17,8 %             | 11,2 %       |
+
+> **Diese Tabelle wurde zweimal an einem Tag neu gerechnet** — nach der Korrektur des
+> Spitzenlast-Nenners ([#30](https://github.com/Tobias-Run/Energie-4-AI/issues/30), B1) und nach
+> der Überarbeitung der Vorlaufzeit ([#28](https://github.com/Tobias-Run/Energie-4-AI/issues/28)).
+> Litauen war dabei zweimal auf beiden Seiten der 15-%-Schwelle. Die Befunde unten stehen
+> korrigiert statt still ersetzt; welcher Befund dabei gefallen ist, ist jeweils vermerkt.
 
 **Befunde:**
 
-1. **Das EU-Total ist gegen alle drei Hebel unempfindlich — 335 bis 336 TWh.** Die
+1. **Das EU-Total ist gegen alle drei Hebel unempfindlich — 335 TWh in jedem Fall.** Die
    Standortsteuerung verschiebt Last, sie entfernt keine. Wer diese Hebel an der Gesamtkurve
-   misst, misst nichts.
+   misst, misst nichts. _(Unverändert durch beide Korrekturen.)_
 2. **„Grüne" Standortsteuerung senkt Emissionen und verschärft den lokalen Stress
    gleichzeitig.** C3 lenkt Zubau in Systeme mit hohem Erneuerbaren-Anteil — in Europa
-   überwiegend Nordics und Baltikum. Emissionen −2 Mt (−7 %), aber die Flag-Liste wächst von
-   zwei auf **vier** Länder. Estland springt von 14,6 % auf 16,7 %. **Eine Politik, die nur
-   auf den Strommix optimiert, verlagert das Adäquanzproblem in die Systeme, die es am
-   wenigsten tragen können.**
+   überwiegend Nordics und Baltikum. Emissionen −2 Mt (−7 %), Flag-Liste von drei auf **vier**
+   Länder, und die Überschreitung wird tiefer: Estland 16,6 % → **19,1 %**, Litauen 15,0 % →
+   **17,8 %**. **Eine Politik, die nur auf den Strommix optimiert, verlagert das
+   Adäquanzproblem in die Systeme, die es am wenigsten tragen können.**
 3. **Lastflexibilität wirkt direkt auf das Flag-Kriterium.** 20 % nicht-firme DC-Last nimmt
-   Lettland von der Liste (15,2 % → 12,2 %). Luxemburg bleibt, weil es mit 24,7 % zu weit
-   darüber liegt. Wirksam, aber kein Freibrief.
-4. **Nur der Deckel räumt alle Flags ab** — und er ist der politisch teuerste Hebel.
-5. **Drei Länder liegen im Referenzfall dicht unter der Schwelle** (EE 14,6 %, LT 13,1 %,
-   MT 11,6 % gegen 15 %). Die Flag-Liste ist keine robuste Größe: Sie hängt an einem
-   einzelnen Schwellenwert und an den Spitzenlastfaktoren. Wer sie zitiert, sollte den
-   Tornado-Chart danebenlegen.
+   **Estland und Lettland** von der Liste; von drei geflaggten Ländern bleibt eines. Luxemburg
+   bleibt mit 23,5 % zu weit über der Schwelle. Wirksam, aber kein Freibrief.
+4. **Korrektur: Der Deckel räumt _nicht_ alle Flags ab.** Eine frühere Fassung behauptete das.
+   Gemessen bleibt Luxemburg unter C4 bei **15,4 %** — über der 15-%-Schwelle statt darunter.
+   Der politisch teuerste Hebel des Modells löst das Problem nicht vollständig, er bringt es an
+   die Grenze.
+5. **Die Flag-Liste hängt an einem einzelnen Schwellenwert, und das ist hier zweimal
+   vorgeführt worden.** Litauen liegt im Referenzfall bei 15,0 %, Luxemburg unter C4 bei
+   15,4 %; beide entscheiden sich an der ersten Nachkommastelle. Zwei Modellkorrekturen, von
+   denen keine die Mengen nennenswert bewegt hat, haben Litauen zweimal über und unter die
+   Linie geschoben. Wer die Flag-Liste zitiert, sollte den Tornado-Chart danebenlegen — sie ist
+   eine Schwellenaussage, keine robuste Größe.
 
 ![Boom, Anteil an der Spitzenlast 2045](img/cs-C1-peakshare-2045.png)
-_C1: Referenz. Luxemburg (24,7 %) und Lettland (15,2 %) über der 15-%-Schwelle._
+_C1: Referenz. Luxemburg (27,7 %), Estland (16,6 %) und Lettland (16,5 %) über der 15-%-Schwelle; Litauen knapp darunter bei 15,0 %._
 
 ![Flexibilität 2045](img/cs-C2-flex-2045.png)
-_C2: 20 % Lastflexibilität — Lettland fällt unter die Schwelle, Luxemburg bleibt geflaggt._
+_C2: 20 % Lastflexibilität — Estland und Lettland fallen unter die Schwelle, Luxemburg bleibt geflaggt._
 
 ![Standortsteuerung nach Erneuerbaren 2045](img/cs-C3-renewables-2045.png)
-_C3: Standort nach Erneuerbaren — niedrigere Emissionen, aber das Baltikum kommt hinzu._
+_C3: Standort nach Erneuerbaren — niedrigere Emissionen, aber das Baltikum rückt tiefer über die Schwelle._
 
 ![Standortdeckel 2045](img/cs-C4-capped-2045.png)
-_C4: Gedeckelte Standortwahl — keine Flags mehr._
+_C4: Gedeckelte Standortwahl — nur noch Luxemburg, und das knapp bei 15,4 %._
 
 ---
 

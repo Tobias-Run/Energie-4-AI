@@ -26,7 +26,11 @@ The core (`packages/sim-core`) simulates annually from base year **2024** throug
 reports 2026+). 30 countries: EU-27 plus GB, NO, CH. Modules, executed per year:
 
 **1. Compute demand.** Global DC electricity demand follows a logistic curve through two IEA
-anchors (415 TWh in 2024, 945 TWh in 2030), saturating at an expert-guess ceiling of 3,000 TWh.
+anchors (415 TWh in 2024, 945 TWh in 2030), approaching an expert-guess ceiling of **3,000 TWh in
+the base case**. That ceiling is not fixed across scenarios: the compute-growth lever scales growth
+above the 2024 base, so it scales the ultimate growth too — `ceiling(m) = 415 + (3,000 − 415) × m`,
+which is **4,938.75 TWh at ×1.75**. The curve never exceeds its own ceiling; earlier versions of
+this file asserted a fixed 3,000 and were wrong about that (issue #30, B4).
 The EU-27 captures a share of global _additions_ — 8.5% pre-2030 (IEA), 6.5% after (Ember/ICIS);
 GB/NO/CH carry separate small capture shares. Additions are allocated across countries by a
 gravity weight (existing stock^0.7) tilted by relative electricity price, and modified by the
@@ -69,10 +73,14 @@ proxy.
 - _Adequacy:_ stress index = demand ÷ total resources (renewables + nuclear + legacy firm + gas cap
   - import capability). Flags above 0.9.
 - _Peak share:_ firm DC draw ÷ national peak load, flags above 0.15. `peakFactor` per country is
-  computed from 2024 peak demand ÷ average load, not guessed.
+  computed from 2024 peak demand ÷ average load, not guessed — and it is applied to the **baseline**
+  load only. Data centre load is near-flat and does not peak with heating and lighting, so the peak
+  is `baseline × peakFactor + DC firm draw`. Applying the factor to total demand, as this model did
+  until #30/B1 was fixed, inflated the denominator exactly where DC load was largest and diluted
+  every share below.
 
 **In the central run the late-horizon flags come from the peak-share criterion, not adequacy.** In
-2045 only Luxembourg trips it, at 16.94%. Ireland sits at 10.03% of peak and is not flagged — its
+2045 only Luxembourg trips it, at 18.35%. Ireland sits at 11.09% of peak and is not flagged — its
 own connection ceiling holds it there (see "Repaired defects"). Anyone reviewing the adequacy
 formula should know it is not what produces the headline result.
 
@@ -104,8 +112,8 @@ one-at-a-time sensitivity and does not capture interactions; the corridor does.
 Two results from that machinery a reviewer should see early:
 
 - **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 69.5% of runs, Latvia in
-  5.0% and Estonia in 2.5%. Ireland appears in none.
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 76.5% of runs, Latvia in
+  6.5%, Estonia in 5.5%, Malta in 2.5% and Lithuania in 1.5%. Ireland appears in none.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -246,8 +254,8 @@ the ceiling then bound in every year that mattered.
 
 Three results changed, and all three are published in `docs/fallstudien.md`:
 
-- **Ireland is no longer flagged.** Its own connection limit holds it at 19.9% of national
-  demand and 10.2% of peak, below the 15% line, and it is now completely insensitive to the
+- **Ireland is no longer flagged.** Its own connection limit holds it at 19.58% of national
+  demand and 11.09% of peak, below the 15% line, and it is now completely insensitive to the
   compute boom — 8.7 TWh in the central, boom and boom-plus-efficiency runs alike.
 - **Permitting reform became measurable.** The three countries with a sourced connection
   constraint gain double digits by 2030 (NL +11%, DK +12%, IE +4%) and their queues shrink.
@@ -305,6 +313,101 @@ against a 7 GW peak. Oversubscription produces rationing, not proportional const
 sourced figures are therefore deliberately _not_ plugged into this parameter — doing so would
 push the model to build more grid, not less. Its range was widened to 1.0–3.0 instead.
 
+### The peak-load denominator (issue #30, B1)
+
+`peakLoadGw` applied the country's 2024 peak factor to **total** demand, data centre load included.
+That factor describes the baseline load shape — heating, lighting, industry — from a year in which
+data centres were a small part of it. Data centre load is near-flat, so scaling it by a peaking
+factor it does not have inflated the denominator, and it did so most in exactly the countries where
+the data centre share was largest. The numerator meanwhile used the flat firm draw, so the two
+halves of the ratio described different systems.
+
+The peak is now `baseline × peakFactor + DC firm draw`, using the same firm draw the numerator uses.
+
+| 2045, central | before | after  |
+| ------------- | ------ | ------ |
+| Luxembourg    | 16.94% | 18.35% |
+| Ireland       | 10.03% | 11.09% |
+
+**The flag list changed in the boom run**, which is what makes this more than a rounding matter.
+Estonia went from 14.59% to 16.82% and Lithuania from 13.11% to 15.06%, both crossing a 15% line
+they had sat under. Monte Carlo frequencies moved with it. (Lithuania has since fallen back below
+the line — see the lead-time section below. It has been on both sides of the threshold twice in one
+day of corrections, which is the best available evidence for how little the flag list is worth as a
+robust quantity.)
+
+A second consequence is worth stating because it cuts against the tool's own optimism: **the
+flexibility lever now has to work harder.** Luxembourg's share falls 18.35 → 16.84 → 15.26 → 13.61%
+at 0 / 10 / 20 / 30% participation, so clearing its flag takes 30% enrolment where 20% used to do
+it — half the lever's range for one country. Shedding load lowers the system peak as well as the
+data centre's own contribution, so the share falls sub-proportionally rather than in step with the
+lever, which is the arithmetically correct behaviour and the less flattering one.
+
+Note on provenance: the external review's counter-calculation for B1 put the **full** DC average in
+the denominator while keeping the firm draw in the numerator, which is inconsistent in the opposite
+direction and lands 0.5–0.6 pp lower. At system peak the shiftable part is by construction shifted
+away, so both halves use the firm draw here.
+
+### Three presentation defects, fixed together (issues #35, #31 C2/C4)
+
+**Congestion cost moved the wrong way.** The figure was normalised against the base-year index _of
+the same run_, so a parameter that changed 2024 stress moved numerator and denominator together.
+`ntcUtilization` moved the denominator more, and the reported cost therefore **rose** as import
+capability rose — €3.455 bn at 30% utilisation against €3.505 bn at 90%, while the stress it is
+built from fell in every country. It is now normalised against a fixed reference computed from
+default parameters, so it falls monotonically with import capability and is comparable across
+runs. (The defect survived unnoticed partly because mutating the module-level defaults, as a naive
+sensitivity check does, moves the reference too and reproduces the old behaviour. The regression
+test perturbs a cloned parameter set, the way `runMonteCarlo` does.)
+
+**PUE was displayed as an assumption.** `pueAt()` feeds `itLoadGwFromEnergy()` and nothing else;
+its swing on demand is exactly 0.000. Shown in the assumptions drawer next to capture shares and
+permitting durations, it reads to any professional audience as a demand driver. Both it and
+`itUtilization` are now labelled as the conversion they are — and `itUtilization` is now shown at
+all, because since the ENTSO-E capacity anchors landed it is the `expert-guess` that carries a
+failed gate anchor (#34).
+
+**The reproducibility promise tested nothing.** A single run draws no random numbers, so asserting
+that two runs at the same seed agree compared two identical deterministic computations.
+`mulberry32(cfg.seed)` was called and its result discarded; that dead call is gone. The tests now
+assert the two real properties: a single run is seed-_independent_, and the Monte Carlo sampler is
+seed-dependent and reproducible. `startYear` likewise bounds nothing — the integration always
+begins at the 2024 data base year, because 2045 depends on every year in between — and is now
+documented as the reporting convention it is.
+
+### The delay chain had no lead-time distribution (issue #28, A4)
+
+Each phase was one well-mixed stock, which drains exponentially. The mean residence time was right
+and everything else about the timing was wrong: a share of every announcement left almost at once,
+and the remainder trailed off in a tail that never quite ended. Fixing the step order (#29) stopped
+same-year delivery, but the shape stayed exponential.
+
+Each phase is now three sub-stages in series — an Erlang-3 chain. Same mean, far less dispersion,
+and a genuine minimum: the six sub-stages take six annual steps to traverse, so **nothing at all
+arrives before year seven**.
+
+Cumulative delivery of a 1 GW announcement, nominal 9 + 3 years:
+
+| Year        | 1    | 2    | 4     | 8     | 12    | 20    |
+| ----------- | ---- | ---- | ----- | ----- | ----- | ----- |
+| First-order | 3.7% | 9.5% | 23.4% | 49.3% | 67.8% | ~85%  |
+| Erlang-3    | 0%   | 0%   | 0%    | 11.1% | 53.2% | 94.1% |
+
+This is also why permitting reform read as a weak lever. Against a first-order lag, moving 9 years
+to 5 smears across the whole response function; against this chain it moves an edge. At year 8 the
+baseline has delivered 11.1% and the reform 47.5%. Ireland's 2045 volume responds to the lever for
+the first time: 8.56 TWh baseline against 8.96 with reform.
+
+The boom flag list moves again as a result — `LT, EE, LV, LU` back to `EE, LV, LU`, because
+Lithuania sat at 15.06%, six hundredths of a point over the line. The renewables-siting case still
+pushes it back over. A threshold that three separate corrections have flipped in both directions is
+a threshold, not a finding.
+
+**What this construct still cannot do.** At the default three-year construction duration the
+sub-stage transfer rate is exactly 1, so construction is a rigid three-year shift register with no
+dispersion at all — every project takes exactly three years to build. Permitting keeps its spread
+because its duration is longer than the stage count. Real construction times vary; this does not.
+
 ## Known simplifications (honest-limits, §7)
 
 - Annual energy balances only. No load flow, no intra-hour or representative-day dispatch, no
@@ -321,9 +424,16 @@ push the model to build more grid, not less. Its range was widened to 1.0–3.0 
   of stress.
 - The renewables siting tilt uses generation mix, not carbon intensity.
 - Congestion cost is a proxy: the €4.3 bn EU 2024 baseline scaled by the demand-weighted stress
-  index. It is an index, not a cost model.
+  index **relative to a fixed reference — the default 2024 European system**. It is an index, not
+  a cost model. The default run therefore returns exactly €4.3 bn in 2024; a run with different
+  parameters does not, which is the point.
 - No feedback from new load onto prices, and none from stress onto siting beyond the explicit
   levers.
+- `peakFactor` is held constant across the whole horizon. Two real effects push it in opposite
+  directions and neither is modelled: electrification of heat and transport raises the baseline
+  peak, while a growing share of near-flat data centre load lowers the system's overall peakiness.
+  The construct is now at least self-consistent (issue #30, B1), but it is still a 2024 shape
+  carried unchanged to 2045.
 - `pipelineTightness` collapses permitting throughput, construction capacity and skilled labour
   into a single number per country. That the third of those is a constraint at all is invisible
   here.

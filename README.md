@@ -2,6 +2,12 @@
 
 > **GridSim — interactive browser simulator for AI data center expansion vs. European power supply, 2026–2045.**
 
+### ▶ [**Open the tool**](https://tobias-run.github.io/Energie-4-AI/) · [Tool öffnen](https://tobias-run.github.io/Energie-4-AI/?lang=de)
+
+Runs entirely in your browser — no sign-up, no backend, nothing sent anywhere. A full 20-year run takes about 6 ms. **The calibration gate is currently red** ([why](#calibration-gate-v1--status)), and the tool says so on screen rather than in the footnotes.
+
+---
+
 [![CI](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-P1_interactive_MVP-blue)
 ![Calibration](<https://img.shields.io/badge/calibration_gate_V1-failing_(3_of_9_anchors_missed)-red>)
@@ -17,7 +23,7 @@ _🇩🇪 Energie-4-AI ist ein interaktives Browser-Tool, das den Ausbau von KI-
 
 ---
 
-## What it will do
+## What it does
 
 - 🗺️ **Interactive Europe map** with a 2026–2045 time slider — regions colored by grid stress, data center load share, price proxy, or emissions
 - 🎛️ **Scenario levers** — compute growth, efficiency gains, siting policy, flexibility mandates, grid buildout speed (permitting reform), and more; every lever with source-backed defaults and plausible ranges
@@ -95,16 +101,21 @@ npm install
 npm test          # sim-core unit tests incl. calibration gate V1
 npm run dev       # interactive app: Europe map, time slider, levers, story mode
 npm run lint && npm run format:check && npm run typecheck
+npm run build     # production bundle in apps/web/dist
 ```
+
+Pushes to `main` publish the built app to GitHub Pages via `.github/workflows/deploy.yml`.
+The bundle is served from a sub-path there, so the workflow passes `BASE_PATH`; locally the
+base stays `/` and nothing has to be configured.
 
 ## Roadmap
 
-| Phase                    | Duration | Deliverable                                                                | Status         |
-| ------------------------ | -------- | -------------------------------------------------------------------------- | -------------- |
-| **P0 — Model prototype** | 6 weeks  | TypeScript simulation core, measured against calibration gate V1           | ✅ done        |
-| **P1 — Interactive MVP** | 8 weeks  | Map + time slider + 3 levers + 1 story scenario                            | ✅ MVP in repo |
-| **P2 — Full lever set**  | 8 weeks  | All levers, Monte Carlo, compare mode, permalinks, external modeler review | ⏳             |
-| **P3 — Public launch**   | 4 weeks  | Story mode, EN/DE, accessibility audit (WCAG 2.1 AA), open-source release  | ⏳             |
+| Phase                    | Duration | Deliverable                                                                | Status                                                                                                                               |
+| ------------------------ | -------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **P0 — Model prototype** | 6 weeks  | TypeScript simulation core, measured against calibration gate V1           | ✅ done                                                                                                                              |
+| **P1 — Interactive MVP** | 8 weeks  | Map + time slider + 3 levers + 1 story scenario                            | ✅ MVP in repo                                                                                                                       |
+| **P2 — Full lever set**  | 8 weeks  | All levers, Monte Carlo, compare mode, permalinks, external modeler review | 🟡 built; external review outstanding ([#7](https://github.com/Tobias-Run/Energie-4-AI/issues/7))                                    |
+| **P3 — Public launch**   | 4 weeks  | Story mode, EN/DE, accessibility audit (WCAG 2.1 AA), open-source release  | 🟡 story mode, EN/DE and MIT release done; formal a11y audit outstanding ([#8](https://github.com/Tobias-Run/Energie-4-AI/issues/8)) |
 
 ## Repository layout
 

@@ -1,8 +1,15 @@
-import { calibrationReport, scenarioDefaults } from '@energie4ai/sim-core';
+import {
+  calibrationReport,
+  effectiveSaturationTwh,
+  globalCompute,
+  scenarioDefaults,
+} from '@energie4ai/sim-core';
+import type { Levers } from '@energie4ai/sim-core';
 import type { MetricDef } from '../lib/metrics.js';
 
 interface Props {
   metric: MetricDef;
+  levers: Levers;
 }
 
 import { fmt, useI18n } from '../i18n/index.js';
@@ -17,7 +24,7 @@ const REPO = 'https://github.com/Tobias-Run/Energie-4-AI';
 const gate = calibrationReport();
 
 /** "Assumptions behind this number" drawer — every on-screen figure is traceable (spec §6). */
-export function AssumptionsDrawer({ metric }: Props) {
+export function AssumptionsDrawer({ metric, levers }: Props) {
   const { t } = useI18n();
   const d = scenarioDefaults;
   const rows: Array<[string, string, string]> = [
@@ -31,7 +38,20 @@ export function AssumptionsDrawer({ metric }: Props) {
       `${(d.captureShareOfGlobalAdditions.euPost2030 * 100).toFixed(1)}%`,
       'ember2025grids',
     ],
+    [
+      // The ceiling moves with the compute-growth lever, so it is shown as a live figure rather
+      // than a static assumption: at ×1.75 the base case's 3,000 TWh becomes 4,938.75 (issue #30).
+      t.drawer.rowSaturation,
+      `${effectiveSaturationTwh(globalCompute, levers.computeGrowthMultiplier).toFixed(0)} TWh`,
+      'expert-guess',
+    ],
+    // PUE and IT utilisation feed `itLoadGwFromEnergy` and nothing else. They were shown here as
+    // plain assumptions, which a professional audience reads as demand drivers; their swing on
+    // demand is exactly 0.000 (issue #31, C2). What they do drive is the installed-capacity
+    // figure the ENTSO-E anchors compare against — which the model currently misses by 15-19%
+    // (issue #34), so they are labelled as the conversion they are.
     [t.drawer.rowPue, `${d.pue2024} → ${d.pueFloor}`, 'koronen2020datacentres'],
+    [t.drawer.rowItUtilization, `${(d.itUtilization * 100).toFixed(0)}%`, 'expert-guess'],
     [t.drawer.rowFirm, `${(d.firmLoadShare * 100).toFixed(0)}%`, 'noland2024baseload'],
     [
       t.drawer.rowPermitting,

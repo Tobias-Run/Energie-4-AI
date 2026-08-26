@@ -24,8 +24,21 @@ export type SitingPolicy = 'market' | 'renewables' | 'capped';
 
 export interface SimConfig {
   /** First reported year. The model always computes from the data base year (2024). */
+  /**
+   * Reporting convention only — the simulation always integrates from the 2024 data base year,
+   * because the 2045 state depends on every year in between. This is the first year the UI
+   * charts, and it is carried into `meta` so an export says what it covers. It does not bound
+   * the run (issue #31, C4).
+   */
   startYear: number;
   endYear: number;
+  /**
+   * Carried into `meta` for provenance. **A single run draws no random numbers** — given the same
+   * levers and parameters it produces the same output at every seed, so this value changes
+   * nothing here. Seeding is what makes `runMonteCarlo` reproducible; that sampler owns its own
+   * seed. Stating it plainly because the reproducibility claim used to rest on a determinism test
+   * that compared two identical deterministic runs (issue #31, C4).
+   */
   seed: number;
   levers: Levers;
   /**

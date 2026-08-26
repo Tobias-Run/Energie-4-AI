@@ -1,5 +1,6 @@
 import { calibrationReport } from './calibration.js';
-import { dataVersion, scenarioDefaults } from './data.js';
+import { effectiveSaturationTwh } from './modules/computeDemand.js';
+import { dataVersion, globalCompute, scenarioDefaults } from './data.js';
 import { runSimulation } from './engine.js';
 import { runMonteCarlo } from './modules/monteCarlo.js';
 
@@ -23,6 +24,9 @@ export interface ModelFacts {
   calibrationPassed: boolean;
   /** Every anchor as `id: deviation%`, for the tables in the README and the model notes. */
   anchorDeviations: Array<{ id: string; label: string; tier: string; model: string; dev: string }>;
+  /** Base-case demand ceiling, and the ceiling the boom lever setting actually approaches. */
+  saturationBaseTwh: string;
+  saturationBoomTwh: string;
   /** Calibration anchors, as documented in the gate. */
   global2030Twh: string;
   euIncrease2024to2030Twh: string;
@@ -32,6 +36,12 @@ export interface ModelFacts {
   dcShareEu2035Pct: string;
   /** Stress flags in the final year of the default run. */
   flags2045: string;
+  /** Stress flags in the final year of the boom run (compute growth ×1.75). */
+  flags2045Boom: string;
+  /** Peak shares as the German case studies format them: one decimal, decimal comma. */
+  luPeakShare2045PctDe: string;
+  luPeakShare2045BoomPctDe: string;
+  iePeakShare2045PctDe: string;
   /** The countries the peak-share criterion trips, with their shares. */
   luPeakShare2045Pct: string;
   iePeakShare2045Pct: string;
@@ -54,6 +64,12 @@ export function modelFacts(): ModelFacts {
   const eu2030 = at(2030).euDcTwh;
 
   const gate = calibrationReport(r);
+  // The boom scenario the German case studies are built on. Its flag list is the model's most
+  // visible output and the figure most likely to be left stale by a change to the peak construct.
+  const boom = runSimulation({ levers: { ...levers, computeGrowthMultiplier: 1.75 } });
+  const boomAt2045 = boom.aggregates[boom.years.indexOf(2045)]!;
+  const boomLu = boom.countries['LU']![boom.years.indexOf(2045)]!;
+  const de1 = (x: number) => (x * 100).toFixed(1).replace('.', ',');
   const mc = runMonteCarlo({ levers, runs: 200, seed: 1 });
   const mcFlagFrequency = Object.entries(mc.flagFrequency)
     .sort((a, b) => b[1] - a[1])
@@ -61,6 +77,10 @@ export function modelFacts(): ModelFacts {
 
   return {
     dataVersion,
+    saturationBaseTwh: effectiveSaturationTwh(globalCompute, 1).toLocaleString('en-US'),
+    saturationBoomTwh: effectiveSaturationTwh(globalCompute, 1.75).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+    }),
     calibrationVerdict: gate.verdict,
     calibrationPassed: gate.passed,
     anchorDeviations: gate.anchors.map((a) => ({
@@ -80,6 +100,10 @@ export function modelFacts(): ModelFacts {
     dcShareEu2030Pct: pct(at(2030).euDcShareOfDemand),
     dcShareEu2035Pct: pct(at(2035).euDcShareOfDemand),
     flags2045: at(2045).flaggedRegions.join(', '),
+    flags2045Boom: boomAt2045.flaggedRegions.join(', '),
+    luPeakShare2045PctDe: de1(country('LU', 2045).dcShareOfPeak),
+    luPeakShare2045BoomPctDe: de1(boomLu.dcShareOfPeak),
+    iePeakShare2045PctDe: de1(country('IE', 2045).dcShareOfPeak),
     luPeakShare2045Pct: pct(country('LU', 2045).dcShareOfPeak),
     iePeakShare2045Pct: pct(country('IE', 2045).dcShareOfPeak),
     ieShareOfOwnDemand2045Pct: pct(

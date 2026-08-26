@@ -68,7 +68,10 @@ Stating this up front so the review is not spent rediscovering it.
    move it by less than 0.9 TWh.
 2. **The peak-share criterion produces the headline result, and the adequacy criterion is close to
    inert.** In 2045 only Luxembourg trips the 0.15 threshold on firm DC draw ÷ peak load, at
-   16.94%; Ireland sits at 10.03% and is not flagged. Adequacy fires only on base-year data —
+   18.35%; Ireland sits at 11.09% and is not flagged. (Both figures rose when the peak-load
+   denominator was corrected — issue #30, B1 — and in the boom run the flag list grew from
+   two countries to three — after the lead-time rework of #28 moved Lithuania back under the
+   line it had just crossed.) Adequacy fires only on base-year data —
    Poland in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903 — and never again; the 2045 maximum is
    0.750. Both the 0.15 threshold and the 0.85 firm-load share are the numbers that matter, and
    only the latter has a published source. Whether a criterion that reacts only to the starting

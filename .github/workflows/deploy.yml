@@ -1,0 +1,67 @@
+name: Deploy
+
+# The tool is client-side only, so publishing it is just serving the built
+# bundle. Runs after a push to main; the same quality gates as CI run first,
+# because a build that has not been tested is not one worth publishing.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race. In-progress runs finish rather than being
+# cancelled, so a half-uploaded artifact is never what gets served.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build for Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests (incl. calibration gate V1)
+        run: npm test
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - name: Build web app
+        # configure-pages exposes the path part alone as base_path ("/<repo>",
+        # no trailing slash) while base_url is the full https:// address. Vite
+        # wants the path, with the slash.
+        run: npm run build
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

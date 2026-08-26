@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "description": "Global data center electricity demand driver. Logistic growth curve anchored on the IEA base case; saturation level is an expert guess (no published long-horizon anchor beyond 2035).",
+  "description": "Global data center electricity demand driver. Logistic growth curve anchored on the IEA base case; saturationTwh is the ceiling of the BASE CASE and is an expert guess (no published long-horizon anchor beyond 2035). The compute-growth lever scales growth above the 2024 base, so the ceiling a run actually approaches is demand2024Twh + (saturationTwh - demand2024Twh) x multiplier - see effectiveSaturationTwh() in computeDemand.ts.",
   "demand2024Twh": 415,
   "demand2030Twh": 945,
   "saturationTwh": 3000,

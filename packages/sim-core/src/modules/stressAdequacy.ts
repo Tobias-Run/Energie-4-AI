@@ -48,13 +48,22 @@ export function assessAdequacy(
   const resources = nonGas + input.gasCapTwh + input.importCapTwh;
   const stressIndex = resources > 0 ? input.totalDemandTwh / resources : 1;
 
-  const peakLoadGw = (input.totalDemandTwh * c.peakFactor) / HOURS_PER_YEAR_K;
   // DC load is near-flat; its firm (inference) share contributes its average draw at peak.
   // Load enrolled in demand response is assumed curtailable exactly when it matters, so it
   // drops out of the peak contribution entirely — an optimistic reading of flexibility, and
   // the reason the lever is capped well below full participation.
   const effectiveFirmShare = defaults.firmLoadShare * (1 - levers.flexibilityShare);
   const dcFirmGw = (input.dcEnergyTwh / HOURS_PER_YEAR_K) * effectiveFirmShare;
+
+  // The peak factor is a property of the *baseline* load shape — heating, lighting, industry —
+  // derived from 2024, when data centres were a small part of it. Applying it to total demand
+  // would scale the flat DC load by a peaking factor it does not have, and it would do so most
+  // where DC load is largest, so the share below was diluted exactly where it mattered
+  // (issue #30, B1). Baseline peaks; DC adds its firm draw on top, the same quantity the
+  // numerator uses. Numerator and denominator now describe the same system state.
+  const baselinePeakGw =
+    ((input.totalDemandTwh - input.dcEnergyTwh) * c.peakFactor) / HOURS_PER_YEAR_K;
+  const peakLoadGw = baselinePeakGw + dcFirmGw;
   const dcShareOfPeak = peakLoadGw > 0 ? dcFirmGw / peakLoadGw : 0;
 
   const flagged =

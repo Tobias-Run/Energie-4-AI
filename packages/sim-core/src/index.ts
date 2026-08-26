@@ -2,6 +2,7 @@ export { runSimulation, aggregatesAt, DEFAULT_CONFIG } from './engine.js';
 export {
   BASE_YEAR,
   countries,
+  globalCompute,
   calibrationAnchors,
   scenarioDefaults,
   provenanceMaps,
@@ -9,9 +10,9 @@ export {
   regionalBenchmarks,
 } from './data.js';
 export type { Levers, SimConfig, CountryYear, YearAggregates, SimulationResult } from './types.js';
-export { globalDcDemandTwh } from './modules/computeDemand.js';
+export { globalDcDemandTwh, effectiveSaturationTwh } from './modules/computeDemand.js';
 export { pueAt } from './modules/electricityDemand.js';
-export { stepPipeline, initPipeline } from './modules/gridPipeline.js';
+export { stepPipeline, initPipeline, announcedGw, permittedGw } from './modules/gridPipeline.js';
 export {
   benchmarkTwh,
   benchmarkRegions,
