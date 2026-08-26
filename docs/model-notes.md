@@ -92,6 +92,9 @@ issue #30.
 
 The flexibility lever removes enrolled load from the peak contribution entirely, on the assumption
 that it curtails exactly when needed — an optimistic reading, which is why the lever stops at 50%.
+ENTSO-E's own case holds curtailment to 40–70 hours a year at better than 99% availability, so
+"available whenever the peak falls" is a good deal more than the instrument actually promises. The
+same lever also shortens the permitting route for the enrolled share (issue #42, below).
 
 Emissions: gas × 0.37 Mt/TWh plus legacy firm × 0.85 Mt/TWh, anchored on IPCC AR5 Annex III. These
 are **direct-combustion factors** and sit below the lifecycle medians (gas 0.49, coal 0.82) by
@@ -337,7 +340,7 @@ day of corrections, which is the best available evidence for how little the flag
 robust quantity.)
 
 A second consequence is worth stating because it cuts against the tool's own optimism: **the
-flexibility lever now has to work harder.** Luxembourg's share falls 18.35 → 16.84 → 15.26 → 13.61%
+flexibility lever now has to work harder.** Luxembourg's share falls 18.35 → 16.83 → 15.24 → 13.59%
 at 0 / 10 / 20 / 30% participation, so clearing its flag takes 30% enrolment where 20% used to do
 it — half the lever's range for one country. Shedding load lowers the system peak as well as the
 data centre's own contribution, so the share falls sub-proportionally rather than in step with the
@@ -445,6 +448,59 @@ no `NaN`, just a well-formed result object full of nonsense.
 The pre-existing stability test did not catch it because it initialised and stepped with the _same_
 duration, so `stagesFor` always matched. That assumption is now written into the test rather than
 left implicit.
+
+### Flexibility bought a lower flag and nothing else (issue #42)
+
+`flexibilityShare` appeared in exactly one place in the whole simulation core — the firm share in
+the peak criterion. ENTSO-E §4.3 describes the mechanism it is named after quite differently:
+
+> "Rather than waiting years for full firm capacity, a data centre receives a reduced firm
+> allocation complemented by conditional capacity that can be curtailed when the system is
+> constrained."
+
+It is a **time-to-power** instrument. ENTSO-E quantifies it at three to five years earlier, with
+curtailment held to 40–70 hours a year. The model's headline finding is that connection is the
+binding constraint, and the lever that ought to carry the one published mechanism for relaxing it
+was wired somewhere else entirely.
+
+A flexible connection agreement is one commitment with two consequences, so the lever now drives
+both: curtailable load is not firm at peak, **and** it takes a permitting route shorter by
+`flexibleConnectionYearsSaved` (4 years, the midpoint of ENTSO-E's range).
+
+**Two chains, not a blended duration.** The inflow splits by the flexible share and each part runs
+at its own duration. A single chain on a weighted-average duration would move the mean identically
+while claiming every project got faster, which is not what the source describes. The base-year
+backlog sits entirely in the firm chain — flexible agreements are an emerging instrument, so in
+2024 there is no stock of them to inherit.
+
+**What it does, measured at 2045:**
+
+| flexibilityShare | 0      | 0.1    | 0.2    | 0.3    | 0.5    |
+| ---------------- | ------ | ------ | ------ | ------ | ------ |
+| EU-27 DC (TWh)   | 217.95 | 217.97 | 217.99 | 218.02 | 218.06 |
+| Ireland (TWh)    | 8.56   | 8.60   | 8.64   | 8.68   | 8.75   |
+| Luxembourg peak% | 18.35  | 16.83  | 15.24  | 13.59  | 10.10  |
+
+**The volume effect is a ramp effect, and it fades.** EU deltas against the same run without the
+channel: **0.000 through 2030, +0.132 in 2033, +0.181 in 2036, +0.117 in 2040, +0.106 in 2045.**
+Zero for the first eight years because the flexible route still costs 5 + 3 years from an empty
+chain; a peak mid-horizon; then decay, because in the long run a faster chain delivers the same
+volume, only earlier. A lever that looks like it creates capacity is actually shifting when
+capacity arrives, and saying so is the point.
+
+**What it deliberately does not do.** The connection ceiling is applied _before_ the inflow is
+split, so accepting curtailment buys time and nothing else. ENTSO-E also argues the other channel —
+that flexible connections let the system avoid "premature or oversized network reinforcements",
+i.e. more load fits the same network. That is the connection ceiling, which is what #30 B5/B6/B8
+are about, and it barely binds here anyway: the EU-wide queue is 0.007 GW and does not move with
+this lever (residual 1e-4, from load redistributing between countries). Two mechanisms in one lever
+would have made neither checkable.
+
+**A correction to our own record.** The Luxembourg series in `levers.test.ts` read
+18.37 / 16.84 / 15.26 / 13.61%. It measures 18.35 / 16.83 / 15.24 / 13.59 — and did so before this
+change too, verified against the pre-#42 code. Those figures were measured after B1 and never
+re-measured after A4 changed the volumes underneath them. They sat in a code comment, which is the
+one place the documentation-drift guard does not reach.
 
 ## Known simplifications (honest-limits, §7)
 

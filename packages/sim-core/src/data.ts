@@ -96,6 +96,11 @@ export interface ScenarioDefaults {
   permittingYearsBaseline: number;
   permittingYearsReform: number;
   constructionYears: number;
+  /**
+   * Years of permitting shaved off for load under a flexible connection agreement
+   * (ENTSO-E §4.3). Applies only to the `flexibilityShare` fraction of the inflow.
+   */
+  flexibleConnectionYearsSaved: number;
   ntcUtilization: number;
   gasEmissionFactorMtPerTwh: number;
   otherFirmEmissionFactorMtPerTwh: number;

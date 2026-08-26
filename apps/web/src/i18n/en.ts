@@ -38,9 +38,9 @@ export const en = {
     sitingCapped: 'Capped hubs',
     sitingCappedNote:
       'A country stops accepting new connections once DC load passes {cap}% of its national demand — the Dublin and Amsterdam moratoria, not an EU quota. Existing load stays.',
-    flexibility: 'Flexibility participation',
+    flexibility: 'Flexible connection agreements',
     flexibilityNote:
-      'Share of DC load enrolled in demand response, which stops counting toward peak. The model assumes it curtails exactly when needed — an optimistic reading, which is why the range stops at 50%.',
+      'Share of DC load that accepts curtailment. One commitment, two consequences: it stops counting toward peak, and it reaches the grid {saved} years sooner, because accepting curtailment is what buys the earlier connection. The model assumes it curtails exactly when needed — ENTSO-E reports 40–70 h/yr in the case it cites, so this is the optimistic reading, and why the range stops at 50%.',
     priceSensitivity: 'Price sensitivity of siting',
     priceSensitivityNote:
       'How strongly electricity price steers where load lands. At ×0 siting ignores price and follows existing clusters; high values pull load to cheap systems (Nordics, Iberia).',
@@ -209,6 +209,7 @@ export const en = {
     rowItUtilization: 'Average IT utilisation (same conversion; misses the capacity anchor)',
     rowFirm: 'Firm (inference) share of DC load',
     rowPermitting: 'Permitting duration (baseline / reform)',
+    rowFlexConnection: 'Years saved by a flexible connection agreement',
     rowNtc: 'NTC average utilization',
     rowCongestion: 'Congestion cost baseline (EU, 2024)',
     rowGas: 'Gas emission factor',

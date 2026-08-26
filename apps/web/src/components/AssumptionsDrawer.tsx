@@ -58,6 +58,9 @@ export function AssumptionsDrawer({ metric, levers }: Props) {
       `${d.permittingYearsBaseline} yr / ${d.permittingYearsReform} yr`,
       'ec2025gridspackage',
     ],
+    // Shown because the flexibility lever now moves volume, not just the peak share, and a
+    // reader who sees demand shift has to be able to find the parameter that did it (issue #42).
+    [t.drawer.rowFlexConnection, `${d.flexibleConnectionYearsSaved} yr`, 'entsoe2026datacentres'],
     [t.drawer.rowNtc, `${(d.ntcUtilization * 100).toFixed(0)}%`, 'expert-guess'],
     [t.drawer.rowCongestion, `€${d.congestionBaselineBnEur2024} bn`, 'ember2025grids'],
     [t.drawer.rowGas, `${d.gasEmissionFactorMtPerTwh} Mt/TWh`, 'expert-guess'],

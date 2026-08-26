@@ -43,9 +43,9 @@ export const de: typeof en = {
     sitingCapped: 'Gedeckelte Hubs',
     sitingCappedNote:
       'Ein Land nimmt keine neuen Anschlüsse mehr an, sobald die RZ-Last {cap} % seiner nationalen Nachfrage überschreitet — die Moratorien von Dublin und Amsterdam, keine EU-Quote. Bestandslast bleibt bestehen.',
-    flexibility: 'Flexibilitätsbeteiligung',
+    flexibility: 'Flexible Anschlussvereinbarungen',
     flexibilityNote:
-      'Anteil der RZ-Last in Demand Response, der nicht mehr zur Spitzenlast zählt. Das Modell unterstellt, dass diese Last genau dann abgeregelt wird, wenn es nötig ist — eine optimistische Lesart, weshalb der Bereich bei 50 % endet.',
+      'Anteil der RZ-Last, der sich abregeln lässt. Eine Zusage, zwei Folgen: Diese Last zählt nicht mehr zur Spitzenlast, und sie kommt {saved} Jahre früher ans Netz — denn die Bereitschaft zur Abregelung ist genau das, was den früheren Anschluss erkauft. Das Modell unterstellt, dass genau dann abgeregelt wird, wenn es nötig ist — ENTSO-E nennt für den zitierten Fall 40–70 h/Jahr, das hier ist also die optimistische Lesart, weshalb der Bereich bei 50 % endet.',
     priceSensitivity: 'Preissensitivität der Standortwahl',
     priceSensitivityNote:
       'Wie stark der Strompreis steuert, wo Last landet. Bei ×0 ignoriert die Standortwahl den Preis und folgt bestehenden Clustern; hohe Werte ziehen Last in günstige Systeme (Nordics, Iberien).',
@@ -216,6 +216,7 @@ export const de: typeof en = {
     rowItUtilization: 'Mittlere IT-Auslastung (dieselbe Umrechnung; verfehlt den Kapazitätsanker)',
     rowFirm: 'Firmer (Inferenz-)Anteil der RZ-Last',
     rowPermitting: 'Genehmigungsdauer (Ausgangszustand / Reform)',
+    rowFlexConnection: 'Zeitgewinn durch flexible Anschlussvereinbarung',
     rowNtc: 'Mittlere NTC-Auslastung',
     rowCongestion: 'Engpasskosten-Ausgangswert (EU, 2024)',
     rowGas: 'Emissionsfaktor Gas',

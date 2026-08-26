@@ -108,7 +108,10 @@ export function LeverPanel({ levers, onChange }: Props) {
         <label>
           <span className="lever-head">
             <span>
-              {t.levers.flexibility} <span className="source-chip">elsevier2025dcflexibility</span>
+              {/* Two chips because the lever now drives two mechanisms with two different
+                  sources: the participation range, and the connection speed-up (issue #42). */}
+              {t.levers.flexibility} <span className="source-chip">elsevier2025dcflexibility</span>{' '}
+              <span className="source-chip">entsoe2026datacentres</span>
             </span>
             <strong>{(levers.flexibilityShare * 100).toFixed(0)}%</strong>
           </span>
@@ -121,7 +124,11 @@ export function LeverPanel({ levers, onChange }: Props) {
             onChange={(e) => onChange({ ...levers, flexibilityShare: Number(e.target.value) })}
           />
         </label>
-        <div className="muted">{t.levers.flexibilityNote}</div>
+        <div className="muted">
+          {fmt(t.levers.flexibilityNote, {
+            saved: scenarioDefaults.flexibleConnectionYearsSaved,
+          })}
+        </div>
       </div>
 
       <div className="lever">
