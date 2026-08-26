@@ -75,7 +75,15 @@ export const DEFAULT_CONFIG: SimConfig = {
 interface CountryState {
   dcEnergyTwh: number;
   queueGw: number;
-  pipeline: PipelineState;
+  /**
+   * Two chains, because a flexible connection agreement is a per-project deal, not a blanket
+   * speed-up (issue #42). Load that accepts curtailment takes the shorter permitting route;
+   * everything else waits the full duration. A single chain on a blended duration would move
+   * the mean identically but claim every project got faster, which is not what ENTSO-E
+   * describes.
+   */
+  pipelineFirm: PipelineState;
+  pipelineFlexible: PipelineState;
 }
 
 export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
@@ -97,6 +105,11 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     ? d.permittingYearsReform
     : d.permittingYearsBaseline;
 
+  // Load under a flexible connection agreement reaches the grid sooner (ENTSO-E §4.3). The floor
+  // of 1 keeps the duration positive if a parameter set shaves off more than the baseline allows;
+  // the chain clamps its own drain rate below the stage count regardless (issue #43).
+  const flexiblePermittingYears = Math.max(1, permittingYears - d.flexibleConnectionYearsSaved);
+
   const euIsos = new Set(countries.filter((c) => c.eu27).map((c) => c.iso));
 
   // --- initial state (base year 2024) ---
@@ -113,11 +126,16 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
       // decaying back. Initialising with the reform duration instead scales the starting stock
       // down by precisely the factor the drain rate is scaled up, which makes permitting reform
       // a mathematical no-op — measured, flat 1.000 in every year.
-      pipeline: initPipeline(
+      // The whole base-year backlog sits in the firm chain. Flexible connection agreements are
+      // what ENTSO-E calls an emerging instrument, so in 2024 there is no stock of them to
+      // inherit — projects already in the queue were permitted under the firm regime and stay
+      // there. The flexible chain starts empty and fills only from the lever.
+      pipelineFirm: initPipeline(
         c.baseConnectableGwPerYear * c.pipelineTightness,
         d.permittingYearsBaseline,
         d.constructionYears,
       ),
+      pipelineFlexible: initPipeline(0, d.permittingYearsBaseline, d.constructionYears),
     });
   }
 
@@ -149,7 +167,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     globalTwh += globalAdditions;
 
     if (year > BASE_YEAR) {
-      const euAdditionsTwh = euCaptureShare(year, d) * globalAdditions;
+      const euAdditionsTwh = euCaptureShare(year, d, levers) * globalAdditions;
 
       // Allocate EU additions by gravity/price weights; non-EU countries have their own capture.
       let weights = new Map<string, number>();
@@ -191,12 +209,27 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         // inflow instead keeps both mechanisms live: the ceiling limits the sustainable rate,
         // while permitting duration still governs how fast the chain delivers during a ramp.
         const capabilityGw = c.baseConnectableGwPerYear * c.pipelineTightness;
-        const builtFlow = stepPipeline(
-          s.pipeline,
-          Math.min(desiredGw.get(c.iso)! * d.phantomQueueFactor, capabilityGw),
-          permittingYears,
-          d.constructionYears,
-        );
+        const inflowGw = Math.min(desiredGw.get(c.iso)! * d.phantomQueueFactor, capabilityGw);
+        // Split the inflow by the flexible share and route each part at its own duration. The
+        // ceiling is applied before the split, so accepting curtailment buys time-to-power and
+        // nothing else — it does NOT raise how much a country can connect per year. ENTSO-E
+        // argues for that second channel too (avoiding "premature or oversized network
+        // reinforcements"), but the ceiling is what #30 B5/B6/B8 are about, and it barely binds
+        // here anyway: the EU-wide queue is 0.007 GW. Keeping the two apart means this lever
+        // changes one mechanism that can be checked rather than two that cannot (issue #42).
+        const builtFlow =
+          stepPipeline(
+            s.pipelineFirm,
+            inflowGw * (1 - levers.flexibilityShare),
+            permittingYears,
+            d.constructionYears,
+          ) +
+          stepPipeline(
+            s.pipelineFlexible,
+            inflowGw * levers.flexibilityShare,
+            flexiblePermittingYears,
+            d.constructionYears,
+          );
         availableGw.set(c.iso, builtFlow);
       }
 

@@ -22,6 +22,7 @@ const BOOM: Levers = {
   sitingPolicy: 'market',
   flexibilityShare: 0,
   priceSensitivity: 1,
+  capturePost2030: scenarioDefaults.levers.capturePost2030,
 };
 
 function dkAt2045(tightness: number, levers: Levers = BOOM) {

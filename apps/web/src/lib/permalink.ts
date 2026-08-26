@@ -30,10 +30,18 @@ export function encodeScenario(s: ScenarioState): string {
     p.set('f', String(s.levers.flexibilityShare));
   if (s.levers.priceSensitivity !== d.priceSensitivity)
     p.set('p', String(s.levers.priceSensitivity));
+  if (s.levers.capturePost2030 !== d.capturePost2030) p.set('c', String(s.levers.capturePost2030));
   p.set('y', String(s.year));
   p.set('m', s.metricId);
   if (s.monteCarlo) p.set('mc', '1');
   return p.toString();
+}
+
+/** Same clamping, for a lever whose absence is meaningful rather than a fallback value. */
+function optNum(raw: string | null, min: number, max: number): number | null {
+  const v = Number(raw);
+  if (raw === null || !Number.isFinite(v)) return null;
+  return Math.min(max, Math.max(min, v));
 }
 
 /** Clamp to the range the corresponding UI control allows, so a hand-edited URL cannot
@@ -59,6 +67,11 @@ export function decodeScenario(search: string, fallback: ScenarioState): Scenari
           : d.sitingPolicy,
       flexibilityShare: num(p.get('f'), d.flexibilityShare, 0, 0.5),
       priceSensitivity: num(p.get('p'), d.priceSensitivity, 0, 3),
+      // Absent means "follow the data bundle" — the lever is an override, so that its default
+      // leaves Monte Carlo perturbing the parameter (issue #41). Bounds are the published
+      // uncertainty range, not the slider's own invention, so a hand-edited link cannot claim a
+      // share no source states.
+      capturePost2030: optNum(p.get('c'), 0.045, 0.09),
     },
     year: Math.round(num(p.get('y'), fallback.year, 2026, 2045)),
     metricId: p.get('m') ?? fallback.metricId,

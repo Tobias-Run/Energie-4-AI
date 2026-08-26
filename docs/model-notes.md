@@ -92,6 +92,9 @@ issue #30.
 
 The flexibility lever removes enrolled load from the peak contribution entirely, on the assumption
 that it curtails exactly when needed — an optimistic reading, which is why the lever stops at 50%.
+ENTSO-E's own case holds curtailment to 40–70 hours a year at better than 99% availability, so
+"available whenever the peak falls" is a good deal more than the instrument actually promises. The
+same lever also shortens the permitting route for the enrolled share (issue #42, below).
 
 Emissions: gas × 0.37 Mt/TWh plus legacy firm × 0.85 Mt/TWh, anchored on IPCC AR5 Annex III. These
 are **direct-combustion factors** and sit below the lifecycle medians (gas 0.49, coal 0.82) by
@@ -337,7 +340,7 @@ day of corrections, which is the best available evidence for how little the flag
 robust quantity.)
 
 A second consequence is worth stating because it cuts against the tool's own optimism: **the
-flexibility lever now has to work harder.** Luxembourg's share falls 18.35 → 16.84 → 15.26 → 13.61%
+flexibility lever now has to work harder.** Luxembourg's share falls 18.35 → 16.83 → 15.24 → 13.59%
 at 0 / 10 / 20 / 30% participation, so clearing its flag takes 30% enrolment where 20% used to do
 it — half the lever's range for one country. Shedding load lowers the system peak as well as the
 data centre's own contribution, so the share falls sub-proportionally rather than in step with the
@@ -408,8 +411,150 @@ sub-stage transfer rate is exactly 1, so construction is a rigid three-year shif
 dispersion at all — every project takes exactly three years to build. Permitting keeps its spread
 because its duration is longer than the stage count. Real construction times vary; this does not.
 
+### The same chain drained more than it held (issue #43)
+
+Found while measuring something else, and it is a defect in the repair above rather than in the
+original model.
+
+The stage count comes from `stagesFor` at initialisation; the duration comes from the lever at each
+step. `engine.ts` initialises with the **baseline** permitting duration even when reform is on —
+deliberately, because sizing the starting backlog for the reform duration would make reform a
+mathematical no-op. So the array holds three stages sized by nine years while a step may use a much
+shorter duration, and the transfer rate `k / duration` was free to exceed 1.
+
+Measured, initialising at 9 + 3 and stepping a 1 GW impulse:
+
+| Step duration | Rate | Cumulative delivery | Lowest stock |
+| ------------- | ---- | ------------------- | ------------ |
+| 3 years       | 1.00 | 1.000               | 0            |
+| 2 years       | 1.50 | **0.998**           | **−5.06 GW** |
+| 1 year        | 3.00 | −4.18 × 10⁸         | −4.78 × 10⁹  |
+
+The middle row is the one worth keeping. At moderate overshoot the **cumulative delivery still
+reads 0.998** while the stocks underneath sit at minus five gigawatts. An aggregate check passes;
+only outright divergence is visible from the total. The regression tests therefore assert on stocks
+and outflows, not on sums.
+
+The rate is now clamped at 1 where it is computed, which is the graceful degradation the module
+comment already claimed and did not have: below `duration = k` the chain saturates at one stage per
+year, so the lead time stops shortening instead of the arithmetic breaking down.
+
+**No published figure moves.** The clamp binds only below a three-year duration, and nothing
+reachable crosses that — the lever offers 9 or 5, the sampler draws no lower than 4, construction is
+fixed at 3 and therefore sat exactly on the boundary rather than inside it. The defect was reachable
+only through `runSimulation({ params })`, which is a public export, and it failed silently: no throw,
+no `NaN`, just a well-formed result object full of nonsense.
+
+The pre-existing stability test did not catch it because it initialised and stepped with the _same_
+duration, so `stagesFor` always matched. That assumption is now written into the test rather than
+left implicit.
+
+### Flexibility bought a lower flag and nothing else (issue #42)
+
+`flexibilityShare` appeared in exactly one place in the whole simulation core — the firm share in
+the peak criterion. ENTSO-E §4.3 describes the mechanism it is named after quite differently:
+
+> "Rather than waiting years for full firm capacity, a data centre receives a reduced firm
+> allocation complemented by conditional capacity that can be curtailed when the system is
+> constrained."
+
+It is a **time-to-power** instrument. ENTSO-E quantifies it at three to five years earlier, with
+curtailment held to 40–70 hours a year. The model's headline finding is that connection is the
+binding constraint, and the lever that ought to carry the one published mechanism for relaxing it
+was wired somewhere else entirely.
+
+A flexible connection agreement is one commitment with two consequences, so the lever now drives
+both: curtailable load is not firm at peak, **and** it takes a permitting route shorter by
+`flexibleConnectionYearsSaved` (4 years, the midpoint of ENTSO-E's range).
+
+**Two chains, not a blended duration.** The inflow splits by the flexible share and each part runs
+at its own duration. A single chain on a weighted-average duration would move the mean identically
+while claiming every project got faster, which is not what the source describes. The base-year
+backlog sits entirely in the firm chain — flexible agreements are an emerging instrument, so in
+2024 there is no stock of them to inherit.
+
+**What it does, measured at 2045:**
+
+| flexibilityShare | 0      | 0.1    | 0.2    | 0.3    | 0.5    |
+| ---------------- | ------ | ------ | ------ | ------ | ------ |
+| EU-27 DC (TWh)   | 217.95 | 217.97 | 217.99 | 218.02 | 218.06 |
+| Ireland (TWh)    | 8.56   | 8.60   | 8.64   | 8.68   | 8.75   |
+| Luxembourg peak% | 18.35  | 16.83  | 15.24  | 13.59  | 10.10  |
+
+**The volume effect is a ramp effect, and it fades.** EU deltas against the same run without the
+channel: **0.000 through 2030, +0.132 in 2033, +0.181 in 2036, +0.117 in 2040, +0.106 in 2045.**
+Zero for the first eight years because the flexible route still costs 5 + 3 years from an empty
+chain; a peak mid-horizon; then decay, because in the long run a faster chain delivers the same
+volume, only earlier. A lever that looks like it creates capacity is actually shifting when
+capacity arrives, and saying so is the point.
+
+**What it deliberately does not do.** The connection ceiling is applied _before_ the inflow is
+split, so accepting curtailment buys time and nothing else. ENTSO-E also argues the other channel —
+that flexible connections let the system avoid "premature or oversized network reinforcements",
+i.e. more load fits the same network. That is the connection ceiling, which is what #30 B5/B6/B8
+are about, and it barely binds here anyway: the EU-wide queue is 0.007 GW and does not move with
+this lever (residual 1e-4, from load redistributing between countries). Two mechanisms in one lever
+would have made neither checkable.
+
+**A correction to our own record.** The Luxembourg series in `levers.test.ts` read
+18.37 / 16.84 / 15.26 / 13.61%. It measures 18.35 / 16.83 / 15.24 / 13.59 — and did so before this
+change too, verified against the pre-#42 code. Those figures were measured after B1 and never
+re-measured after A4 changed the volumes underneath them. They sat in a code comment, which is the
+one place the documentation-drift guard does not reach.
+
+### Europe's share of the buildout was an assertion, not a lever (issue #41)
+
+The model captured 8.5% of global data centre demand additions before 2030 (IEA) and 6.5% after
+(Ember) — **a 24% decline, asserted with no way for a user to question it**, while the sensitivity
+analysis ranked this parameter among the largest drivers of the entire 2045 corridor. There were
+levers for global growth, efficiency, permitting, siting, flexibility and price. There was none for
+how much of the world's buildout lands in Europe at all.
+
+Same defect class as B8 one level up: a policy quantity presented as a natural constant.
+
+`capturePost2030` is now a lever, bounded by the **published uncertainty range** for the parameter
+(0.045–0.09) rather than a range invented for the slider. Measured at 2045:
+
+| Post-2030 share | 4.5%  | 5.5%  | 6.5% (default) | 7.5%  | 8.5%  | 9.0%  |
+| --------------- | ----- | ----- | -------------- | ----- | ----- | ----- |
+| EU-27 DC (TWh)  | 185.4 | 201.7 | **218.0**      | 234.1 | 250.2 | 258.3 |
+| Share of demand | 5.74% | 6.22% | **6.68%**      | 7.14% | 7.60% | 7.82% |
+| Flags           | —     | LU    | LU             | LU    | LU    | LU    |
+
+**A 72.9 TWh span** — a third of the central result, and exactly the swing B3 measured for this
+parameter. 2030 is untouched at 111.1 TWh in every case: only the post-2030 leg is the lever's,
+because the near-term buildout is largely committed and the contested claim is the decline.
+
+**This is the only lever that changes how much load Europe ends up with.** Siting, permitting
+reform, flexibility and transmission all redistribute — the European volume is capture share ×
+global demand, so nothing on the supply or connection side can add to it. Three separate
+measurements found that independently (`ntcUtilization`, UHV-scale transmission, flexible
+connection agreements) before it was stated as one property.
+
+**The counter-evidence is in a source we already carry.** ENTSO-E §1.1 notes the **EU Cloud and AI
+Development Act** aims to _"triple EU data centre capacity over the next five to seven years"_ — an
+explicit European target pulling against a modelled decline. Both can hold at once if the global
+denominator grows faster; the point is that the model asserted the decline without ever showing the
+tension. The lever's note now does.
+
+**`null` means "follow the data bundle", and it is the default — not a copy of 0.065.** Wired as a
+plain number, the lever replaced the parameter Monte Carlo perturbs, and `euPost2030`'s tornado
+swing **collapsed from 72.9 TWh to exactly 0.00** while every headline figure stayed put: the
+corridor silently lost its third-largest dimension. The documentation-drift guard caught it through
+changed Monte Carlo flag frequencies, which is the only place it surfaced. A regression test now
+fails on precisely that mistake. Setting the lever deliberately does fix the parameter, so that
+dimension of the corridor closes — the user has asserted a value, and it is no longer uncertain.
+
 ## Known simplifications (honest-limits, §7)
 
+- **Europe's data centre volume is exogenous.** It is capture share × global demand, so every
+  supply-side and connection-side intervention in this model can only move load between countries,
+  never change how much Europe gets. Measured three times independently before it was stated once:
+  tripling `ntcUtilization` moves nothing but Poland's stress index; UHV-scale transmission shifts
+  load rather than removing it; flexible connection agreements shift +0.1 TWh at EU level while
+  moving Denmark 15%. The one lever that changes the European total is the capture share itself
+  (#41). Anyone reading a supply-side result as "Europe gets more data centres" is reading it
+  wrong.
 - Annual energy balances only. No load flow, no intra-hour or representative-day dispatch, no
   market clearing, no prices formed inside the model.
 - Country-level resolution. The 14 hub markers are display metadata only and feed nothing

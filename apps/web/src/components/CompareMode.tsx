@@ -33,6 +33,7 @@ export function describeLevers(l: Levers, t?: Strings): string {
   if (l.sitingPolicy !== 'market') parts.push(`siting: ${l.sitingPolicy}`);
   if (l.flexibilityShare !== 0) parts.push(`flex ${(l.flexibilityShare * 100).toFixed(0)}%`);
   if (l.priceSensitivity !== 1) parts.push(`price ×${l.priceSensitivity}`);
+  if (l.capturePost2030 !== null) parts.push(`EU capture ${(l.capturePost2030 * 100).toFixed(1)}%`);
   return parts.length > 0 ? parts.join(' · ') : (t?.compare.centralScenario ?? 'central scenario');
 }
 

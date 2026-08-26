@@ -43,9 +43,13 @@ export const de: typeof en = {
     sitingCapped: 'Gedeckelte Hubs',
     sitingCappedNote:
       'Ein Land nimmt keine neuen Anschlüsse mehr an, sobald die RZ-Last {cap} % seiner nationalen Nachfrage überschreitet — die Moratorien von Dublin und Amsterdam, keine EU-Quote. Bestandslast bleibt bestehen.',
-    flexibility: 'Flexibilitätsbeteiligung',
+    flexibility: 'Flexible Anschlussvereinbarungen',
     flexibilityNote:
-      'Anteil der RZ-Last in Demand Response, der nicht mehr zur Spitzenlast zählt. Das Modell unterstellt, dass diese Last genau dann abgeregelt wird, wenn es nötig ist — eine optimistische Lesart, weshalb der Bereich bei 50 % endet.',
+      'Anteil der RZ-Last, der sich abregeln lässt. Eine Zusage, zwei Folgen: Diese Last zählt nicht mehr zur Spitzenlast, und sie kommt {saved} Jahre früher ans Netz — denn die Bereitschaft zur Abregelung ist genau das, was den früheren Anschluss erkauft. Das Modell unterstellt, dass genau dann abgeregelt wird, wenn es nötig ist — ENTSO-E nennt für den zitierten Fall 40–70 h/Jahr, das hier ist also die optimistische Lesart, weshalb der Bereich bei 50 % endet.',
+    capture: 'Europas Anteil am globalen Zubau ab 2030',
+    captureFollowsData: 'folgt den Daten',
+    captureNote:
+      'Das Modell unterstellt, dass Europa vor 2030 {pre} % des globalen RZ-Wachstums auf sich zieht (IEA) und danach nur noch {post} % (Ember) — ein Rückgang um 24 %, den es bislang ohne Widerspruchsmöglichkeit behauptet hat, obwohl dieser Parameter zu den größten Treibern des gesamten 2045er-Korridors zählt. Der Rückgang kann stimmen; er ist eine Projektion, keine Konstante. ENTSO-E verweist darauf, dass der EU Cloud and AI Development Act die europäische Rechenzentrumskapazität in fünf bis sieben Jahren verdreifachen soll — das zieht in die Gegenrichtung. Der Bereich ist die publizierte Unsicherheitsspanne. Unberührt folgt der Regler den Daten und bleibt im Monte-Carlo-Modus unsicher; wer ihn bewegt, hat einen Wert behauptet.',
     priceSensitivity: 'Preissensitivität der Standortwahl',
     priceSensitivityNote:
       'Wie stark der Strompreis steuert, wo Last landet. Bei ×0 ignoriert die Standortwahl den Preis und folgt bestehenden Clustern; hohe Werte ziehen Last in günstige Systeme (Nordics, Iberien).',
@@ -216,6 +220,7 @@ export const de: typeof en = {
     rowItUtilization: 'Mittlere IT-Auslastung (dieselbe Umrechnung; verfehlt den Kapazitätsanker)',
     rowFirm: 'Firmer (Inferenz-)Anteil der RZ-Last',
     rowPermitting: 'Genehmigungsdauer (Ausgangszustand / Reform)',
+    rowFlexConnection: 'Zeitgewinn durch flexible Anschlussvereinbarung',
     rowNtc: 'Mittlere NTC-Auslastung',
     rowCongestion: 'Engpasskosten-Ausgangswert (EU, 2024)',
     rowGas: 'Emissionsfaktor Gas',

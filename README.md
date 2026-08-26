@@ -26,7 +26,7 @@ _🇩🇪 Energie-4-AI ist ein interaktives Browser-Tool, das den Ausbau von KI-
 ## What it does
 
 - 🗺️ **Interactive Europe map** with a 2026–2045 time slider — regions colored by grid stress, data center load share, price proxy, or emissions
-- 🎛️ **Scenario levers** — compute growth, efficiency gains, siting policy, flexibility mandates, grid buildout speed (permitting reform), and more; every lever with source-backed defaults and plausible ranges
+- 🎛️ **Scenario levers** — compute growth, efficiency gains, siting policy, flexible connection agreements, grid buildout speed (permitting reform), price sensitivity, and Europe's share of the global buildout; every lever with source-backed defaults and plausible ranges
 - 📊 **Uncertainty as a first-class citizen** — every scenario renders a corridor (central + high/low), never a false point forecast; Monte Carlo mode for sensitivity analysis
 - 📖 **Story mode** — curated guided scenarios (e.g. _"Dublin freeze spreads"_, _"Grids Package delivers"_) for policymakers, journalists, and the public
 - 🔍 **No unexplained numbers** — every on-screen figure links to an assumptions drawer with its source; parameters without a source are visibly marked `expert-guess`

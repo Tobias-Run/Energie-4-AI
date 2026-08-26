@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { runSimulation } from '../src/index.js';
-import { scenarioDefaults as d } from '../src/data.js';
+import { runMonteCarlo, runSimulation } from '../src/index.js';
+import { scenarioDefaults as d, globalCompute } from '../src/data.js';
 
 const BASE = d.levers;
 const at = (levers: typeof BASE, year = 2045) => {
@@ -57,10 +57,29 @@ describe('P2 levers (issue #6)', () => {
     expect(green.row('FR').dcEnergyTwh).toBeLessThan(market.row('FR').dcEnergyTwh);
   });
 
-  it('flexibility lowers the peak contribution sub-proportionally and leaves demand alone', () => {
-    const base = at(BASE);
-    const flex = at({ ...BASE, flexibilityShare: 0.2 });
-    expect(flex.agg.euDcTwh).toBeCloseTo(base.agg.euDcTwh, 6);
+  /**
+   * Flexibility drives two mechanisms, because a flexible connection agreement is one commitment
+   * with two consequences (ENTSO-E §4.3, issue #42): curtailable load is not firm at peak, AND it
+   * reaches the grid sooner, since accepting curtailment is what buys the earlier connection.
+   *
+   * The two are separated here by running the connection channel at zero years saved. Testing
+   * them together would let a change in one mask a change in the other.
+   */
+  const peakChannelOnly = (levers: typeof BASE, year = 2045) => {
+    const r = runSimulation({
+      levers,
+      params: { scenarioDefaults: { ...d, flexibleConnectionYearsSaved: 0 }, globalCompute },
+    });
+    const i = r.years.indexOf(year);
+    return { agg: r.aggregates[i]!, row: (iso: string) => r.countries[iso]![i]! };
+  };
+
+  it('peak channel: lowers the peak contribution sub-proportionally, demand untouched', () => {
+    const base = peakChannelOnly(BASE);
+    const flex = peakChannelOnly({ ...BASE, flexibilityShare: 0.2 });
+
+    // With the connection channel switched off, flexibility moves no volume at all.
+    expect(flex.agg.euDcTwh).toBeCloseTo(base.agg.euDcTwh, 9);
 
     // This assertion used to read `× 0.8` exactly. That held only while the denominator ignored
     // data centre load. Now that the peak is baseline-peak + DC firm draw (issue #30, B1),
@@ -74,15 +93,100 @@ describe('P2 levers (issue #6)', () => {
     expect(flex.row('IE').dcShareOfPeak).toBeCloseTo(predicted, 9);
     expect(flex.row('IE').dcShareOfPeak).toBeLessThan(b.dcShareOfPeak);
     expect(flex.row('IE').dcShareOfPeak).toBeGreaterThan(b.dcShareOfPeak * 0.8);
+  });
 
-    // The late-horizon flags are peak-share driven, so flexibility clears them — but it now
-    // takes more of the lever than it did. Under the old construct 20% cleared Luxembourg;
-    // with the diluted denominator removed, LU sits at 15.26% at 20% flexibility, still over
-    // the 15% line, and needs 30% to clear. Measured: 18.37 / 16.84 / 15.26 / 13.61% at
-    // 0 / 10 / 20 / 30% flexibility. That is half the lever's range to clear one country.
-    expect(flex.agg.flaggedRegions).toEqual(base.agg.flaggedRegions);
-    const more = at({ ...BASE, flexibilityShare: 0.3 });
-    expect(more.agg.flaggedRegions.length).toBeLessThan(base.agg.flaggedRegions.length);
+  it('peak channel: clearing Luxembourg takes 30% enrolment, not 20%', () => {
+    // Measured 18.35 / 16.83 / 15.24 / 13.59% at 0 / 10 / 20 / 30% flexibility — half the
+    // lever's range to clear one country. These four figures replace 18.37 / 16.84 / 15.26 /
+    // 13.61, which this comment carried until #42: they were measured after B1 and never
+    // re-measured after A4 (#28) changed the volumes underneath them. Verified against the
+    // pre-#42 code, so the correction is to the record, not an effect of this change.
+    const shares = [0, 0.1, 0.2, 0.3].map((f) =>
+      Number(
+        (peakChannelOnly({ ...BASE, flexibilityShare: f }).row('LU').dcShareOfPeak * 100).toFixed(
+          2,
+        ),
+      ),
+    );
+    expect(shares).toEqual([18.35, 16.83, 15.24, 13.59]);
+
+    const base = peakChannelOnly(BASE);
+    expect(peakChannelOnly({ ...BASE, flexibilityShare: 0.2 }).agg.flaggedRegions).toEqual(
+      base.agg.flaggedRegions,
+    );
+    expect(
+      peakChannelOnly({ ...BASE, flexibilityShare: 0.3 }).agg.flaggedRegions.length,
+    ).toBeLessThan(base.agg.flaggedRegions.length);
+  });
+
+  it('connection channel: flexible load reaches the grid sooner, and only during the ramp', () => {
+    const base = at(BASE);
+    const flex = at({ ...BASE, flexibilityShare: 0.5 });
+
+    // Volume now moves — that is the whole point of the channel — but barely, and only in the
+    // constrained countries. Europe's total is set by capture share × global demand, so a
+    // faster connection redistributes rather than creates (same finding as siting and reform).
+    expect(flex.agg.euDcTwh).toBeGreaterThan(base.agg.euDcTwh);
+    expect(flex.agg.euDcTwh - base.agg.euDcTwh).toBeLessThan(0.5);
+    for (const iso of ['IE', 'NL', 'DK']) {
+      expect(flex.row(iso).dcEnergyTwh).toBeGreaterThan(base.row(iso).dcEnergyTwh);
+    }
+
+    // Nothing arrives early. The flexible route still costs 5 + 3 years from an empty chain, so
+    // the first deliveries land around 2032 and the effect is exactly zero before then.
+    const early = at(BASE, 2030).agg.euDcTwh;
+    const earlyFlex = at({ ...BASE, flexibilityShare: 0.5 }, 2030).agg.euDcTwh;
+    expect(earlyFlex).toBeCloseTo(early, 9);
+
+    // And it fades: the gain peaks mid-horizon and decays as the transient washes out, because
+    // in the long run a faster chain delivers the same volume, only earlier. Measured EU deltas:
+    // +0.132 (2033), +0.181 (2036), +0.117 (2040), +0.106 (2045).
+    const delta = (y: number) =>
+      at({ ...BASE, flexibilityShare: 0.5 }, y).agg.euDcTwh - at(BASE, y).agg.euDcTwh;
+    expect(delta(2036)).toBeGreaterThan(delta(2045));
+  });
+
+  it('connection channel: does not raise how much a country can connect per year', () => {
+    // The ceiling is applied before the inflow is split, deliberately. Accepting curtailment
+    // buys time-to-power and nothing else here; the hosting-capacity argument ENTSO-E also
+    // makes belongs to the connection ceiling, which is #30 B5/B6/B8.
+    //
+    // Not bit-identical, and the reason is worth stating: the queue is desired minus served, and
+    // desired shifts slightly once the channel has moved load between countries. That residual is
+    // second-order — 1e-4 relative — where raising the ceiling would move the queue outright.
+    const base = at(BASE);
+    for (const f of [0.1, 0.3, 0.5]) {
+      const q = at({ ...BASE, flexibilityShare: f }).agg.euQueueGw;
+      expect(Math.abs(q - base.agg.euQueueGw) / base.agg.euQueueGw).toBeLessThan(1e-3);
+    }
+  });
+
+  it('capture share: the lever moves the EU total, unlike every other lever', () => {
+    // The one quantity that changes how much data centre load Europe ends up with, rather than
+    // where it lands. Everything else — siting, reform, flexibility, transmission — redistributes,
+    // because the European volume is capture share × global demand (issue #41).
+    const base = at(BASE).agg.euDcTwh;
+    const held = at({ ...BASE, capturePost2030: 0.085 }).agg.euDcTwh;
+    const low = at({ ...BASE, capturePost2030: 0.045 }).agg.euDcTwh;
+    expect(held).toBeGreaterThan(base + 20);
+    expect(low).toBeLessThan(base - 20);
+  });
+
+  it('capture share: null means follow the bundle, and the sampler keeps its grip', () => {
+    // This is the trap this lever walked into. Wired as a plain number defaulting to the bundle
+    // value, the lever replaced the parameter Monte Carlo perturbs — and euPost2030's tornado
+    // swing collapsed from 72.9 TWh to exactly 0.00 while every headline figure stayed put. The
+    // corridor lost its third-largest dimension silently.
+    expect(BASE.capturePost2030).toBeNull();
+    expect(at(BASE).agg.euDcTwh).toBeCloseTo(
+      at({ ...BASE, capturePost2030: d.captureShareOfGlobalAdditions.euPost2030 }).agg.euDcTwh,
+      9,
+    );
+
+    const mc = runMonteCarlo({ runs: 60, seed: 7, levers: BASE });
+    const post = mc.tornado.find((e) => e.path.endsWith('euPost2030'));
+    expect(post, 'euPost2030 must still be a sampled parameter').toBeDefined();
+    expect(Math.abs(post!.highValue - post!.lowValue)).toBeGreaterThan(50);
   });
 
   it('price sensitivity steers siting toward cheap power', () => {
