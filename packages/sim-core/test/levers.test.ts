@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { runSimulation } from '../src/index.js';
+import { runMonteCarlo, runSimulation } from '../src/index.js';
 import { scenarioDefaults as d, globalCompute } from '../src/data.js';
 
 const BASE = d.levers;
@@ -159,6 +159,34 @@ describe('P2 levers (issue #6)', () => {
       const q = at({ ...BASE, flexibilityShare: f }).agg.euQueueGw;
       expect(Math.abs(q - base.agg.euQueueGw) / base.agg.euQueueGw).toBeLessThan(1e-3);
     }
+  });
+
+  it('capture share: the lever moves the EU total, unlike every other lever', () => {
+    // The one quantity that changes how much data centre load Europe ends up with, rather than
+    // where it lands. Everything else — siting, reform, flexibility, transmission — redistributes,
+    // because the European volume is capture share × global demand (issue #41).
+    const base = at(BASE).agg.euDcTwh;
+    const held = at({ ...BASE, capturePost2030: 0.085 }).agg.euDcTwh;
+    const low = at({ ...BASE, capturePost2030: 0.045 }).agg.euDcTwh;
+    expect(held).toBeGreaterThan(base + 20);
+    expect(low).toBeLessThan(base - 20);
+  });
+
+  it('capture share: null means follow the bundle, and the sampler keeps its grip', () => {
+    // This is the trap this lever walked into. Wired as a plain number defaulting to the bundle
+    // value, the lever replaced the parameter Monte Carlo perturbs — and euPost2030's tornado
+    // swing collapsed from 72.9 TWh to exactly 0.00 while every headline figure stayed put. The
+    // corridor lost its third-largest dimension silently.
+    expect(BASE.capturePost2030).toBeNull();
+    expect(at(BASE).agg.euDcTwh).toBeCloseTo(
+      at({ ...BASE, capturePost2030: d.captureShareOfGlobalAdditions.euPost2030 }).agg.euDcTwh,
+      9,
+    );
+
+    const mc = runMonteCarlo({ runs: 60, seed: 7, levers: BASE });
+    const post = mc.tornado.find((e) => e.path.endsWith('euPost2030'));
+    expect(post, 'euPost2030 must still be a sampled parameter').toBeDefined();
+    expect(Math.abs(post!.highValue - post!.lowValue)).toBeGreaterThan(50);
   });
 
   it('price sensitivity steers siting toward cheap power', () => {

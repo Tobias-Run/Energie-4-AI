@@ -19,6 +19,7 @@ describe('scenario permalinks (issue #6)', () => {
         sitingPolicy: 'capped',
         flexibilityShare: 0.35,
         priceSensitivity: 2.5,
+        capturePost2030: 0.085,
       },
       year: 2041,
       metricId: 'dcShareOfPeak',
@@ -57,5 +58,16 @@ describe('scenario permalinks (issue #6)', () => {
     expect(s.levers.sitingPolicy).toBe('market');
     expect(s.levers.flexibilityShare).toBe(0);
     expect(s.levers.priceSensitivity).toBe(1);
+    // null, not the bundle number: an old link asserts nothing about the capture share, so it
+    // must keep following the data — and keep Monte Carlo perturbing it (issue #41).
+    expect(s.levers.capturePost2030).toBeNull();
+  });
+
+  it('treats an out-of-range capture share as the published bound, not as given', () => {
+    // The lever's bounds are the published uncertainty range for the parameter. A hand-edited
+    // link must not be able to claim a European share no source states.
+    expect(decodeScenario('c=0.4', central).levers.capturePost2030).toBe(0.09);
+    expect(decodeScenario('c=0', central).levers.capturePost2030).toBe(0.045);
+    expect(decodeScenario('c=nonsense', central).levers.capturePost2030).toBeNull();
   });
 });

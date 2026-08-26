@@ -167,7 +167,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
     globalTwh += globalAdditions;
 
     if (year > BASE_YEAR) {
-      const euAdditionsTwh = euCaptureShare(year, d) * globalAdditions;
+      const euAdditionsTwh = euCaptureShare(year, d, levers) * globalAdditions;
 
       // Allocate EU additions by gravity/price weights; non-EU countries have their own capture.
       let weights = new Map<string, number>();

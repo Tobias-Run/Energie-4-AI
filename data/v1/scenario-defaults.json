@@ -38,7 +38,8 @@
     "permittingReform": false,
     "sitingPolicy": "market",
     "flexibilityShare": 0.0,
-    "priceSensitivity": 1.0
+    "priceSensitivity": 1.0,
+    "capturePost2030": null
   },
   "provenance": {
     "captureShareOfGlobalAdditions.euPre2030": "iea2025energyai",
@@ -70,6 +71,7 @@
     "sitingRenewablesExponent": "expert-guess",
     "levers.sitingPolicy": "expert-guess",
     "levers.flexibilityShare": "elsevier2025dcflexibility",
+    "levers.capturePost2030": "ember2025grids",
     "levers.priceSensitivity": "expert-guess",
     "hubCapDcShareOfDemand": "expert-guess"
   }

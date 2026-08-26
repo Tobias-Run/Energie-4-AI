@@ -41,6 +41,10 @@ export const en = {
     flexibility: 'Flexible connection agreements',
     flexibilityNote:
       'Share of DC load that accepts curtailment. One commitment, two consequences: it stops counting toward peak, and it reaches the grid {saved} years sooner, because accepting curtailment is what buys the earlier connection. The model assumes it curtails exactly when needed — ENTSO-E reports 40–70 h/yr in the case it cites, so this is the optimistic reading, and why the range stops at 50%.',
+    capture: "Europe's share of global buildout after 2030",
+    captureFollowsData: 'follows the data',
+    captureNote:
+      'The model assumes Europe captures {pre}% of global DC growth before 2030 (IEA) and only {post}% after (Ember) — a 24% decline it used to assert with no way to question it, while ranking among the largest drivers of the whole 2045 corridor. The decline may well be right; it is a projection, not a constant. ENTSO-E notes the EU Cloud and AI Development Act aims to triple EU data centre capacity in five to seven years, which pulls the other way. Range is the published uncertainty band. Left alone, this follows the data bundle and stays uncertain in Monte Carlo mode; move it and you have asserted a value.',
     priceSensitivity: 'Price sensitivity of siting',
     priceSensitivityNote:
       'How strongly electricity price steers where load lands. At ×0 siting ignores price and follows existing clusters; high values pull load to cheap systems (Nordics, Iberia).',

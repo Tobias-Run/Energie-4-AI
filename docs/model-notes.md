@@ -502,8 +502,59 @@ change too, verified against the pre-#42 code. Those figures were measured after
 re-measured after A4 changed the volumes underneath them. They sat in a code comment, which is the
 one place the documentation-drift guard does not reach.
 
+### Europe's share of the buildout was an assertion, not a lever (issue #41)
+
+The model captured 8.5% of global data centre demand additions before 2030 (IEA) and 6.5% after
+(Ember) — **a 24% decline, asserted with no way for a user to question it**, while the sensitivity
+analysis ranked this parameter among the largest drivers of the entire 2045 corridor. There were
+levers for global growth, efficiency, permitting, siting, flexibility and price. There was none for
+how much of the world's buildout lands in Europe at all.
+
+Same defect class as B8 one level up: a policy quantity presented as a natural constant.
+
+`capturePost2030` is now a lever, bounded by the **published uncertainty range** for the parameter
+(0.045–0.09) rather than a range invented for the slider. Measured at 2045:
+
+| Post-2030 share | 4.5%  | 5.5%  | 6.5% (default) | 7.5%  | 8.5%  | 9.0%  |
+| --------------- | ----- | ----- | -------------- | ----- | ----- | ----- |
+| EU-27 DC (TWh)  | 185.4 | 201.7 | **218.0**      | 234.1 | 250.2 | 258.3 |
+| Share of demand | 5.74% | 6.22% | **6.68%**      | 7.14% | 7.60% | 7.82% |
+| Flags           | —     | LU    | LU             | LU    | LU    | LU    |
+
+**A 72.9 TWh span** — a third of the central result, and exactly the swing B3 measured for this
+parameter. 2030 is untouched at 111.1 TWh in every case: only the post-2030 leg is the lever's,
+because the near-term buildout is largely committed and the contested claim is the decline.
+
+**This is the only lever that changes how much load Europe ends up with.** Siting, permitting
+reform, flexibility and transmission all redistribute — the European volume is capture share ×
+global demand, so nothing on the supply or connection side can add to it. Three separate
+measurements found that independently (`ntcUtilization`, UHV-scale transmission, flexible
+connection agreements) before it was stated as one property.
+
+**The counter-evidence is in a source we already carry.** ENTSO-E §1.1 notes the **EU Cloud and AI
+Development Act** aims to _"triple EU data centre capacity over the next five to seven years"_ — an
+explicit European target pulling against a modelled decline. Both can hold at once if the global
+denominator grows faster; the point is that the model asserted the decline without ever showing the
+tension. The lever's note now does.
+
+**`null` means "follow the data bundle", and it is the default — not a copy of 0.065.** Wired as a
+plain number, the lever replaced the parameter Monte Carlo perturbs, and `euPost2030`'s tornado
+swing **collapsed from 72.9 TWh to exactly 0.00** while every headline figure stayed put: the
+corridor silently lost its third-largest dimension. The documentation-drift guard caught it through
+changed Monte Carlo flag frequencies, which is the only place it surfaced. A regression test now
+fails on precisely that mistake. Setting the lever deliberately does fix the parameter, so that
+dimension of the corridor closes — the user has asserted a value, and it is no longer uncertain.
+
 ## Known simplifications (honest-limits, §7)
 
+- **Europe's data centre volume is exogenous.** It is capture share × global demand, so every
+  supply-side and connection-side intervention in this model can only move load between countries,
+  never change how much Europe gets. Measured three times independently before it was stated once:
+  tripling `ntcUtilization` moves nothing but Poland's stress index; UHV-scale transmission shifts
+  load rather than removing it; flexible connection agreements shift +0.1 TWh at EU level while
+  moving Denmark 15%. The one lever that changes the European total is the capture share itself
+  (#41). Anyone reading a supply-side result as "Europe gets more data centres" is reading it
+  wrong.
 - Annual energy balances only. No load flow, no intra-hour or representative-day dispatch, no
   market clearing, no prices formed inside the model.
 - Country-level resolution. The 14 hub markers are display metadata only and feed nothing

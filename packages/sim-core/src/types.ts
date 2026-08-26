@@ -18,6 +18,27 @@ export interface Levers {
   flexibilityShare: number;
   /** Multiplier on priceElasticity: how strongly price differences steer siting. */
   priceSensitivity: number;
+  /**
+   * Europe's share of global data centre demand *additions* after 2030.
+   *
+   * The model used to assert a decline here — 8.5% before 2030 (IEA) falling to 6.5% (Ember) —
+   * with no way for a user to question it, while the sensitivity analysis ranked this parameter
+   * among the largest drivers of the whole 2045 corridor. A policy decision was being presented
+   * as a natural constant (issue #41).
+   *
+   * Bounded by the published uncertainty range for this parameter (0.045–0.09), so every
+   * reachable value sits inside something a source states rather than somewhere invented.
+   *
+   * **`null` means "follow the data bundle", and that is the default.** It is an override, not a
+   * copy of the bundle value, because Monte Carlo perturbs
+   * `captureShareOfGlobalAdditions.euPost2030` and the sampler must keep its grip on it. Wiring
+   * the lever as a plain number silently collapsed this parameter's tornado swing from 72.9 TWh
+   * to exactly zero — the corridor lost its third-largest dimension while every headline figure
+   * stayed put. Setting the lever deliberately fixes the parameter, so in Monte Carlo mode that
+   * dimension of the corridor closes: the user has asserted a value, and it is no longer
+   * uncertain (issue #41).
+   */
+  capturePost2030: number | null;
 }
 
 export type SitingPolicy = 'market' | 'renewables' | 'capped';

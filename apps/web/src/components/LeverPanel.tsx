@@ -151,6 +151,42 @@ export function LeverPanel({ levers, onChange }: Props) {
         <div className="muted">{t.levers.priceSensitivityNote}</div>
       </div>
 
+      <div className="lever">
+        <label>
+          <span className="lever-head">
+            <span>
+              {t.levers.capture} <span className="source-chip">ember2025grids</span>{' '}
+              <span className="source-chip">iea2025energyai</span>
+            </span>
+            <strong>
+              {(
+                (levers.capturePost2030 ??
+                  scenarioDefaults.captureShareOfGlobalAdditions.euPost2030) * 100
+              ).toFixed(1)}
+              %{levers.capturePost2030 === null ? ` (${t.levers.captureFollowsData})` : ''}
+            </strong>
+          </span>
+          <input
+            type="range"
+            /* Bounds are the published uncertainty range for this parameter, so every reachable
+               setting sits inside something a source states (issue #41). */
+            min={0.045}
+            max={0.09}
+            step={0.005}
+            value={
+              levers.capturePost2030 ?? scenarioDefaults.captureShareOfGlobalAdditions.euPost2030
+            }
+            onChange={(e) => onChange({ ...levers, capturePost2030: Number(e.target.value) })}
+          />
+        </label>
+        <div className="muted">
+          {fmt(t.levers.captureNote, {
+            pre: (scenarioDefaults.captureShareOfGlobalAdditions.euPre2030 * 100).toFixed(1),
+            post: (scenarioDefaults.captureShareOfGlobalAdditions.euPost2030 * 100).toFixed(1),
+          })}
+        </div>
+      </div>
+
       <button onClick={() => onChange({ ...scenarioDefaults.levers })}>{t.levers.reset}</button>
     </div>
   );

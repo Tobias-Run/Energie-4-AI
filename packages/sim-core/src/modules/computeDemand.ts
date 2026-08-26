@@ -47,11 +47,17 @@ export function globalDcDemandTwh(
   return p.demand2024Twh + (base - p.demand2024Twh) * growthMultiplier;
 }
 
-/** Share of global demand *additions* captured by the EU-27 (declines after 2030, per IEA/Ember narrative). */
-export function euCaptureShare(year: number, defaults: ScenarioDefaults): number {
-  return year <= 2030
-    ? defaults.captureShareOfGlobalAdditions.euPre2030
-    : defaults.captureShareOfGlobalAdditions.euPost2030;
+/**
+ * Share of global demand *additions* captured by the EU-27.
+ *
+ * Pre-2030 stays on the IEA anchor: it is near-term and the buildout is largely already
+ * committed. Post-2030 is the lever's, because that is where the model used to assert a decline
+ * on its own authority (issue #41). The default reproduces the bundle value exactly.
+ */
+export function euCaptureShare(year: number, defaults: ScenarioDefaults, levers: Levers): number {
+  if (year <= 2030) return defaults.captureShareOfGlobalAdditions.euPre2030;
+  // null = follow the bundle, which is what Monte Carlo perturbs. See the note on the lever.
+  return levers.capturePost2030 ?? defaults.captureShareOfGlobalAdditions.euPost2030;
 }
 
 /** Energy-per-compute improvement factor from the efficiency lever (1 = base case). */
