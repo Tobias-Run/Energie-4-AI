@@ -54,8 +54,12 @@ describe('documentation matches the model', () => {
       for (const { pct } of facts.mcFlagFrequency) {
         expect(modelNotes, `model-notes.md should quote ${pct}%`).toContain(`${pct}%`);
       }
-      // Ireland must not be listed as a flagged country: it appears in no sampled run.
-      expect(facts.mcFlagFrequency.map((f) => f.iso)).not.toContain('IE');
+      // Ireland used to appear in no sampled run at all, and this assertion said so. Deriving
+      // peakFactor from measured load (#39) lowered Ireland's and raised its peak share, and it
+      // now shows up in 2.0% of runs. The assertion is inverted rather than deleted, because the
+      // country crossing into the sampled flag distribution is exactly the kind of change the
+      // prose must not be allowed to miss.
+      expect(facts.mcFlagFrequency.map((f) => f.iso)).toContain('IE');
     });
   });
 
@@ -77,7 +81,9 @@ describe('documentation matches the model', () => {
     it('case studies name the countries the boom run actually flags', () => {
       // The single figure most likely to be left behind: it is prose in three places and a
       // screenshot caption, and it changes whenever the flag arithmetic changes.
-      expect(facts.flags2045Boom).toBe('EE, LV, LU');
+      // Lithuania's fourth crossing of the 15% line. LV,LU → LT,EE,LV,LU (B1) → EE,LV,LU (A4)
+      // → LT,EE,LV,LU (#39, measured peak factors). The flag list is a threshold statement.
+      expect(facts.flags2045Boom).toBe('LT, EE, LV, LU');
       for (const iso of facts.flags2045Boom.split(', ')) {
         const name = { LT: 'Litauen', EE: 'Estland', LV: 'Lettland', LU: 'Luxemburg' }[iso]!;
         expect(fallstudien, `fallstudien.md should name ${name}`).toContain(name);

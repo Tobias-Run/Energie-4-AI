@@ -78,6 +78,22 @@
   note        = {Central Scenario (National Trends+) plus two economic variants; default baseline and structural template for the scenario UI.}
 }
 
+@misc{entsoe2026hourlyload,
+  author = {{ENTSO-E}},
+  title  = {Monthly Hourly Load Values -- aggregated hourly load by country},
+  year   = {2026},
+  note   = {ENTSO-E Power Statistics; one CSV per year, published free without an account or API
+            token. Used to derive \texttt{peakFactor} for every country in the bundle except
+            Malta, which ENTSO-E does not report. Derivation in
+            \texttt{scripts/derive-peak-factors.mjs}: peak taken as the 99.9th percentile of
+            hourly load rather than the annual maximum, because single-hour data errors
+            contaminate the maximum (Denmark 2020 peaks at 9,618 MW against a second-highest hour
+            of 5,811); value published is the median across usable years 2019--2025, a year
+            counting as usable at 7,000 hours or more. Great Britain has only three usable years
+            after Brexit and is correspondingly less certain. Numerator and denominator come from
+            the same series, so no cross-source definition mismatch is introduced.}
+}
+
 @techreport{entsoe2026datacentres,
   author      = {{ENTSO-E}},
   title       = {Data centres and the power system: expected trends, challenges, and opportunities},

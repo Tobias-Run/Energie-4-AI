@@ -5,7 +5,7 @@ Audience: external energy-system reviewers (quality gate, mission document §7, 
 **Status:** post-P2. This file was previously called `model-notes-p0.md` and described the P0
 prototype; by the time the P2 work landed it misdescribed the model in four material ways, so it
 has been rewritten against the running code rather than patched. Every figure below is read from a
-default run at data bundle **v2.2.0**. This file drifted once before and an external review caught
+default run at data bundle **v2.3.0**. This file drifted once before and an external review caught
 it in four places at once, so the figures marked below are now produced by `modelFacts()` in
 sim-core and checked against this file by `test/docsConsistency.test.ts` — a number here that
 disagrees with the code fails the build.
@@ -80,7 +80,7 @@ proxy.
   every share below.
 
 **In the central run the late-horizon flags come from the peak-share criterion, not adequacy.** In
-2045 only Luxembourg trips it, at 18.35%. Ireland sits at 11.09% of peak and is not flagged — its
+2045 only Luxembourg trips it, at 16.46%. Ireland sits at 12.47% of peak and is not flagged — its
 own connection ceiling holds it there (see "Repaired defects"). Anyone reviewing the adequacy
 formula should know it is not what produces the headline result.
 
@@ -115,8 +115,10 @@ one-at-a-time sensitivity and does not capture interactions; the corridor does.
 Two results from that machinery a reviewer should see early:
 
 - **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 76.5% of runs, Latvia in
-  6.5%, Estonia in 5.5%, Malta in 2.5% and Lithuania in 1.5%. Ireland appears in none.
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 68.5% of runs, Latvia in
+  6.5%, Estonia in 6.0%, Lithuania in 3.5%, Malta in 2.5% and **Ireland in 2.0%**. Ireland used to
+  appear in no sampled run at all; measured peak factors (#39) brought it close enough to the line
+  that some parameter draws now flag it.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -258,7 +260,7 @@ the ceiling then bound in every year that mattered.
 Three results changed, and all three are published in `docs/fallstudien.md`:
 
 - **Ireland is no longer flagged.** Its own connection limit holds it at 19.58% of national
-  demand and 11.09% of peak, below the 15% line, and it is now completely insensitive to the
+  demand and 12.47% of peak, below the 15% line, and it is now completely insensitive to the
   compute boom — 8.7 TWh in the central, boom and boom-plus-efficiency runs alike.
 - **Permitting reform became measurable.** The three countries with a sourced connection
   constraint gain double digits by 2030 (NL +11%, DK +12%, IE +4%) and their queues shrink.
@@ -342,7 +344,9 @@ robust quantity.)
 A second consequence is worth stating because it cuts against the tool's own optimism: **the
 flexibility lever now has to work harder.** Luxembourg's share falls 18.35 → 16.83 → 15.24 → 13.59%
 at 0 / 10 / 20 / 30% participation, so clearing its flag takes 30% enrolment where 20% used to do
-it — half the lever's range for one country. Shedding load lowers the system peak as well as the
+it — half the lever's range for one country. **Both halves of that sentence were undone by #39:**
+on measured peak factors the series is 16.46 → 15.06 → 13.61 → 12.12% and 20% clears Luxembourg
+again. The 30% claim rested entirely on an unsourced parameter. Shedding load lowers the system peak as well as the
 data centre's own contribution, so the share falls sub-proportionally rather than in step with the
 lever, which is the arithmetically correct behaviour and the less flattering one.
 
@@ -479,7 +483,7 @@ backlog sits entirely in the firm chain — flexible agreements are an emerging 
 | ---------------- | ------ | ------ | ------ | ------ | ------ |
 | EU-27 DC (TWh)   | 217.95 | 217.97 | 217.99 | 218.02 | 218.06 |
 | Ireland (TWh)    | 8.56   | 8.60   | 8.64   | 8.68   | 8.75   |
-| Luxembourg peak% | 18.35  | 16.83  | 15.24  | 13.59  | 10.10  |
+| Luxembourg peak% | 16.46  | 15.06  | 13.61  | 12.12  | 8.96   |
 
 **The volume effect is a ramp effect, and it fades.** EU deltas against the same run without the
 channel: **0.000 through 2030, +0.132 in 2033, +0.181 in 2036, +0.117 in 2040, +0.106 in 2045.**
@@ -544,6 +548,57 @@ corridor silently lost its third-largest dimension. The documentation-drift guar
 changed Monte Carlo flag frequencies, which is the only place it surfaced. A regression test now
 fails on precisely that mistake. Setting the lever deliberately does fix the parameter, so that
 dimension of the corridor closes — the user has asserted a value, and it is no longer uncertain.
+
+### `peakFactor` was borrowed from an interconnection dataset (issue #39)
+
+The denominator of the criterion that decides the entire flag list was sourced to
+`ember2026interconnection` — a dataset of interconnection capacity, which is not a load statistic —
+with Great Britain an outright `expert-guess`, and a single 2024 value carried to 2045.
+
+It is now derived from **ENTSO-E's published hourly load series** (Monthly Hourly Load Values,
+2019–2025), free and without the API token this work was previously thought to need. Numerator and
+denominator come from the same series, so no cross-source definition mismatch is introduced.
+`scripts/derive-peak-factors.mjs` reproduces every number.
+
+**The annual maximum turned out to be unusable.** Denmark 2020 peaks at 9,618 MW against a
+second-highest hour of 5,811 — a 65% jump no load curve makes. The same contamination appears in
+DK 2024 and CH 2025. Taking the maximum would have written those single-hour errors straight into
+the parameter; the peak is therefore the 99.9th percentile of hourly load, which moves DK 2020 from
+2.477 to 1.427 and CH 2025 from 2.226 to 1.457, both back in line with neighbouring years. The
+published value is the median across usable years, so no single bad year — 2020 included, with its
+COVID load shape — decides a country's number.
+
+**The old values were systematically too high.** 24 of 29 fell, the largest being Slovenia
+(1.99 → 1.47), the Netherlands (1.86 → 1.43), Croatia (1.86 → 1.48) and Denmark (1.83 → 1.45).
+Luxembourg went the other way, 1.24 → 1.42, which is why its peak share drops.
+
+**What moved, in published figures:**
+
+|                            | before             | after                 |
+| -------------------------- | ------------------ | --------------------- |
+| Luxembourg peak share 2045 | 18.35%             | **16.46%**            |
+| Ireland peak share 2045    | 11.09%             | **12.47%**            |
+| Boom flag list             | EE, LV, LU         | **LT, EE, LV, LU**    |
+| Flexibility to clear LU    | 30%                | **20%**               |
+| Capped siting              | leaves LU at 15.4% | **clears every flag** |
+| Ireland in Monte Carlo     | no sampled run     | **2.0% of runs**      |
+
+Two of those reverse corrections this project published earlier. _"Only the cap clears all flags"_
+was called false after B1; on measured peak factors it is true again. _"Clearing Luxembourg takes
+30% enrolment"_ was published with #42 and is now 20% again. Neither claim was wrong when measured —
+both rested on a parameter that had never been measured at all, and that is the finding.
+
+**The trend answers the second half of the question.** The peak-to-average ratio is **rising in 33
+of 38 countries**, median **+0.0115 per year** across 2019–2025. Over the 21 years to 2045 that is
+about +0.24 — larger than the entire correction just applied. So holding `peakFactor` constant to
+2045 is **not** defensible, and the direction is known. Making it time-varying is not done here: it
+is a model change rather than a parameter one, and it needs deciding against the opposing pull of a
+growing near-flat data centre share. Tracked in #39.
+
+**Malta has no value.** ENTSO-E publishes no load series for it, so `MT.peakFactor` stays
+`expert-guess` and is now the only country in the bundle without a measured one. Great Britain has
+only three usable years after Brexit, against seven for most countries, so its 1.559 is the least
+certain of the derived values.
 
 ## Known simplifications (honest-limits, §7)
 

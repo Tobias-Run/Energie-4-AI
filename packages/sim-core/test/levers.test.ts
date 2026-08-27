@@ -95,12 +95,17 @@ describe('P2 levers (issue #6)', () => {
     expect(flex.row('IE').dcShareOfPeak).toBeGreaterThan(b.dcShareOfPeak * 0.8);
   });
 
-  it('peak channel: clearing Luxembourg takes 30% enrolment, not 20%', () => {
-    // Measured 18.35 / 16.83 / 15.24 / 13.59% at 0 / 10 / 20 / 30% flexibility — half the
-    // lever's range to clear one country. These four figures replace 18.37 / 16.84 / 15.26 /
-    // 13.61, which this comment carried until #42: they were measured after B1 and never
-    // re-measured after A4 (#28) changed the volumes underneath them. Verified against the
-    // pre-#42 code, so the correction is to the record, not an effect of this change.
+  it('peak channel: 20% enrolment clears Luxembourg', () => {
+    // This assertion has now been written three ways, and the sequence is the point.
+    //
+    //   18.37 / 16.84 / 15.26 / 13.61  — measured after B1, then left stale through A4 (#28)
+    //   18.35 / 16.83 / 15.24 / 13.59  — the same code, correctly re-measured in #42
+    //   16.46 / 15.06 / 13.61 / 12.12  — peakFactor derived from measured load (#39)
+    //
+    // Only the last of those rests on a peak factor anyone measured: the first two came from
+    // `ember2026interconnection`, a dataset of interconnection capacity rather than load. The
+    // claim that clearing Luxembourg costs 30% enrolment — half the lever's range — was true of
+    // the arithmetic and false of the world. At 20% Luxembourg is now at 13.61% and clear.
     const shares = [0, 0.1, 0.2, 0.3].map((f) =>
       Number(
         (peakChannelOnly({ ...BASE, flexibilityShare: f }).row('LU').dcShareOfPeak * 100).toFixed(
@@ -108,15 +113,12 @@ describe('P2 levers (issue #6)', () => {
         ),
       ),
     );
-    expect(shares).toEqual([18.35, 16.83, 15.24, 13.59]);
+    expect(shares).toEqual([16.46, 15.06, 13.61, 12.12]);
 
     const base = peakChannelOnly(BASE);
-    expect(peakChannelOnly({ ...BASE, flexibilityShare: 0.2 }).agg.flaggedRegions).toEqual(
-      base.agg.flaggedRegions,
-    );
-    expect(
-      peakChannelOnly({ ...BASE, flexibilityShare: 0.3 }).agg.flaggedRegions.length,
-    ).toBeLessThan(base.agg.flaggedRegions.length);
+    expect(base.agg.flaggedRegions).toEqual(['LU']);
+    expect(peakChannelOnly({ ...BASE, flexibilityShare: 0.1 }).agg.flaggedRegions).toEqual(['LU']);
+    expect(peakChannelOnly({ ...BASE, flexibilityShare: 0.2 }).agg.flaggedRegions).toEqual([]);
   });
 
   it('connection channel: flexible load reaches the grid sooner, and only during the ramp', () => {
