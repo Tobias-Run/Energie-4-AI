@@ -52,7 +52,16 @@ export function AssumptionsDrawer({ metric, levers }: Props) {
     // (issue #34), so they are labelled as the conversion they are.
     [t.drawer.rowPue, `${d.pue2024} → ${d.pueFloor}`, 'koronen2020datacentres'],
     [t.drawer.rowItUtilization, `${(d.itUtilization * 100).toFixed(0)}%`, 'expert-guess'],
+    // firmLoadShare and connectionLoadFactor are both 0.85 by coincidence, not by a shared
+    // source — noland2024baseload for one, expert-guess for the other — and they answer
+    // different questions. firmLoadShare says what share of average DC draw counts as always-on
+    // for the peak-flag criterion (dcShareOfPeak). connectionLoadFactor says how much headroom a
+    // country contracts above its own average draw (1 / 0.85 = 1.18x mean, in
+    // connectionGwForEnergy). Multiplying one and dividing by the other from the same value
+    // produces a 1.38x gap between the two derived quantities that no shared concept explains
+    // (issue #31, C3) — shown together so the coincidence is visible rather than implicit.
     [t.drawer.rowFirm, `${(d.firmLoadShare * 100).toFixed(0)}%`, 'noland2024baseload'],
+    [t.drawer.rowConnectionFactor, `${(d.connectionLoadFactor * 100).toFixed(0)}%`, 'expert-guess'],
     [
       t.drawer.rowPermitting,
       `${d.permittingYearsBaseline} yr / ${d.permittingYearsReform} yr`,

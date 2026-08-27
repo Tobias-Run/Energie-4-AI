@@ -600,6 +600,32 @@ growing near-flat data centre share. Tracked in #39.
 only three usable years after Brexit, against seven for most countries, so its 1.559 is the least
 certain of the derived values.
 
+### Two load factors share a value, not a meaning (issue #31, C3)
+
+`connectionLoadFactor = 0.85` and `firmLoadShare = 0.85` are identical numbers with unrelated
+provenance — `expert-guess` and `noland2024baseload` respectively — and they answer different
+questions:
+
+- **`firmLoadShare`** is the share of a data centre's _average_ draw that counts as always-on for
+  the peak-flag criterion. It is **multiplied** in: `dcFirmGw = mean × firmLoadShare` (0.85×
+  mean). This is what `dcShareOfPeak` compares against baseline peak (#30, B1).
+- **`connectionLoadFactor`** is how much headroom a country contracts above its own average draw
+  when requesting a grid connection. It is **divided** in:
+  `connectionGwForEnergy = mean / connectionLoadFactor` (1.18× mean, in `engine.ts`'s pipeline
+  inflow). A classic power-systems load factor — mean over peak — applied to the connection
+  request, not to the peak criterion.
+
+One is multiplied, the other divided, from the same starting value, for two quantities that are
+never compared to each other in the model. The result is a **1.38× gap** (1.18 ÷ 0.85) between
+`connectionGwForEnergy` and `dcFirmGw` for the same energy figure — explainable once the two
+concepts are separated, opaque as long as they share a number by coincidence.
+
+**No model output changes.** This was a naming and disclosure gap, not a calculation error:
+`connectionLoadFactor` was invisible in the assumptions drawer entirely, even though it drives the
+connection queue shown on screen — a gap on its own against §6 ("every on-screen number must be
+traceable to an assumptions drawer"). Both parameters are now shown together in the drawer, in
+both locales, with labels naming which one belongs to which quantity.
+
 ## Known simplifications (honest-limits, §7)
 
 - **Europe's data centre volume is exogenous.** It is capture share × global demand, so every
@@ -623,6 +649,16 @@ certain of the derived values.
 - Import capability is a flat share of nameplate NTC, identical in every hour and every direction
   of stress.
 - The renewables siting tilt uses generation mix, not carbon intensity.
+- **The model deconcentrates; the real market does not (issue #31, C6).** EU-27 HHI of data
+  centre load falls from **0.115 (2024) to 0.076 (2045)**, measured on the default run and
+  unchanged by every intervening correction (#30, #39, #41, #42) — a mechanical consequence of
+  `stock^0.7` in the siting-gravity function being sub-proportional: doubling a hub's existing
+  stock less than doubles its pull on new load, so small markets gain share every year. Malta
+  grows in **every single year** of the horizon (0.03 → 0.64 TWh, ×21), which is the allocation
+  formula's property, not a claim about Malta. Real markets concentrate around specific hubs
+  through lumpy individual siting decisions and the formation of new clusters — neither of which
+  a continuous allocation function can represent. The map's smallest-country entries should be
+  read as "the model has nowhere else obvious to put this load," not as a projection.
 - Congestion cost is a proxy: the €4.3 bn EU 2024 baseline scaled by the demand-weighted stress
   index **relative to a fixed reference — the default 2024 European system**. It is an index, not
   a cost model. The default run therefore returns exactly €4.3 bn in 2024; a run with different

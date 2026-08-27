@@ -211,7 +211,9 @@ export const en = {
     rowSaturation: 'Global demand ceiling at this growth setting',
     rowPue: 'Average PUE 2024 → floor (conversion only — does not drive demand)',
     rowItUtilization: 'Average IT utilisation (same conversion; misses the capacity anchor)',
-    rowFirm: 'Firm (inference) share of DC load',
+    rowFirm: 'Firm share of DC load (peak-flag criterion only)',
+    rowConnectionFactor:
+      "Connection load factor (a country's contracted capacity, not the peak criterion)",
     rowPermitting: 'Permitting duration (baseline / reform)',
     rowFlexConnection: 'Years saved by a flexible connection agreement',
     rowNtc: 'NTC average utilization',
