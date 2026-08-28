@@ -217,7 +217,8 @@ export const de: typeof en = {
     rowCapturePost: 'EU-Anteil am globalen RZ-Zubau (ab 2030)',
     rowSaturation: 'Globale Bedarfsobergrenze bei dieser Wachstumseinstellung',
     rowPue: 'Durchschnittlicher PUE 2024 → Untergrenze (nur Umrechnung — treibt keine Nachfrage)',
-    rowItUtilization: 'Mittlere IT-Auslastung (dieselbe Umrechnung; verfehlt den Kapazitätsanker)',
+    rowItUtilization:
+      'Mittlere IT-Auslastung (dieselbe Umrechnung; der Kapazitätsanker misst eine andere Größe — Issue #34)',
     rowFirm: 'Firmer Anteil der RZ-Last (nur Spitzenlast-Kriterium)',
     rowConnectionFactor:
       'Anschluss-Lastfaktor (Vertragskapazität eines Landes, nicht das Spitzenkriterium)',

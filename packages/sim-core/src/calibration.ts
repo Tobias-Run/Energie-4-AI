@@ -69,8 +69,12 @@ const eu27 = new Set(countries.filter((c) => c.eu27).map((c) => c.iso));
 const at = (r: SimulationResult, year: number) => r.aggregates[r.years.indexOf(year)]!;
 
 /**
- * Installed IT power, not average load: `dcItLoadGw` divides utilisation back out, which is the
- * same quantity ENTSO-E reports as "IT power supply".
+ * Installed IT power, not average load: `dcItLoadGw` divides utilisation back out. It is a
+ * nameplate-sum concept (Delegated Regulation (EU) 2024/1364, Art. 2(14) — "installed IT power
+ * demand") -- NOT the same quantity ENTSO-E reports as "IT power supply", which EUDCA's own
+ * source material describes as an Art. 2(15)-style "available IT power" concept, roughly double
+ * the installed-nominal figure (48%, EUDCA 2025, p.22). This function's comment used to claim
+ * the two concepts were the same; issue #34 settled that they are not (see the anchor notes).
  */
 function itPowerGw(r: SimulationResult, year: number, keep: (iso: string) => boolean): number {
   const i = r.years.indexOf(year);

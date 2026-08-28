@@ -50,8 +50,12 @@ export function AssumptionsDrawer({ metric, levers }: Props) {
     // demand is exactly 0.000 (issue #31, C2). What they do drive is the installed-capacity
     // figure the ENTSO-E anchors compare against — which the model currently misses by 15-19%
     // (issue #34), so they are labelled as the conversion they are.
-    [t.drawer.rowPue, `${d.pue2024} → ${d.pueFloor}`, 'koronen2020datacentres'],
-    [t.drawer.rowItUtilization, `${(d.itUtilization * 100).toFixed(0)}%`, 'expert-guess'],
+    [t.drawer.rowPue, `${d.pue2024} → ${d.pueFloor}`, 'eucommission2025eedassessment'],
+    [
+      t.drawer.rowItUtilization,
+      `${(d.itUtilization * 100).toFixed(1)}%`,
+      'eucommission2025eedassessment',
+    ],
     // firmLoadShare and connectionLoadFactor are both 0.85 by coincidence, not by a shared
     // source — noland2024baseload for one, expert-guess for the other — and they answer
     // different questions. firmLoadShare says what share of average DC draw counts as always-on

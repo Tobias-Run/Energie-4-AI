@@ -10,7 +10,7 @@ Runs entirely in your browser — no sign-up, no backend, nothing sent anywhere.
 
 [![CI](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Tobias-Run/Energie-4-AI/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-P1_interactive_MVP-blue)
-![Calibration](<https://img.shields.io/badge/calibration_gate_V1-failing_(3_of_9_anchors_missed)-red>)
+![Calibration](<https://img.shields.io/badge/calibration_gate_V1-failing_(1_of_7_anchors_missed)-red>)
 ![Simulation](https://img.shields.io/badge/simulation-client--side_TypeScript-blue)
 ![Scope](https://img.shields.io/badge/scope-EU--27_%2B_UK_%2B_NO_%2B_CH-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -47,14 +47,14 @@ A **system-dynamics / stock-flow simulation** with annual steps — deliberately
 
 - **Simulation core:** pure, framework-free TypeScript (`/packages/sim-core`), deterministic given a seed
 - **UI:** React + TypeScript, D3/deck.gl map layer — no backend, everything in your browser
-- **Calibration gate:** the default run is measured against published anchors (IEA, ENTSO-E, ICIS/Ember) at ±10% — **currently failing on 3 of 9 independent anchors, see below**
+- **Calibration gate:** the default run is measured against published anchors (IEA, ENTSO-E, ICIS/Ember) at ±10% — **currently failing on 1 of 7 independent anchors, see below**
 - **Performance:** full 20-year default run currently ~6 ms (budget < 100 ms) · Monte Carlo (200 runs, P2) < 5 s · initial load < 3 s
 
 **Honest limits:** scenarios are exploration devices, not predictions. Model-class limitations (no load flow, annual resolution, corridor not forecast) are displayed persistently in the UI — not buried in an about page.
 
 ## Calibration gate V1 — status
 
-**FAILING — 3 of 9 independent anchors missed.** Computed by `packages/sim-core/src/calibration.ts`,
+**FAILING — 1 of 7 independent anchors missed.** Computed by `packages/sim-core/src/calibration.ts`,
 enforced by `packages/sim-core/test/calibration.test.ts`.
 
 This gate read "passing" for months. It was not measuring the model. An external review
@@ -62,20 +62,24 @@ This gate read "passing" for months. It was not measuring the model. An external
 [#26](https://github.com/Tobias-Run/Energie-4-AI/issues/26)) established that three of its five
 anchors were reproduced by the model's own construction, that the base year was never checked, and
 that the two anchors capable of failing came from a publication whose volume estimate the model
-misses by a fifth. The anchor set was rebuilt around anchors that can come out negative — and three
-of them do. The red badge is the finding, not a defect in the build.
+misses by a fifth. The anchor set was rebuilt around anchors that can come out negative. The red
+badge is the finding, not a defect in the build.
 
-| Anchor                                 | Source            | Target    | Model  | Deviation  |
-| -------------------------------------- | ----------------- | --------- | ------ | ---------- |
-| Europe DC demand 2024 (base year)      | ENTSO-E (2026)    | 87 TWh    | 82.13  | −5.6%      |
-| Europe DC demand 2030                  | ENTSO-E (2026)    | ≥ 134 TWh | 134.58 | +0.4%      |
-| Five largest DC countries 2024         | ENTSO-E (2026)    | set       | match  | —          |
-| Countries ENTSO-E names individually   | ENTSO-E (2026)    | set of 14 | match  | —          |
-| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | 4.5%      | 4.18%  | −7.0%      |
-| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | 5.7%      | 5.32%  | −6.6%      |
-| **Europe DC demand 2035**              | ENTSO-E (2026)    | ≥ 199 TWh | 185.18 | **−6.9%**  |
-| **Europe installed IT power 2024**     | ENTSO-E (2026)    | 12.7 GW   | 10.30  | **−18.9%** |
-| **EU-27 installed IT power 2024**      | ENTSO-E (2026)    | 9.9 GW    | 8.42   | **−14.9%** |
+| Anchor                                 | Source            | Target    | Model  | Deviation |
+| -------------------------------------- | ----------------- | --------- | ------ | --------- |
+| Europe DC demand 2024 (base year)      | ENTSO-E (2026)    | 87 TWh    | 82.13  | −5.6%     |
+| Europe DC demand 2030                  | ENTSO-E (2026)    | ≥ 134 TWh | 134.58 | +0.4%     |
+| Five largest DC countries 2024         | ENTSO-E (2026)    | set       | match  | —         |
+| Countries ENTSO-E names individually   | ENTSO-E (2026)    | set of 14 | match  | —         |
+| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | 4.5%      | 4.18%  | −7.0%     |
+| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | 5.7%      | 5.32%  | −6.6%     |
+| **Europe DC demand 2035**              | ENTSO-E (2026)    | ≥ 199 TWh | 185.18 | **−6.9%** |
+
+**Two anchors moved to the contested tier below and no longer count toward this verdict** —
+installed IT power for Europe and EU-27, formerly missing at −18.9% and −14.9%
+([#34](https://github.com/Tobias-Run/Energie-4-AI/issues/34)). Not because the model improved: the
+anchor and the model turned out to compare two different, incompatible definitions of "IT power."
+Details below.
 
 Three further anchors are reproduced by the model's own arithmetic and are kept as regression
 protection only. They no longer count toward the verdict:
@@ -91,8 +95,25 @@ share was set to the +45 TWh anchor.
 
 **Published sources disagree by more than any lever in this model.** Europe's 2030 DC demand is
 109 TWh (IEA), ≥134 TWh (ENTSO-E) or 168 TWh (Ember/ICIS): a 54% spread. ENTSO-E is the designated
-authority; the other readings are measured and reported rather than hidden in a tolerance. Details
-in [`docs/model-notes.md`](docs/model-notes.md).
+authority; the other readings are measured and reported rather than hidden in a tolerance.
+
+**Installed IT power, contested rather than independent** ([#34](https://github.com/Tobias-Run/Energie-4-AI/issues/34)):
+
+| Anchor                         | Source  | Target  | Model | Deviation  |
+| ------------------------------ | ------- | ------- | ----- | ---------- |
+| Europe installed IT power 2024 | ENTSO-E | 12.7 GW | 21.82 | **+71.8%** |
+| EU-27 installed IT power 2024  | ENTSO-E | 9.9 GW  | 17.83 | **+80.1%** |
+
+`itUtilization` (nameplate-to-drawn-power ratio) used to be an unsourced 0.65. It is now derived
+from the EU's mandatory data-centre reporting (0.316, cross-checked at 0.41 by an independent
+sample) — and correcting it does not close this anchor, it reverses it, from missing by a fifth to
+overshooting by three-quarters to four-fifths. The reason is definitional, not numerical:
+Commission Delegated Regulation (EU) 2024/1364 defines "installed IT power demand" (the model's
+concept, nameplate sum of racked equipment) and "rated IT load" (closer to ENTSO-E's figures, what
+the facility's power and cooling can carry) as two different quantities. A 48% conversion factor
+between them exists (EUDCA 2025), but applying it on top of the sourced `itUtilization` double-counts
+the same correction and pushes the deviation past +250%. No re-scoping produced a plausible match —
+that is the finding. Details in [`docs/model-notes.md`](docs/model-notes.md).
 
 ## Development
 

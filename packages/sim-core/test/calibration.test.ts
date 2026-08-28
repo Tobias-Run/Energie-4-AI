@@ -29,19 +29,20 @@ const dev = (id: string) => Number((get(id).deviation! * 100).toFixed(1));
 
 describe('calibration gate V1', () => {
   describe('verdict', () => {
-    it('is failing, on exactly these three anchors', () => {
+    it('is failing, on exactly this one anchor', () => {
       // The published verdict. Changing the model changes this line, and every place that
       // quotes it (README badge, docs/model-notes.md, the assumptions drawer) must follow.
-      expect(report.missed.map((a) => a.id)).toEqual([
-        'europeDc2035TwhMin',
-        'europeItPower2024Gw',
-        'euItPower2024Gw',
-      ]);
+      //
+      // Used to read three missed anchors out of nine. Issue #34 moved europeItPower2024Gw and
+      // euItPower2024Gw to contested (see the test below), which drops both the miss and the
+      // denominator -- the verdict improves through re-scoping, not through the model changing.
+      // No model output moved: euDcTwh, the flag list, and every other published figure are
+      // unchanged by this PR.
+      expect(report.missed.map((a) => a.id)).toEqual(['europeDc2035TwhMin']);
       expect(report.passed).toBe(false);
-      expect(report.independentCount).toBe(9);
+      expect(report.independentCount).toBe(7);
       expect(report.verdict).toBe(
-        'FAILING — 3 of 9 independent anchors missed ' +
-          '(europeDc2035TwhMin, europeItPower2024Gw, euItPower2024Gw)',
+        'FAILING — 1 of 7 independent anchors missed (europeDc2035TwhMin)',
       );
     });
 
@@ -101,14 +102,6 @@ describe('calibration gate V1', () => {
       expect(get('europeDc2035TwhMin').met).toBe(false);
       expect(dev('europeDc2035TwhMin')).toBe(-6.9);
     });
-
-    it('carries too little installed IT power in the base year', () => {
-      // The largest single discrepancy in the model. It implicates the volume path and the
-      // conversion assumptions together: dcItLoadGw divides out PUE (sourced) and itUtilization
-      // (expert-guess, 0.65), so this anchor is also the first real test of that guess.
-      expect(dev('europeItPower2024Gw')).toBe(-18.9);
-      expect(dev('euItPower2024Gw')).toBe(-14.9);
-    });
   });
 
   describe('contested anchors (measured, not enforced)', () => {
@@ -118,6 +111,23 @@ describe('calibration gate V1', () => {
       expect(dev('europeDc2030TwhEmber')).toBe(-19.9);
       expect(dev('europeDc2030TwhIea')).toBe(23.5);
       expect(report.anchors.filter((a) => a.tier === 'contested').every((a) => !a.met)).toBe(true);
+    });
+
+    it('carries far too much installed IT power once itUtilization is corrected (issue #34)', () => {
+      // Used to sit here as an independent miss at -18.9% / -14.9%, with itUtilization an
+      // unsourced 0.65. Correcting it to the EU Commission's EED-implied value (0.316, from
+      // Table 22: (14,088 GWh / 1.36) / (3,738.86 MW x 8,760 h)) does not close the gap -- it
+      // flips its sign and roughly quadruples its size. The regulation itself explains why:
+      // dcItLoadGw is a nameplate-sum concept (Art. 2(14)), ENTSO-E's 12.7/9.9 GW is closer to
+      // an available-power concept (Art. 2(15)), and EUDCA's own 48% conversion factor between
+      // the two would push the gap past +250% if applied on top rather than close it -- the
+      // correction and the conversion compensate for the same gap, so combining them
+      // double-counts it. No re-scoping option produced a plausible match, which moved these
+      // two anchors from independent to contested rather than either "fixing" them.
+      expect(get('europeItPower2024Gw').tier).toBe('contested');
+      expect(get('euItPower2024Gw').tier).toBe('contested');
+      expect(dev('europeItPower2024Gw')).toBe(71.8);
+      expect(dev('euItPower2024Gw')).toBe(80.1);
     });
 
     it('cannot be satisfied together — the published range is 109 to 168 TWh', () => {
