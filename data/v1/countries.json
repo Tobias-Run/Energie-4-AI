@@ -1,6 +1,6 @@
 {
-  "version": "2.3.0",
-  "description": "Per-country parameters, base year 2024, hardened per issues #4/#12: demand and generation split (renewables / nuclear / fossil) approximated from Ember European Electricity Review 2025 (values rounded, quarterly review per §8.3); DC 2024 country split from the ENTSO-E data centre report where published, otherwise expert allocation; growth trajectories NECP/TYNDP-flavored expert estimates. Nuclear deltas may be negative (phase-out) or positive (new builds); the engine floors nuclear at zero. v2.3.0 (issue #39): peakFactor is derived from ENTSO-E's published hourly load series (Monthly Hourly Load Values, 2019-2025) rather than borrowed from an interconnection-capacity dataset — peak taken as the 99.9th percentile of hourly load per country-year (the raw maximum is contaminated by single-hour data errors), value published as the median across usable years. Covers 29 of 30 countries, including Great Britain; Malta has no ENTSO-E load series and stays expert-guess. See scripts/derive-peak-factors.mjs.",
+  "version": "2.4.0",
+  "description": "Per-country parameters, base year 2024, hardened per issues #4/#12: demand and generation split (renewables / nuclear / fossil) approximated from Ember European Electricity Review 2025 (values rounded, quarterly review per §8.3); DC 2024 country split from the ENTSO-E data centre report where published, otherwise expert allocation; growth trajectories NECP/TYNDP-flavored expert estimates. Nuclear deltas may be negative (phase-out) or positive (new builds); the engine floors nuclear at zero. v2.3.0 (issue #39): peakFactor is derived from ENTSO-E's published hourly load series (Monthly Hourly Load Values, 2019-2025) rather than borrowed from an interconnection-capacity dataset — peak taken as the 99.9th percentile of hourly load per country-year (the raw maximum is contaminated by single-hour data errors), value published as the median across usable years. Covers 29 of 30 countries, including Great Britain; Malta has no ENTSO-E load series and stays expert-guess. See scripts/derive-peak-factors.mjs. v2.4.0 (issue #38): renewablesTwh2024/nuclearTwh2024/otherFirmTwh2024 checked against Ember's own documented fuel-type taxonomy and Unnewehr et al. (2022)'s published ENTSO-E mapping; the split holds against Ember (the actual data source) but not against Unnewehr, which the mixCategoryMapping note below explains. No values changed.",
   "provenance": {
     "baselineTwh2024": "ember2025eer",
     "baselineGrowthPre2030": "entsoe2026tyndp",
@@ -24,7 +24,8 @@
     "countries.NL.pipelineTightness": "tennet2026queue",
     "countries.DK.pipelineTightness": "energinet2026pause",
     "countries.IE.pipelineTightness": "cru2025dcconnection",
-    "countries.MT.peakFactor": "expert-guess"
+    "countries.MT.peakFactor": "expert-guess",
+    "mixCategoryMapping": "ember2026methodology"
   },
   "countries": [
     {
@@ -725,5 +726,13 @@
     "0.45": "moratorium in the principal hub region plus multi-year zero-capacity zones elsewhere",
     "0.7-0.8": "queue several times peak demand, congestion managed by triage without a moratorium",
     "1.0": "no published constraint found (expert-guess)"
+  },
+  "mixCategoryMapping": {
+    "_note": "How the three model categories map to Ember's own nine fuel types (issue #38), per ember2026methodology p.9 -- the taxonomy that actually governs this split, since the values themselves come from Ember (ember2025eer), not raw ENTSO-E production types. Checked against Unnewehr et al.'s published ENTSO-E-production-type mapping (unnewehr2022carbon), the reference issue #38 proposed: it does not settle the question, it disagrees with Ember on both points the issue raised. See docs/model-notes.md.",
+    "renewablesTwh2024": "Ember: Wind + Solar + Hydro + Bioenergy + Other Renewables.",
+    "nuclearTwh2024": "Ember: Nuclear.",
+    "otherFirmTwh2024": "Ember: Coal + Lignite + Other Fossil, where Other Fossil is itself oil/petroleum products, manufactured gases, and waste (ember2026methodology p.9) -- matching this model's own code comment ('coal, lignite, oil, waste'), which predates this citation.",
+    "gasCapTwh2024": "NOT an Ember figure. A modelling ceiling (expert-guess) on the residual, demand-balancing gas term computed in stressAdequacy.ts -- unaffected by this mapping.",
+    "unnewehrDivergence": "Unnewehr et al. (2022) map raw ENTSO-E production types, one level upstream of Ember's own aggregation, and disagree with Ember on both points issue #38 asked about. Waste: Unnewehr keeps it as its own category, neither obviously renewable nor fossil; Ember (and this model) count it as firm/fossil, inside Other Fossil. Pumped storage: Unnewehr's mapping folds Hydro Pumped Storage gross generation into Hydro without resolving whether that double-counts the energy consumed to fill the reservoir -- its own reference implementation flags the paired consumption field as unresolved. Ember's own choice, which this model inherits, is to exclude pumped hydro's contribution from Hydro 'where possible' -- the more directly applicable answer, since it is the choice actually made one step upstream of this model's numbers."
   }
 }

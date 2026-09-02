@@ -5,7 +5,7 @@ Audience: external energy-system reviewers (quality gate, mission document §7, 
 **Status:** post-P2. This file was previously called `model-notes-p0.md` and described the P0
 prototype; by the time the P2 work landed it misdescribed the model in four material ways, so it
 has been rewritten against the running code rather than patched. Every figure below is read from a
-default run at data bundle **v2.3.0**. This file drifted once before and an external review caught
+default run at data bundle **v2.4.0**. This file drifted once before and an external review caught
 it in four places at once, so the figures marked below are now produced by `modelFacts()` in
 sim-core and checked against this file by `test/docsConsistency.test.ts` — a number here that
 disagrees with the code fails the build.
@@ -281,7 +281,7 @@ sources happens to agree.
 ## Data provenance
 
 Every parameter carries a `source_id` resolving to `docs/sources.bib` or the reserved value
-`expert-guess`, enforced by a unit test. Currently **59 of 105 tracked parameters are sourced (56%)**.
+`expert-guess`, enforced by a unit test. Currently **79 of 123 tracked parameters are sourced (64%)**.
 
 That percentage went _down_ when uncertainty ranges were added, because 19 new parameters came under
 the same tracking rule and 11 of them are expert estimates. The denominator grew; nothing regressed.
@@ -298,6 +298,35 @@ mapping from those facts to a 0–1 multiplier is a documented model convention,
 `data/v1/countries.json` under `pipelineTightnessMapping` — the evidence is sourced, the
 multiplier is not a measured quantity. The remaining 26 countries stay at 1.0 and
 `expert-guess`.
+
+**The generation-mix categories were an unbacked convention; they still are, just a sourced one
+(issue #38).** `renewablesTwh2024`, `nuclearTwh2024` and `otherFirmTwh2024` have carried a
+`source_id` (Ember's European Electricity Review 2025) for their _values_ since #4/#12, but
+nothing backed the _taxonomy_ — which ENTSO-E-level production type belongs in which bucket.
+Issue #38 proposed checking that against a peer-reviewed mapping (Unnewehr et al. 2022) found in
+a KIT/Helmholtz open-source repo, which raises two concrete questions: where does Waste go, and
+is pumped-storage hydro counted as generation without double-counting the energy consumed to
+fill the reservoir.
+
+Fetching Ember's own Data Methodology document (v1.5) settles both, for the taxonomy that
+actually matters here: this model's mix values come from Ember, not from raw ENTSO-E production
+types, so Ember's own definitions govern regardless of what a different, ENTSO-E-level mapping
+says. Ember's answer: Waste sits inside "Other Fossil" (p.9), alongside oil/petroleum products
+and manufactured gases — so it lands in `otherFirmTwh2024`, not `renewablesTwh2024`, which is
+what this model's code comment already said before it had a citation. Pumped hydro: "Where
+possible, Hydro generation excludes any contribution from pumped hydro generation" — excluded
+from the renewables figure rather than counted, avoiding the double-count.
+
+Checked against Unnewehr et al.'s mapping specifically, the split does **not** hold — the more
+interesting outcome the issue anticipated. Unnewehr keeps Waste as its own category rather than
+folding it into Other Fossil, and its published mapping assigns Hydro Pumped Storage's raw
+"Actual Aggregated" generation to Hydro without resolving whether that double-counts pumping
+consumption; the reference implementation of that mapping (Helmholtz-AI-Energy) flags the paired
+consumption field as unclear rather than handling it. Both are genuine disagreements with Ember,
+not just presentation differences. Since this model is one aggregation step downstream of Ember
+rather than of raw ENTSO-E data, Ember's choices are the ones it actually inherits — Unnewehr's
+mapping is recorded as the comparison that was checked, in `mixCategoryMapping` in
+`countries.json`, rather than adopted. No mix value changed.
 
 Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`,
 `baseConnectableGwPerYear`, `priceIndex`, `gasCapTwh2024`, all growth-rate fields, both flag
