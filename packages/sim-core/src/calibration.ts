@@ -62,6 +62,8 @@ const readers: Record<string, (r: SimulationResult) => number | string[]> = {
   euDcShareOfDemand2035: (r) => at(r, 2035).euDcShareOfDemand,
   europeDc2030TwhEmber: (r) => at(r, 2030).europeDcTwh,
   europeDc2030TwhIea: (r) => at(r, 2030).europeDcTwh,
+  euDc2024TwhEudca: (r) => at(r, 2024).euDcTwh,
+  euDcShareOfDemand2024Eudca: (r) => at(r, 2024).euDcShareOfDemand,
 };
 
 const eu27 = new Set(countries.filter((c) => c.eu27).map((c) => c.iso));

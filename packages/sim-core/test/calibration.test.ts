@@ -29,20 +29,28 @@ const dev = (id: string) => Number((get(id).deviation! * 100).toFixed(1));
 
 describe('calibration gate V1', () => {
   describe('verdict', () => {
-    it('is failing, on exactly this one anchor', () => {
+    it('is failing, on exactly these two anchors', () => {
       // The published verdict. Changing the model changes this line, and every place that
       // quotes it (README badge, docs/model-notes.md, the assumptions drawer) must follow.
       //
       // Used to read three missed anchors out of nine. Issue #34 moved europeItPower2024Gw and
-      // euItPower2024Gw to contested (see the test below), which drops both the miss and the
-      // denominator -- the verdict improves through re-scoping, not through the model changing.
+      // euItPower2024Gw to contested (see the test below), which dropped both the miss and the
+      // denominator -- the verdict improved through re-scoping, not through the model changing.
+      // Issue #40 added euDcShareOfDemand2024Eudca as a new, failable independent anchor -- EUDCA's
+      // 2% EU share has a stated bottom-up basis (grid-operator data, three connection-constrained
+      // countries measured directly), unlike the volume figure it accompanies, so it is testable on
+      // its own terms rather than absorbed into the contested tier. The model misses it at +30.5%.
       // No model output moved: euDcTwh, the flag list, and every other published figure are
       // unchanged by this PR.
-      expect(report.missed.map((a) => a.id)).toEqual(['europeDc2035TwhMin']);
+      expect(report.missed.map((a) => a.id)).toEqual([
+        'europeDc2035TwhMin',
+        'euDcShareOfDemand2024Eudca',
+      ]);
       expect(report.passed).toBe(false);
-      expect(report.independentCount).toBe(7);
+      expect(report.independentCount).toBe(8);
       expect(report.verdict).toBe(
-        'FAILING — 1 of 7 independent anchors missed (europeDc2035TwhMin)',
+        'FAILING — 2 of 8 independent anchors missed ' +
+          '(europeDc2035TwhMin, euDcShareOfDemand2024Eudca)',
       );
     });
 
@@ -102,6 +110,15 @@ describe('calibration gate V1', () => {
       expect(get('europeDc2035TwhMin').met).toBe(false);
       expect(dev('europeDc2035TwhMin')).toBe(-6.9);
     });
+
+    it('is 30.5% above the EUDCA base-year share reading (issue #40)', () => {
+      // EUDCA: DC load was 2% of EU electricity demand in 2023, with a stated bottom-up basis
+      // (grid-operator input plus measured usage in three connection-constrained countries) --
+      // unlike the volume figure it accompanies, kept independent and left to fail on its own
+      // terms rather than absorbed into the contested tier alongside the 2030 share anchors.
+      expect(get('euDcShareOfDemand2024Eudca').met).toBe(false);
+      expect(dev('euDcShareOfDemand2024Eudca')).toBe(30.5);
+    });
   });
 
   describe('contested anchors (measured, not enforced)', () => {
@@ -111,6 +128,16 @@ describe('calibration gate V1', () => {
       expect(dev('europeDc2030TwhEmber')).toBe(-19.9);
       expect(dev('europeDc2030TwhIea')).toBe(23.5);
       expect(report.anchors.filter((a) => a.tier === 'contested').every((a) => !a.met)).toBe(true);
+    });
+
+    it('sits 21% above the EUDCA base-year reading, contested rather than independent (issue #40)', () => {
+      // EUDCA's 55.3 TWh (EU, 2023) is the low end of a base-year spread the model's independent
+      // anchor -- ENTSO-E's 87 TWh, europeDc2024Twh -- cannot actually adjudicate: ENTSO-E's figure
+      // is itself a synthesis that folds in this same EUDCA survey. Kept contested rather than
+      // independent for that reason, alongside the already-contested 2030 spread above.
+      expect(get('euDc2024TwhEudca').tier).toBe('contested');
+      expect(dev('euDc2024TwhEudca')).toBe(21.4);
+      expect(get('euDc2024TwhEudca').met).toBe(false);
     });
 
     it('carries far too much installed IT power once itUtilization is corrected (issue #34)', () => {

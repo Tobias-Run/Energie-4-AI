@@ -126,7 +126,7 @@ Two results from that machinery a reviewer should see early:
 
 ## Calibration (validation gate V1)
 
-**Verdict: FAILING — 1 of 7 independent anchors missed.** Computed by
+**Verdict: FAILING — 2 of 8 independent anchors missed.** Computed by
 `packages/sim-core/src/calibration.ts`, enforced by `test/calibration.test.ts`.
 
 The gate reported "passing" for months and the claim did not hold. An external review (issues #25,
@@ -151,30 +151,35 @@ protection. They establish nothing about the model and no longer count toward th
 
 ### Independent tier — the anchors that decide the verdict
 
-| Anchor                               | Source  | Target    | Model  | Deviation | Status |
-| ------------------------------------ | ------- | --------- | ------ | --------- | ------ |
-| Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%     | met    |
-| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%     | met    |
-| Five largest DC countries 2024       | ENTSO-E | set       | match  | —         | met    |
-| Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —         | met    |
-| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%     | met    |
-| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%     | met    |
-| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%** | missed |
+| Anchor                               | Source  | Target    | Model  | Deviation  | Status |
+| ------------------------------------ | ------- | --------- | ------ | ---------- | ------ |
+| Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%      | met    |
+| DC share of EU demand 2024 — EUDCA   | EUDCA   | 2.0%      | 2.61%  | **+30.5%** | missed |
+| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%      | met    |
+| Five largest DC countries 2024       | ENTSO-E | set       | match  | —          | met    |
+| Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —          | met    |
+| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%      | met    |
+| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%      | met    |
+| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%**  | missed |
 
-**What the one miss means.**
+**What the two misses mean.**
 
 _The 2035 level_ is measured against ENTSO-E's **lower** bound. The same figure gives 254 TWh as its
 maximum, so against ENTSO-E's upper bound the shortfall is 27%, not 7%.
+
+_The base year now has a real, failable test — not just the ENTSO-E volume it meets (issue #40)._
+EUDCA's survey states DC load at **2%** of EU electricity demand in 2023; the model starts 2024 at
+**2.61%**, +30.5% over that reading. Unlike the ENTSO-E volume anchor above, EUDCA's share has a
+stated bottom-up basis — informal grid-operator input on capacity usage plus actual measured usage
+data for Denmark, the Netherlands and Ireland, covering 46% of EU colocation-plus-hyperscale by MW
+— rather than being folded into ENTSO-E's own top-down synthesis. Kept `independent` for that
+reason, unlike the EUDCA volume reading below it (`contested`): the share has grounds to falsify
+the model that the volume figure it accompanies does not.
 
 Two anchors used to sit in this table — installed IT power for Europe and EU-27 — missing at
 **−18.9%** and **−14.9%**. They no longer do, and not because the model improved: they were
 **re-scoped to `contested`** (issue #34), for reasons that belong with the other contested anchors
 below.
-
-_The base year is now checked at all,_ which it previously was not. The model's own anchor series
-runs 3% → 4.5% → 5.7%, and the model starts 2024 at **2.61%** of EU-27 demand — 13% below the start
-of the series it is calibrated against. The two base-year anchors above are what put a test under
-that number for the first time; both come out negative.
 
 _The 2030 level, which the model meets, is also a floor._ ENTSO-E labels 134 TWh `2030 (min)`. The
 model clears it by 0.4%. Reading that as agreement with ENTSO-E is a mistake this document made
@@ -200,6 +205,26 @@ trajectory may be a touch high." That was wrong, and wrong in the opposite direc
 to reach 4.5% at its own DC volume, EU-27 demand in 2030 would have to fall below its 2024 level in
 the middle of electrification. The cause was never the denominator — it was a conflict between
 sources that the ±10% tolerance was wide enough to hide.
+
+**The base year has the same kind of conflict, found reading EUDCA / Pb7 Research's own report
+(issue #40).** EUDCA states DC electricity consumption at ≈55.3 TWh, EU, 2023 — the model's
+comparable EU-27 2024 figure is **67.13 TWh, +21.4%** over it:
+
+| Reading                 | Scope  | Year | Value    | Model | Deviation  |
+| ----------------------- | ------ | ---- | -------- | ----- | ---------- |
+| EUDCA / Pb7             | EU     | 2023 | 55.3 TWh | 67.13 | **+21.4%** |
+| ENTSO-E (authoritative) | Europe | 2024 | 87 TWh   | 82.13 | −5.6%      |
+| IEA                     | EU     | 2022 | ~100 TWh | 67.13 | −33%       |
+
+**ENTSO-E's own figure is not independent of EUDCA's.** ENTSO-E's 87 TWh is a synthesis that folds
+in this EUDCA survey alongside IEA and Accenture material, so the independent-tier anchor the model
+meets is agreement with a midpoint of a range EUDCA and IEA disagree on by nearly a factor of two —
+not confirmation against either end. EUDCA states the disagreement itself, in its own footnote to
+the 55.3 TWh figure: "significantly lower compared to the most recent IEA estimates for about
+100 TWh in 2022," adding that "cross checks with non-public data from grid companies show this is
+in line with their actual data" — a claim of grid-operator corroboration the IEA figure does not
+carry. Kept `contested` rather than `independent`, alongside the 2030 spread above, for the same
+reason: no value can satisfy sources this far apart within a tolerance, so no model can either.
 
 **Installed IT power — moved here from independent, and the reversal is the finding (issue #34).**
 `dcItLoadGw` divides utilisation back out of average draw, so it tests the base-year volume, the PUE
