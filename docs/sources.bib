@@ -44,6 +44,44 @@
   note    = {Foundational EU-focused analysis of DC efficiency, demand response, and heat integration; source for efficiency-lever bounds.}
 }
 
+@techreport{eucommission2025eedassessment,
+  author       = {{EY Belgium} and {Borderstep Institute} and {AIT}},
+  title        = {Assessment of the energy performance and sustainability of data centres in the {EU} --- First technical report},
+  institution  = {European Commission, Directorate-General for Energy},
+  year         = {2025},
+  month        = jul,
+  note         = {Manuscript June 2025. ISBN 978-92-68-29508-3, doi:10.2833/3168794. CC BY 4.0. Annex IV Union-level reporting under EED
+                  Article 12 / Delegated Regulation (EU) 2024/1364, first period, 770 of an estimated 2{,}161 data centres (36\% coverage),
+                  data as of 20 June 2025. Table 22: total installed IT power demand (PD$_{IT}$) 3{,}738.86 MW, total energy consumption
+                  14{,}088 GWh, energy-weighted average PUE 1.36 (n=681). Source for pue2024 and itUtilization (issue \#34): implied IT
+                  utilisation = (14{,}088 / 1.36) / (3{,}738.86 $\times$ 8{,}760) = 0.316, a coverage-independent ratio cross-checked against
+                  Table 11's German sample facility (0.41, independently). PD$_{IT}$ is a nameplate-sum concept (Art. 2(14)), not comparable
+                  to ENTSO-E's "available IT power" figures without the EUDCA conversion factor -- see eudca2025state.}
+}
+
+@misc{eudelegatedreg20241364,
+  author = {{European Commission}},
+  title  = {Commission Delegated Regulation (EU) 2024/1364 of 14 March 2024 supplementing Directive (EU) 2023/1791 as regards a common Union
+            rating scheme for data centres},
+  year   = {2024},
+  month  = mar,
+  note   = {ELI: data.europa.eu/eli/reg\_del/2024/1364/oj. Article 2(14) defines "installed information technology power demand" as the
+            nominal power demand of equipment installed in the computer room floor area (nameplate sum); Article 2(15) defines "rated
+            information technology load" as the maximum load the facility's power and cooling infrastructure can carry. The two are
+            distinct quantities that the Regulation itself keeps separate, which settles issue \#34: this model's dcItLoadGw is the
+            Article 2(14) concept, while ENTSO-E's published 12.7/9.9 GW figures are closer to the Article 2(15) concept.}
+}
+
+@misc{eudca2025state,
+  author = {{EUDCA} and {Pb7 Research}},
+  title  = {State of European Data Centres 2025},
+  year   = {2025},
+  note   = {p.22, Figure 2: total available IT power, Europe 12{,}681 MW / EU-27 9{,}937 MW -- the source ENTSO-E's 12.7/9.9 GW figures are
+            themselves drawn from. Figure 4: installed nominal IT power versus available IT power = 48\% (weighted, N=63, colocation
+            respondents covering 59\% of the European colocation market by IT power). Footnote 19 warns explicitly against inferring
+            electricity usage from total IT power supply -- the inference this project's original anchor comparison made.}
+}
+
 @article{elsevier2025dcflexibility,
   title   = {Data centres as a source of flexibility for power systems},
   journal = {Energy Reports / Applied Energy family (Elsevier)},

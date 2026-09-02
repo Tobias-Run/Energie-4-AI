@@ -46,8 +46,9 @@ siting-policy lever:
   overshoot by one year of additions before the cap bites.
 
 **2. Electricity demand.** DC energy plus exogenous TYNDP-style baseline growth per country.
-IT-load stock is derived from energy via PUE (1.4, declining 0.8%/yr toward a 1.15 floor) and
-utilization (0.65).
+IT-load stock is derived from energy via PUE (1.36, declining 0.8%/yr toward a 1.15 floor) and
+utilization (0.316) — both sourced to the EU's mandatory EED reporting rather than an unsourced
+guess (issue #34, below).
 
 **3. Supply & grid.** Per-country generation is split into **renewables, nuclear and legacy firm**
 (coal/lignite/oil), each on a linear NECP-flavoured trajectory; nuclear deltas may be negative
@@ -125,7 +126,7 @@ Two results from that machinery a reviewer should see early:
 
 ## Calibration (validation gate V1)
 
-**Verdict: FAILING — 3 of 9 independent anchors missed.** Computed by
+**Verdict: FAILING — 1 of 7 independent anchors missed.** Computed by
 `packages/sim-core/src/calibration.ts`, enforced by `test/calibration.test.ts`.
 
 The gate reported "passing" for months and the claim did not hold. An external review (issues #25,
@@ -150,29 +151,25 @@ protection. They establish nothing about the model and no longer count toward th
 
 ### Independent tier — the anchors that decide the verdict
 
-| Anchor                               | Source  | Target    | Model  | Deviation  | Status |
-| ------------------------------------ | ------- | --------- | ------ | ---------- | ------ |
-| Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%      | met    |
-| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%      | met    |
-| Five largest DC countries 2024       | ENTSO-E | set       | match  | —          | met    |
-| Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —          | met    |
-| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%      | met    |
-| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%      | met    |
-| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%**  | missed |
-| **Europe installed IT power 2024**   | ENTSO-E | 12.7 GW   | 10.30  | **−18.9%** | missed |
-| **EU-27 installed IT power 2024**    | ENTSO-E | 9.9 GW    | 8.42   | **−14.9%** | missed |
+| Anchor                               | Source  | Target    | Model  | Deviation | Status |
+| ------------------------------------ | ------- | --------- | ------ | --------- | ------ |
+| Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%     | met    |
+| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%     | met    |
+| Five largest DC countries 2024       | ENTSO-E | set       | match  | —         | met    |
+| Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —         | met    |
+| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%     | met    |
+| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%     | met    |
+| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%** | missed |
 
-**What the three misses mean.**
-
-_Installed IT power_ is the largest discrepancy in the model and the most informative. ENTSO-E
-counts over 10,500 European facilities above 50 kW totalling ≈12.7 GW of IT power supply, 9.9 GW of
-it in the EU-27. The model carries 10.30 and 8.42 GW. Because `dcItLoadGw` divides utilisation back
-out, this anchor tests the base-year volume, the PUE trajectory and the `itUtilization` assumption
-at once — and `itUtilization` (0.65) is an `expert-guess`. This is the first test that guess has
-ever faced.
+**What the one miss means.**
 
 _The 2035 level_ is measured against ENTSO-E's **lower** bound. The same figure gives 254 TWh as its
 maximum, so against ENTSO-E's upper bound the shortfall is 27%, not 7%.
+
+Two anchors used to sit in this table — installed IT power for Europe and EU-27 — missing at
+**−18.9%** and **−14.9%**. They no longer do, and not because the model improved: they were
+**re-scoped to `contested`** (issue #34), for reasons that belong with the other contested anchors
+below.
 
 _The base year is now checked at all,_ which it previously was not. The model's own anchor series
 runs 3% → 4.5% → 5.7%, and the model starts 2024 at **2.61%** of EU-27 demand — 13% below the start
@@ -203,6 +200,47 @@ trajectory may be a touch high." That was wrong, and wrong in the opposite direc
 to reach 4.5% at its own DC volume, EU-27 demand in 2030 would have to fall below its 2024 level in
 the middle of electrification. The cause was never the denominator — it was a conflict between
 sources that the ±10% tolerance was wide enough to hide.
+
+**Installed IT power — moved here from independent, and the reversal is the finding (issue #34).**
+`dcItLoadGw` divides utilisation back out of average draw, so it tests the base-year volume, the PUE
+trajectory and `itUtilization` at once. `itUtilization` was an `expert-guess`, 0.65, never tested
+against a source. It is now sourced: the EU's mandatory EED reporting (Delegated Regulation (EU)
+2024/1364, Article 12 of the recast Energy Efficiency Directive) implies **0.316** —
+`(14,088 GWh / 1.36) / (3,738.86 MW × 8,760 h)`, cross-checked independently at 0.41 by a German
+sample facility in the same report. `pue2024` moved too, 1.4 → **1.36**, the same report's
+energy-weighted EU average (n=681), replacing a 2020 academic estimate.
+
+Correcting `itUtilization` does not close the anchor. It reverses it:
+
+| Anchor                         | Source  | Target  | Model | Deviation  |
+| ------------------------------ | ------- | ------- | ----- | ---------- |
+| Europe installed IT power 2024 | ENTSO-E | 12.7 GW | 21.82 | **+71.8%** |
+| EU-27 installed IT power 2024  | ENTSO-E | 9.9 GW  | 17.83 | **+80.1%** |
+
+The model used to sit **below** ENTSO-E's figure by a fifth; with `itUtilization` sourced instead of
+guessed, it sits **above** it by three-quarters to four-fifths. Not a small correction to a
+parameter — a sign flip and roughly a quadrupling of the gap's size, and the reason is definitional,
+not numerical. Commission Delegated Regulation (EU) 2024/1364, Article 2, defines two different
+quantities: **installed IT power demand** (Art. 2(14), the nameplate sum of equipment racked) and
+**rated IT load** (Art. 2(15), what the facility's power and cooling can carry). `dcItLoadGw` is
+built as "DC load = IT load × PUE × utilization" — a nameplate-like, Art. 2(14) concept. ENTSO-E's
+12.7/9.9 GW is closer to the Art. 2(15) concept: EUDCA's own _State of European Data Centres 2025_
+(p.22) confirms this in its own words — "the EED asks for the actually installed nominal IT power
+based on the installed IT equipment," distinct from "the maximum power that is available for IT
+equipment" that ENTSO-E's figures track — and quantifies the gap: **installed nominal ÷ available =
+48%** (weighted, N=63, colocation).
+
+That 48% factor looks like the fix. It is not, once `itUtilization` is already sourced: dividing
+`dcItLoadGw` by 0.48 to convert it into "available" terms would push the deviation past **+250%**,
+because the `itUtilization` correction and the 0.48 conversion compensate for the same
+nameplate-versus-drawn-power gap — applying both double-counts it. Retargeting to installed-nominal
+terms instead (EU-27 ≈ 9,937 × 0.48 ≈ 4.77 GW) fares no better: the model's 17.83 GW is **+274%**
+over that target. And EUDCA's own EU energy figure (55.3 TWh, → #40) against 4.77 GW of installed
+nominal implies an IT utilisation near unity, which is not credible on its own terms. Three
+independently-sourced figures — the anchor, the 48% conversion, and the energy total — do not close
+against each other by any pairing. **No re-scoping produced a plausible match, which is the
+finding**, not a gap this project's own measurement could paper over by picking whichever pair of
+sources happens to agree.
 
 ### What this gate still does not establish
 
@@ -600,6 +638,32 @@ growing near-flat data centre share. Tracked in #39.
 only three usable years after Brexit, against seven for most countries, so its 1.559 is the least
 certain of the derived values.
 
+### Two load factors share a value, not a meaning (issue #31, C3)
+
+`connectionLoadFactor = 0.85` and `firmLoadShare = 0.85` are identical numbers with unrelated
+provenance — `expert-guess` and `noland2024baseload` respectively — and they answer different
+questions:
+
+- **`firmLoadShare`** is the share of a data centre's _average_ draw that counts as always-on for
+  the peak-flag criterion. It is **multiplied** in: `dcFirmGw = mean × firmLoadShare` (0.85×
+  mean). This is what `dcShareOfPeak` compares against baseline peak (#30, B1).
+- **`connectionLoadFactor`** is how much headroom a country contracts above its own average draw
+  when requesting a grid connection. It is **divided** in:
+  `connectionGwForEnergy = mean / connectionLoadFactor` (1.18× mean, in `engine.ts`'s pipeline
+  inflow). A classic power-systems load factor — mean over peak — applied to the connection
+  request, not to the peak criterion.
+
+One is multiplied, the other divided, from the same starting value, for two quantities that are
+never compared to each other in the model. The result is a **1.38× gap** (1.18 ÷ 0.85) between
+`connectionGwForEnergy` and `dcFirmGw` for the same energy figure — explainable once the two
+concepts are separated, opaque as long as they share a number by coincidence.
+
+**No model output changes.** This was a naming and disclosure gap, not a calculation error:
+`connectionLoadFactor` was invisible in the assumptions drawer entirely, even though it drives the
+connection queue shown on screen — a gap on its own against §6 ("every on-screen number must be
+traceable to an assumptions drawer"). Both parameters are now shown together in the drawer, in
+both locales, with labels naming which one belongs to which quantity.
+
 ## Known simplifications (honest-limits, §7)
 
 - **Europe's data centre volume is exogenous.** It is capture share × global demand, so every
@@ -623,6 +687,16 @@ certain of the derived values.
 - Import capability is a flat share of nameplate NTC, identical in every hour and every direction
   of stress.
 - The renewables siting tilt uses generation mix, not carbon intensity.
+- **The model deconcentrates; the real market does not (issue #31, C6).** EU-27 HHI of data
+  centre load falls from **0.115 (2024) to 0.076 (2045)**, measured on the default run and
+  unchanged by every intervening correction (#30, #39, #41, #42) — a mechanical consequence of
+  `stock^0.7` in the siting-gravity function being sub-proportional: doubling a hub's existing
+  stock less than doubles its pull on new load, so small markets gain share every year. Malta
+  grows in **every single year** of the horizon (0.03 → 0.64 TWh, ×21), which is the allocation
+  formula's property, not a claim about Malta. Real markets concentrate around specific hubs
+  through lumpy individual siting decisions and the formation of new clusters — neither of which
+  a continuous allocation function can represent. The map's smallest-country entries should be
+  read as "the model has nowhere else obvious to put this load," not as a projection.
 - Congestion cost is a proxy: the €4.3 bn EU 2024 baseline scaled by the demand-weighted stress
   index **relative to a fixed reference — the default 2024 European system**. It is an index, not
   a cost model. The default run therefore returns exactly €4.3 bn in 2024; a run with different

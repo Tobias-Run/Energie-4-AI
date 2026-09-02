@@ -32,11 +32,11 @@
       "source_id": "ember2025grids"
     },
     "scenarioDefaults.pue2024": {
-      "low": 1.3,
-      "central": 1.4,
-      "high": 1.5,
-      "rationale": "Fleet-average PUE varies widely by climate, age and operator; the range brackets reported European averages.",
-      "source_id": "koronen2020datacentres"
+      "low": 1.21,
+      "central": 1.36,
+      "high": 1.64,
+      "rationale": "Energy-weighted EU average (n=681); the report itself shows this varies strongly by facility size, from 1.21 above 10 MW to 1.63-1.64 below 1 MW, which brackets the range used here (issue #34).",
+      "source_id": "eucommission2025eedassessment"
     },
     "scenarioDefaults.pueAnnualDeclineRate": {
       "low": 0.004,
@@ -46,11 +46,11 @@
       "source_id": "expert-guess"
     },
     "scenarioDefaults.itUtilization": {
-      "low": 0.55,
-      "central": 0.65,
-      "high": 0.75,
-      "rationale": "Average IT load as a share of installed capacity. Operator-specific and rarely published.",
-      "source_id": "expert-guess"
+      "low": 0.25,
+      "central": 0.316,
+      "high": 0.41,
+      "rationale": "Implied by mandatory EED reporting: (14,088 GWh / 1.36) / (3,738.86 MW x 8,760 h) = 0.316 across all reporting data centres (n=770, coverage-independent ratio). The German sample facility gives an independent cross-check of 0.41, taken as the high bound; the low bound is a conservative allowance for first-reporting-cycle noise, not a second measurement (issue #34).",
+      "source_id": "eucommission2025eedassessment"
     },
     "scenarioDefaults.firmLoadShare": {
       "low": 0.75,
@@ -142,9 +142,9 @@
     "globalCompute.saturationTwh": "expert-guess",
     "scenarioDefaults.captureShareOfGlobalAdditions.euPre2030": "iea2025energyai",
     "scenarioDefaults.captureShareOfGlobalAdditions.euPost2030": "ember2025grids",
-    "scenarioDefaults.pue2024": "koronen2020datacentres",
+    "scenarioDefaults.pue2024": "eucommission2025eedassessment",
     "scenarioDefaults.pueAnnualDeclineRate": "expert-guess",
-    "scenarioDefaults.itUtilization": "expert-guess",
+    "scenarioDefaults.itUtilization": "eucommission2025eedassessment",
     "scenarioDefaults.firmLoadShare": "noland2024baseload",
     "scenarioDefaults.connectionLoadFactor": "expert-guess",
     "scenarioDefaults.phantomQueueFactor": "expert-guess",

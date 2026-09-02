@@ -58,22 +58,22 @@
       "note": "ENTSO-E Figure 1, '2035 (min)'; the same figure gives 254 TWh as '2035 (max)'. The lower bound is used, so this is the mildest form of the test."
     },
     "europeItPower2024Gw": {
-      "tier": "independent",
+      "tier": "contested",
       "comparison": "within",
       "value": 12.7,
       "tolerance": 0.1,
       "unit": "GW",
       "label": "Europe installed IT power 2024",
-      "note": "ENTSO-E §1.1: 'over 10,500 data centre facilities across Europe with at least 50 kW of IT power, with capacity totalling approximately 12.7 GW in IT power supply'. Compared against dcItLoadGw, which divides utilisation back out and is therefore an installed-capacity stock, not an average load. This anchor tests PUE and the itUtilization assumption as well as the volume path."
+      "note": "ENTSO-E §1.1: 'over 10,500 data centre facilities across Europe with at least 50 kW of IT power, with capacity totalling approximately 12.7 GW in IT power supply'. Compared against dcItLoadGw, which divides utilisation back out and is therefore an installed-capacity stock, not an average load. Issue #34 established this is an available-IT-power concept (EUDCA 2025 p.22, Fig. 2), not the installed-nominal (Art. 2(14) PD_IT) concept dcItLoadGw represents -- the two differ by a measured 48% conversion factor (EUDCA Fig. 4, colocation-weighted, N=63), so the anchor as stated compares against a figure roughly twice as large by construction. This anchor tests PUE and itUtilization as well as the volume path; both are now sourced to eucommission2025eedassessment. Moved to contested (issue #34, second correction): with itUtilization sourced to its true value, the raw comparison swings from -18.9% to +71.8% -- the opposite direction, not toward agreement. Applying the 48% conversion on top would push it past +250%, because the correction and the conversion both compensate for the same nameplate-vs-drawn-power gap; applying both double-counts it. Retargeting to installed-nominal (EU-27 ~4.77 GW) fares no better (+274%). No re-scoping produces a plausible match, which is itself the finding: the two sources describe structurally different fleets and neither the model nor a unit conversion can reconcile them."
     },
     "euItPower2024Gw": {
-      "tier": "independent",
+      "tier": "contested",
       "comparison": "within",
       "value": 9.9,
       "tolerance": 0.1,
       "unit": "GW",
       "label": "EU-27 installed IT power 2024",
-      "note": "ENTSO-E §1.1 footnote 5: 'Around 9.9 GW of which is in EU27 countries.'"
+      "note": "ENTSO-E §1.1 footnote 5: 'Around 9.9 GW of which is in EU27 countries.' Same available-vs-installed-nominal mismatch as europeItPower2024Gw (issue #34) -- see that anchor's note. Moved to contested for the same reason -- see europeItPower2024Gw's note."
     },
     "europeTopFiveSet2024": {
       "tier": "independent",
