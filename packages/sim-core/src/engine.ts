@@ -299,6 +299,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         },
         d,
         levers,
+        year,
       );
 
       const row: CountryYear = {

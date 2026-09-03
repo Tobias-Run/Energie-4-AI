@@ -5,7 +5,7 @@ Audience: external energy-system reviewers (quality gate, mission document §7, 
 **Status:** post-P2. This file was previously called `model-notes-p0.md` and described the P0
 prototype; by the time the P2 work landed it misdescribed the model in four material ways, so it
 has been rewritten against the running code rather than patched. Every figure below is read from a
-default run at data bundle **v2.3.0**. This file drifted once before and an external review caught
+default run at data bundle **v2.4.0**. This file drifted once before and an external review caught
 it in four places at once, so the figures marked below are now produced by `modelFacts()` in
 sim-core and checked against this file by `test/docsConsistency.test.ts` — a number here that
 disagrees with the code fails the build.
@@ -80,10 +80,24 @@ proxy.
   until #30/B1 was fixed, inflated the denominator exactly where DC load was largest and diluted
   every share below.
 
-**In the central run the late-horizon flags come from the peak-share criterion, not adequacy.** In
-2045 only Luxembourg trips it, at 16.46%. Ireland sits at 12.47% of peak and is not flagged — its
-own connection ceiling holds it there (see "Repaired defects"). Anyone reviewing the adequacy
-formula should know it is not what produces the headline result.
+**In the central run, nobody is flagged in 2045 — a result that changed sign under this same
+model within the space of one issue (#39).** `peakFactor` used to be held at its 2024 value for
+the whole horizon even after the value itself was corrected to a measured one (see "`peakFactor`
+was borrowed from an interconnection dataset", below). ENTSO-E's own load series show it is
+rising, not flat, in 33 of 38 countries measured (median +0.0115/year); applying that trend
+linearly from 2024 raises `peakFactor` at every country, which raises the baseline-peak
+denominator, which dilutes the DC share of peak everywhere. Luxembourg — the sole country that
+still tripped the line under a held-flat 2024 factor — falls from 16.46% to **14.51%** of peak,
+under the 15% threshold. Ireland sits at **14.19%** and is closer to the line than Luxembourg is,
+but still not flagged — its own connection ceiling holds it there (see "Repaired defects").
+
+This is the trade the issue itself named before it was made: the trend captures one real effect
+(electrification of heat and transport raises the baseline peak) and not its opposite (a growing
+near-flat data centre share lowers the system's overall peakiness), so applying it alone is a
+one-sided correction, not a netted forecast — see "Known simplifications" below. It happens to
+be enough, on its own, to clear the model's only 2045 flag. That the central case now names no
+country at all is a fact about this one-sided correction, not a claim that grid stress has gone
+away; the boom scenario (compute growth ×1.75) still flags three countries (below).
 
 The adequacy criterion is close to inert, and a reviewer should know how close. It fires only on
 base-year data: Poland is flagged in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903, and from 2027
@@ -115,18 +129,22 @@ one-at-a-time sensitivity and does not capture interactions; the corridor does.
 
 Two results from that machinery a reviewer should see early:
 
-- **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 68.5% of runs, Latvia in
-  6.5%, Estonia in 6.0%, Lithuania in 3.5%, Malta in 2.5% and **Ireland in 2.0%**. Ireland used to
-  appear in no sampled run at all; measured peak factors (#39) brought it close enough to the line
-  that some parameter draws now flag it.
+- **Flag frequencies say more than the flags.** For 2045 the deterministic run names nobody at
+  all; across sampled ranges (200 runs, seed 1) Luxembourg is still flagged in **46.5%** of runs,
+  Ireland in **16.5%**, Latvia in 4.0%, Estonia in 3.5% and Malta in 2.5%. A country the
+  deterministic central run clears can still be one uncertainty draw away from tripping the line
+  in nearly half the sampled runs — the flag list is a single point on a distribution, not the
+  distribution. Ireland's jump is the sharper story: it appeared in no sampled run at all before
+  peak factors were measured (#39), then 2.0% once they were, and now 16.5% once their trend is
+  applied on top (#39, this section) — the same correction that clears Luxembourg's deterministic
+  flag makes Ireland's the more exposed of the two under uncertainty.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
 
 ## Calibration (validation gate V1)
 
-**Verdict: FAILING — 1 of 7 independent anchors missed.** Computed by
+**Verdict: FAILING — 2 of 8 independent anchors missed.** Computed by
 `packages/sim-core/src/calibration.ts`, enforced by `test/calibration.test.ts`.
 
 The gate reported "passing" for months and the claim did not hold. An external review (issues #25,
@@ -151,30 +169,35 @@ protection. They establish nothing about the model and no longer count toward th
 
 ### Independent tier — the anchors that decide the verdict
 
-| Anchor                               | Source  | Target    | Model  | Deviation | Status |
-| ------------------------------------ | ------- | --------- | ------ | --------- | ------ |
-| Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%     | met    |
-| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%     | met    |
-| Five largest DC countries 2024       | ENTSO-E | set       | match  | —         | met    |
-| Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —         | met    |
-| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%     | met    |
-| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%     | met    |
-| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%** | missed |
+| Anchor                               | Source  | Target    | Model  | Deviation  | Status |
+| ------------------------------------ | ------- | --------- | ------ | ---------- | ------ |
+| Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%      | met    |
+| DC share of EU demand 2024 — EUDCA   | EUDCA   | 2.0%      | 2.61%  | **+30.5%** | missed |
+| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%      | met    |
+| Five largest DC countries 2024       | ENTSO-E | set       | match  | —          | met    |
+| Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —          | met    |
+| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%      | met    |
+| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%      | met    |
+| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%**  | missed |
 
-**What the one miss means.**
+**What the two misses mean.**
 
 _The 2035 level_ is measured against ENTSO-E's **lower** bound. The same figure gives 254 TWh as its
 maximum, so against ENTSO-E's upper bound the shortfall is 27%, not 7%.
+
+_The base year now has a real, failable test — not just the ENTSO-E volume it meets (issue #40)._
+EUDCA's survey states DC load at **2%** of EU electricity demand in 2023; the model starts 2024 at
+**2.61%**, +30.5% over that reading. Unlike the ENTSO-E volume anchor above, EUDCA's share has a
+stated bottom-up basis — informal grid-operator input on capacity usage plus actual measured usage
+data for Denmark, the Netherlands and Ireland, covering 46% of EU colocation-plus-hyperscale by MW
+— rather than being folded into ENTSO-E's own top-down synthesis. Kept `independent` for that
+reason, unlike the EUDCA volume reading below it (`contested`): the share has grounds to falsify
+the model that the volume figure it accompanies does not.
 
 Two anchors used to sit in this table — installed IT power for Europe and EU-27 — missing at
 **−18.9%** and **−14.9%**. They no longer do, and not because the model improved: they were
 **re-scoped to `contested`** (issue #34), for reasons that belong with the other contested anchors
 below.
-
-_The base year is now checked at all,_ which it previously was not. The model's own anchor series
-runs 3% → 4.5% → 5.7%, and the model starts 2024 at **2.61%** of EU-27 demand — 13% below the start
-of the series it is calibrated against. The two base-year anchors above are what put a test under
-that number for the first time; both come out negative.
 
 _The 2030 level, which the model meets, is also a floor._ ENTSO-E labels 134 TWh `2030 (min)`. The
 model clears it by 0.4%. Reading that as agreement with ENTSO-E is a mistake this document made
@@ -200,6 +223,26 @@ trajectory may be a touch high." That was wrong, and wrong in the opposite direc
 to reach 4.5% at its own DC volume, EU-27 demand in 2030 would have to fall below its 2024 level in
 the middle of electrification. The cause was never the denominator — it was a conflict between
 sources that the ±10% tolerance was wide enough to hide.
+
+**The base year has the same kind of conflict, found reading EUDCA / Pb7 Research's own report
+(issue #40).** EUDCA states DC electricity consumption at ≈55.3 TWh, EU, 2023 — the model's
+comparable EU-27 2024 figure is **67.13 TWh, +21.4%** over it:
+
+| Reading                 | Scope  | Year | Value    | Model | Deviation  |
+| ----------------------- | ------ | ---- | -------- | ----- | ---------- |
+| EUDCA / Pb7             | EU     | 2023 | 55.3 TWh | 67.13 | **+21.4%** |
+| ENTSO-E (authoritative) | Europe | 2024 | 87 TWh   | 82.13 | −5.6%      |
+| IEA                     | EU     | 2022 | ~100 TWh | 67.13 | −33%       |
+
+**ENTSO-E's own figure is not independent of EUDCA's.** ENTSO-E's 87 TWh is a synthesis that folds
+in this EUDCA survey alongside IEA and Accenture material, so the independent-tier anchor the model
+meets is agreement with a midpoint of a range EUDCA and IEA disagree on by nearly a factor of two —
+not confirmation against either end. EUDCA states the disagreement itself, in its own footnote to
+the 55.3 TWh figure: "significantly lower compared to the most recent IEA estimates for about
+100 TWh in 2022," adding that "cross checks with non-public data from grid companies show this is
+in line with their actual data" — a claim of grid-operator corroboration the IEA figure does not
+carry. Kept `contested` rather than `independent`, alongside the 2030 spread above, for the same
+reason: no value can satisfy sources this far apart within a tolerance, so no model can either.
 
 **Installed IT power — moved here from independent, and the reversal is the finding (issue #34).**
 `dcItLoadGw` divides utilisation back out of average draw, so it tests the base-year volume, the PUE
@@ -256,7 +299,7 @@ sources happens to agree.
 ## Data provenance
 
 Every parameter carries a `source_id` resolving to `docs/sources.bib` or the reserved value
-`expert-guess`, enforced by a unit test. Currently **59 of 105 tracked parameters are sourced (56%)**.
+`expert-guess`, enforced by a unit test. Currently **79 of 123 tracked parameters are sourced (64%)**.
 
 That percentage went _down_ when uncertainty ranges were added, because 19 new parameters came under
 the same tracking rule and 11 of them are expert estimates. The denominator grew; nothing regressed.
@@ -273,6 +316,35 @@ mapping from those facts to a 0–1 multiplier is a documented model convention,
 `data/v1/countries.json` under `pipelineTightnessMapping` — the evidence is sourced, the
 multiplier is not a measured quantity. The remaining 26 countries stay at 1.0 and
 `expert-guess`.
+
+**The generation-mix categories were an unbacked convention; they still are, just a sourced one
+(issue #38).** `renewablesTwh2024`, `nuclearTwh2024` and `otherFirmTwh2024` have carried a
+`source_id` (Ember's European Electricity Review 2025) for their _values_ since #4/#12, but
+nothing backed the _taxonomy_ — which ENTSO-E-level production type belongs in which bucket.
+Issue #38 proposed checking that against a peer-reviewed mapping (Unnewehr et al. 2022) found in
+a KIT/Helmholtz open-source repo, which raises two concrete questions: where does Waste go, and
+is pumped-storage hydro counted as generation without double-counting the energy consumed to
+fill the reservoir.
+
+Fetching Ember's own Data Methodology document (v1.5) settles both, for the taxonomy that
+actually matters here: this model's mix values come from Ember, not from raw ENTSO-E production
+types, so Ember's own definitions govern regardless of what a different, ENTSO-E-level mapping
+says. Ember's answer: Waste sits inside "Other Fossil" (p.9), alongside oil/petroleum products
+and manufactured gases — so it lands in `otherFirmTwh2024`, not `renewablesTwh2024`, which is
+what this model's code comment already said before it had a citation. Pumped hydro: "Where
+possible, Hydro generation excludes any contribution from pumped hydro generation" — excluded
+from the renewables figure rather than counted, avoiding the double-count.
+
+Checked against Unnewehr et al.'s mapping specifically, the split does **not** hold — the more
+interesting outcome the issue anticipated. Unnewehr keeps Waste as its own category rather than
+folding it into Other Fossil, and its published mapping assigns Hydro Pumped Storage's raw
+"Actual Aggregated" generation to Hydro without resolving whether that double-counts pumping
+consumption; the reference implementation of that mapping (Helmholtz-AI-Energy) flags the paired
+consumption field as unclear rather than handling it. Both are genuine disagreements with Ember,
+not just presentation differences. Since this model is one aggregation step downstream of Ember
+rather than of raw ENTSO-E data, Ember's choices are the ones it actually inherits — Unnewehr's
+mapping is recorded as the comparison that was checked, in `mixCategoryMapping` in
+`countries.json`, rather than adopted. No mix value changed.
 
 Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`,
 `baseConnectableGwPerYear`, `priceIndex`, `gasCapTwh2024`, all growth-rate fields, both flag
@@ -610,7 +682,7 @@ COVID load shape — decides a country's number.
 (1.99 → 1.47), the Netherlands (1.86 → 1.43), Croatia (1.86 → 1.48) and Denmark (1.83 → 1.45).
 Luxembourg went the other way, 1.24 → 1.42, which is why its peak share drops.
 
-**What moved, in published figures:**
+**What moved, in published figures, before the trend was applied:**
 
 |                            | before             | after                 |
 | -------------------------- | ------------------ | --------------------- |
@@ -626,12 +698,37 @@ was called false after B1; on measured peak factors it is true again. _"Clearing
 30% enrolment"_ was published with #42 and is now 20% again. Neither claim was wrong when measured —
 both rested on a parameter that had never been measured at all, and that is the finding.
 
-**The trend answers the second half of the question.** The peak-to-average ratio is **rising in 33
-of 38 countries**, median **+0.0115 per year** across 2019–2025. Over the 21 years to 2045 that is
-about +0.24 — larger than the entire correction just applied. So holding `peakFactor` constant to
-2045 is **not** defensible, and the direction is known. Making it time-varying is not done here: it
-is a model change rather than a parameter one, and it needs deciding against the opposing pull of a
-growing near-flat data centre share. Tracked in #39.
+**The trend answers the second half of the question, and it has now been applied.** The
+peak-to-average ratio is **rising in 33 of 38 countries**, median **+0.0115 per year** across
+2019–2025. Over the 21 years to 2045 that is about +0.24 — larger than the entire correction just
+applied. Holding `peakFactor` constant to 2045 was **not** defensible, and the direction was
+known, so `stressAdequacy.ts` now extrapolates each country's measured trend linearly from 2024
+(`peakFactorAt`, floored at 1 — a physical bound, peak cannot be below average). Malta, with no
+trend to measure, keeps a flat `expert-guess` peakFactor throughout.
+
+This is a genuine model change, not a parameter update, and it was flagged as needing a decision
+before it landed: the trend captures the electrification side of two opposing real effects (rising
+baseline peak) without the data-centre-flattening side (a growing near-flat load lowering system
+peakiness) to net it against, because the latter has no published measurement. Applying it moves
+every figure in the table above a second time:
+
+|                            | measured, flat (above) | trend applied (this PR)    |
+| -------------------------- | ---------------------- | -------------------------- |
+| Luxembourg peak share 2045 | 16.46%                 | **14.51%**                 |
+| Ireland peak share 2045    | 12.47%                 | **14.19%**                 |
+| Central 2045 flag list     | LU                     | **(none)**                 |
+| Boom flag list             | LT, EE, LV, LU         | **EE, LV, LU**             |
+| Capped siting              | clears every flag      | **still nothing to clear** |
+| Ireland in Monte Carlo     | 2.0% of runs           | **16.5% of runs**          |
+| Luxembourg in Monte Carlo  | 68.5% of runs          | **46.5% of runs**          |
+
+The direction is exactly what the "opposing pull" warning predicted: a rising baseline peak
+dilutes the DC share of peak everywhere, so flags clear rather than appear. Applied alone, it is
+enough to erase the model's only central-run flag entirely — not because grid stress went away,
+but because this correction only ever pointed one way. The boom scenario still flags three
+countries, and Ireland — never flagged, but always the closer call — moves markedly closer to the
+line in both the deterministic run and under sampled uncertainty. Both directions of "the flag
+list changed and nothing about actual grid stress did" are now on the record for this parameter.
 
 **Malta has no value.** ENTSO-E publishes no load series for it, so `MT.peakFactor` stays
 `expert-guess` and is now the only country in the bundle without a measured one. Great Britain has
@@ -703,11 +800,13 @@ both locales, with labels naming which one belongs to which quantity.
   parameters does not, which is the point.
 - No feedback from new load onto prices, and none from stress onto siting beyond the explicit
   levers.
-- `peakFactor` is held constant across the whole horizon. Two real effects push it in opposite
-  directions and neither is modelled: electrification of heat and transport raises the baseline
-  peak, while a growing share of near-flat data centre load lowers the system's overall peakiness.
-  The construct is now at least self-consistent (issue #30, B1), but it is still a 2024 shape
-  carried unchanged to 2045.
+- `peakFactor` now moves (issue #39), but only one of two real effects that push it in opposite
+  directions is modelled: electrification of heat and transport raises the baseline peak
+  (measured, applied); a growing share of near-flat data centre load lowers the system's overall
+  peakiness (real, but not sourced, so not modelled). Applying the measured half alone is a
+  one-sided correction, and it is strong enough on its own to clear the model's only central-run
+  2045 flag — a result to read as "this correction only pushes one way," not as good news about
+  grid stress.
 - `pipelineTightness` collapses permitting throughput, construction capacity and skilled labour
   into a single number per country. That the third of those is a constraint at all is invisible
   here.

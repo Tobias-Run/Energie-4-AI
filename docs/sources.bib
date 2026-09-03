@@ -178,6 +178,24 @@
   note        = {Per-country 2024 electricity demand and generation by source (renewables, nuclear, fossil). Basis for the hardened country dataset (values rounded; quarterly review per §8.3).}
 }
 
+@misc{ember2026methodology,
+  author       = {{Ember}},
+  title        = {Data Methodology (v1.5)},
+  howpublished = {\url{https://storage.googleapis.com/emb-prod-bkt-publicdata/public-downloads/ember_electricity_data_methodology.pdf}},
+  year         = {2026},
+  note         = {Defines Ember's nine generation fuel types (p.9): "Other Fossil generation includes generation from oil and petroleum products, as well as manufactured gases and waste" -- Waste sits in Other Fossil, not a renewable bucket; "Where possible, Hydro generation excludes any contribution from pumped hydro generation" -- avoids double-counting the energy consumed to fill the reservoir. This is the taxonomy that actually governs \texttt{renewablesTwh2024}/\texttt{nuclearTwh2024}/\texttt{otherFirmTwh2024} (issue \#38), since those values are populated from Ember (ember2025eer), not raw ENTSO-E production types. See \texttt{mixCategoryMapping} in \texttt{countries.json}.}
+}
+
+@article{unnewehr2022carbon,
+  author  = {Unnewehr, Jan Friedrich and others},
+  title   = {Open-data based carbon emission intensity signals for electricity generation in {European} countries --- top down vs. bottom up approach},
+  journal = {Cleaner Energy Systems},
+  volume  = {3},
+  year    = {2022},
+  doi     = {10.1016/j.cles.2022.100018},
+  note    = {Published mapping from raw ENTSO-E production types to aggregate categories, proposed (issue \#38) as a check on this model's renewables/nuclear/fossil split. It disagrees with Ember's own taxonomy (ember2026methodology) on both points the issue asked about: Waste is kept as its own category rather than folded into Other Fossil, and Hydro Pumped Storage generation is folded into Hydro without resolving whether that double-counts pumping consumption -- the public reference implementation of this mapping (Helmholtz-AI-Energy/electric-generation-forecasting) flags the paired consumption field as unresolved. Since this model's values come from Ember, not raw ENTSO-E types, Ember's own choices are the ones actually inherited; this mapping is cited as the comparison that was checked, not as the source of the taxonomy. See \texttt{mixCategoryMapping} in \texttt{countries.json} and docs/model-notes.md.}
+}
+
 @techreport{lbnl2024usdc,
   author      = {Shehabi, Arman and Smith, Sarah J. and Hubbard, Alex and others},
   title       = {2024 United States Data Center Energy Usage Report},

@@ -67,12 +67,19 @@ Stating this up front so the review is not spent rediscovering it.
    `demand2030Twh` (84.0) and the two capture shares (72.9 and 26.2); all fifteen others together
    move it by less than 0.9 TWh.
 2. **The peak-share criterion produces the headline result, and the adequacy criterion is close to
-   inert.** In 2045 only Luxembourg trips the 0.15 threshold on firm DC draw ÷ peak load, at
-   16.46%; Ireland sits at 12.47% and is not flagged. (Both figures have moved twice: up when the
-   peak-load denominator was corrected — issue #30, B1 — and then apart again when `peakFactor`
-   itself was derived from ENTSO-E's hourly load series instead of borrowed from an interconnection
-   dataset — issue #39. Luxembourg fell, Ireland rose. In the boom run the flag list is now four
-   countries, Lithuania having crossed the 15% line for the third time.) Adequacy fires only on base-year data —
+   inert — and in the central run, the headline result is currently that nobody is flagged.**
+   Luxembourg, the sole country that tripped the 0.15 threshold on firm DC draw ÷ peak load, now
+   sits at **14.51%**; Ireland is closer than it looks, at **14.19%**, and still not flagged.
+   (Both figures have moved three times: up when the peak-load denominator was corrected — issue
+   #30, B1 — apart again when `peakFactor` itself was derived from ENTSO-E's hourly load series
+   instead of borrowed from an interconnection dataset — issue #39 — and together a third time
+   when that same series' measured trend was applied linearly from 2024, rather than holding the
+   2024 value flat to 2045 — issue #39 again. The trend represents only one of two opposing real
+   effects — electrification raises the baseline peak; a growing near-flat data centre share
+   would lower it, but that effect is not sourced — so this is a one-sided correction, and it
+   alone is enough to clear the model's only central-run flag. The boom run still flags three
+   countries, EE/LV/LU, Lithuania having dropped back under the line a second time.) Adequacy
+   fires only on base-year data —
    Poland in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903 — and never again; the 2045 maximum is
    0.750. Both the 0.15 threshold and the 0.85 firm-load share are the numbers that matter, and
    only the latter has a published source. Whether a criterion that reacts only to the starting

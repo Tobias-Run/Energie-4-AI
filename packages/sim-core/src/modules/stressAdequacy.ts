@@ -1,6 +1,20 @@
-import type { CountryParams, ScenarioDefaults } from '../data.js';
+import { BASE_YEAR, type CountryParams, type ScenarioDefaults } from '../data.js';
 import type { Levers } from '../types.js';
 import { HOURS_PER_YEAR_K } from './electricityDemand.js';
+
+/**
+ * `peakFactor` at a given year: the 2024 measured value plus its measured trend, extrapolated
+ * linearly (issue #39). Floored at 1 -- peak load cannot be below average load by definition,
+ * a physical bound rather than a modelling choice.
+ *
+ * This captures one of two real, opposing effects and not the other: electrification of heat
+ * and transport raises the baseline peak (measured, applied here); a growing near-flat data
+ * centre share lowers the system's overall peakiness (real, but not sourced or modelled -- see
+ * docs/model-notes.md). Treat this as a one-sided correction, not a netted forecast.
+ */
+export function peakFactorAt(c: CountryParams, year: number): number {
+  return Math.max(1, c.peakFactor + c.peakFactorTrendPerYear * (year - BASE_YEAR));
+}
 
 export interface AdequacyInput {
   totalDemandTwh: number;
@@ -35,6 +49,7 @@ export function assessAdequacy(
   input: AdequacyInput,
   defaults: ScenarioDefaults,
   levers: Levers,
+  year: number,
 ): AdequacyResult {
   const nonGas = input.renewablesTwh + input.nuclearTwh + input.otherFirmTwh;
   const gasGenTwh = Math.min(Math.max(input.totalDemandTwh - nonGas, 0), input.gasCapTwh);
@@ -62,7 +77,7 @@ export function assessAdequacy(
   // (issue #30, B1). Baseline peaks; DC adds its firm draw on top, the same quantity the
   // numerator uses. Numerator and denominator now describe the same system state.
   const baselinePeakGw =
-    ((input.totalDemandTwh - input.dcEnergyTwh) * c.peakFactor) / HOURS_PER_YEAR_K;
+    ((input.totalDemandTwh - input.dcEnergyTwh) * peakFactorAt(c, year)) / HOURS_PER_YEAR_K;
   const peakLoadGw = baselinePeakGw + dcFirmGw;
   const dcShareOfPeak = peakLoadGw > 0 ? dcFirmGw / peakLoadGw : 0;
 

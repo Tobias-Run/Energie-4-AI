@@ -39,7 +39,7 @@
       "tolerance": 0.1,
       "unit": "TWh",
       "label": "Europe DC demand 2024 (base year)",
-      "note": "ENTSO-E Figure 1, 'Europe (as total TWh)'. Tests the base year, which no anchor previously checked."
+      "note": "ENTSO-E Figure 1, 'Europe (as total TWh)'. Tests the base year, which no anchor previously checked. Worth reading alongside euDc2024TwhEudca (issue #40): ENTSO-E's 87 TWh is a synthesis that folds in the EUDCA survey (55.3 TWh EU) alongside IEA (~100 TWh EU) and Accenture material, so the two anchors are not independent of each other, and meeting this one is agreement with a midpoint rather than confirmation against either extreme."
     },
     "europeDc2030TwhMin": {
       "tier": "independent",
@@ -126,6 +126,24 @@
       "unit": "TWh",
       "label": "Europe DC demand 2030 — IEA reading",
       "note": "The lower end of the published range. Together with the Ember reading it brackets Europe's 2030 DC demand at 109–168 TWh: a 54% spread between published sources, wider than any lever in this model."
+    },
+    "euDc2024TwhEudca": {
+      "tier": "contested",
+      "comparison": "within",
+      "value": 55.3,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "EU DC demand 2024 — EUDCA reading",
+      "note": "EUDCA / Pb7 Research, State of European Data Centres 2025: 'approximately 55.3 TWh' EU electricity consumption from data centres, 2023 (issue #40). One year behind the model's 2024 base year; not adjusted for that lag, so the comparison is slightly conservative in the model's favour. Contested rather than independent because the model instead follows ENTSO-E's 87 TWh (europeDc2024Twh, Europe scope) as the designated authority -- but that figure is itself a synthesis that folds in this EUDCA survey alongside IEA and Accenture material, so agreement with ENTSO-E is not independent confirmation against this reading. EUDCA states the disagreement explicitly, in its own footnote: its number is 'significantly lower compared to the most recent IEA estimates for about 100 TWh in 2022', and 'cross checks with non-public data from grid companies show this is in line with their actual data' -- a claim of grid-operator corroboration the IEA figure does not carry. Per EUDCA p.60, the estimate is bottom-up: informal input from grid operators on peak/average capacity usage versus contracted power, plus actual usage data for Denmark, the Netherlands and Ireland, covering 46% of EU colocation-plus-hyperscale by MW -- three of the countries this model treats as connection-constrained."
+    },
+    "euDcShareOfDemand2024Eudca": {
+      "tier": "independent",
+      "comparison": "within",
+      "value": 0.02,
+      "tolerance": 0.1,
+      "unit": "share",
+      "label": "DC share of EU electricity demand 2024 — EUDCA",
+      "note": "EUDCA / Pb7 Research: '2% of all electricity usage in the European Union', 2023. Unlike the EU-27 volume anchor above, kept independent rather than contested: EUDCA's estimate has a stated bottom-up basis (grid-operator input plus measured national usage data, p.60 -- see euDc2024TwhEudca's note), which is a different and arguably better-grounded method than the top-down synthesis the ENTSO-E volume anchor rests on, and it is a share, so it is not entangled with the demand-denominator disputes that already run through the 2030 share anchors below (issue #40)."
     }
   },
   "provenance": {
@@ -142,6 +160,8 @@
     "euDcShareOfDemand2030": "ember2025grids",
     "euDcShareOfDemand2035": "ember2025grids",
     "europeDc2030TwhEmber": "ember2025grids",
-    "europeDc2030TwhIea": "iea2025energyai"
+    "europeDc2030TwhIea": "iea2025energyai",
+    "euDc2024TwhEudca": "eudca2025state",
+    "euDcShareOfDemand2024Eudca": "eudca2025state"
   }
 }

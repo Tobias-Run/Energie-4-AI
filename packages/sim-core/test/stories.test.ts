@@ -44,11 +44,15 @@ describe('story: Dublin freeze spreads', () => {
   it('claims Ireland is NOT flagged because its connection constraint binds first', () => {
     // Ireland has the tightest connection pipeline in the model (moratorium since 2021 plus
     // the CRU's December 2025 conditions), which holds its draw below the peak-share line.
+    // Luxembourg used to be the one country that still tripped it regardless -- the peakFactor
+    // trend applied in #39 pushes even Luxembourg under both thresholds, so the central run now
+    // flags nobody at all. Ireland's own margin (14.19% of peak, one line below Luxembourg's
+    // 14.51%) is the more interesting fact now: not flagged, but not comfortably so either.
     expect(at(BASE).flags).not.toContain('IE');
-    expect(at(BASE).flags).toContain('LU');
+    expect(at(BASE).flags).toEqual([]);
   });
 
-  it('claims the siting cap barely moves Ireland, and clears Luxembourg instead', () => {
+  it('claims the siting cap barely moves Ireland, and lowers Luxembourg regardless of a flag', () => {
     const market = at(BASE);
     const capped = at({ ...BASE, sitingPolicy: 'capped' });
     // Ireland is already refusing this load via its connection pipeline, so a second refusal
@@ -56,9 +60,14 @@ describe('story: Dublin freeze spreads', () => {
     expect(market.dc('IE')).toBeGreaterThan(7);
     expect(market.dc('IE')).toBeLessThan(11);
     expect(Math.abs(1 - capped.dc('IE') / market.dc('IE'))).toBeLessThan(0.1);
-    // Luxembourg is where the lever actually bites.
-    expect(market.flags).toContain('LU');
-    expect(capped.flags).not.toContain('LU');
+    // Luxembourg is where the lever visibly bites, even though there is no longer a threshold
+    // for it to clear: capped siting still takes Luxembourg from ~24.7% to ~20.2% of its own
+    // demand, and from 14.51% to 11.58% of peak. Neither figure crosses a line either side of
+    // the cap; the cap is doing real work that the flag list alone would no longer show.
+    expect(market.flags).toEqual([]);
+    expect(capped.flags).toEqual([]);
+    expect(capped.dc('LU')).toBeLessThan(market.dc('LU'));
+    expect(capped.share('LU')).toBeLessThan(market.share('LU'));
   });
 
   it('claims the load reappears elsewhere rather than disappearing', () => {

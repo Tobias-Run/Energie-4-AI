@@ -22,6 +22,8 @@ export interface CountryParams {
   dcTwh2024: number;
   priceIndex: number;
   peakFactor: number;
+  /** Measured drift in peakFactor (ratio units per year), applied linearly from 2024 (#39). */
+  peakFactorTrendPerYear: number;
   renewablesTwh2024: number;
   renewablesGrowthPre2030: number;
   renewablesGrowthPost2030: number;

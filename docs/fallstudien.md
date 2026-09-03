@@ -1,6 +1,6 @@
 # Fallstudien mit dem Energie-4-AI-Simulator (P2)
 
-**Stand:** 2026-08-27 · Datenbundle v2.3.0 · Erzeugt mit dem P2-Interface (Browser-Automation
+**Stand:** 2026-09-03 · Datenbundle v2.4.0 · Erzeugt mit dem P2-Interface (Browser-Automation
 via Playwright, Chromium headless). Alle Zahlen wurden **aus der Benutzeroberfläche
 abgelesen** (Kopfzeile, Karte, Tabellenansicht), nicht aus dem Modellcode extrahiert — sie
 sind über die Permalinks unter jeder Fallstudie exakt reproduzierbar.
@@ -81,11 +81,24 @@ zum vierten Mal überquert es die 15-%-Schwelle. Der Standortdeckel (C4) räumt 
 Flags. Und 20 % Lastflexibilität genügen wieder, um Luxemburg zu lösen, wo zuvor 30 % nötig
 waren. Zwei dieser Aussagen widerrufen frühere Korrekturen dieses Projekts.
 
-**Der Trend beantwortet die zweite Hälfte der Frage:** Das Verhältnis Spitze zu Mittel
-**steigt in 33 von 38 Ländern**, im Median um +0,0115 pro Jahr. Auf 21 Jahre sind das rund
-+0,24 — mehr als die soeben vorgenommene Korrektur. `peakFactor` bis 2045 konstant zu halten,
-ist damit **nicht** vertretbar; die Zeitabhängigkeit steht noch aus
-([Issue #39](https://github.com/Tobias-Run/Energie-4-AI/issues/39)).
+**Der Trend beantwortet die zweite Hälfte der Frage — und ist jetzt angewendet.** Das
+Verhältnis Spitze zu Mittel **steigt in 33 von 38 Ländern**, im Median um +0,0115 pro Jahr. Auf
+21 Jahre sind das rund +0,24 — mehr als die soeben vorgenommene Korrektur. `peakFactor` bis 2045
+konstant zu halten war damit **nicht** vertretbar, und die Richtung war bekannt; `peakFactorAt`
+in `stressAdequacy.ts` schreibt den gemessenen Trend jetzt linear ab 2024 fort (nach unten
+begrenzt bei 1 — Spitze kann per Definition nicht unter Mittel liegen).
+
+> **Nachtrag (Korrektur 5):** Das ist eine echte Modelländerung, keine Parameterkorrektur, und
+> Issue #39 verlangte ausdrücklich eine Abwägung, bevor sie umgesetzt wird: Der Trend bildet nur
+> die Elektrifizierungsseite zweier gegenläufiger realer Effekte ab (steigende Grundlast-Spitze,
+> gemessen, angewendet) — nicht die Gegenseite (wachsender, nahezu flacher RZ-Anteil senkt die
+> Spitzigkeit des Gesamtsystems, real, aber unbelegt). Allein angewendet reicht das, um das
+> einzige Zentralszenario-Flag 2045 vollständig zu räumen: Luxemburgs Spitzenanteil fällt von
+> 16,5 % auf **14,5 %**, unter die 15-%-Schwelle — das Zentralszenario flaggt jetzt **kein**
+> Land mehr. Irland rückt gleichzeitig näher an die Linie heran, von 12,5 % auf **14,2 %**, ohne
+> sie zu erreichen. Der Boom-Fall behält drei Flags (EE, LV, LU) statt vier — Litauen fällt ein
+> fünftes Mal unter die Schwelle. Das ist die im Text vorhergesagte "opposing pull"-Warnung in
+> Zahlen: eine einseitige Korrektur, die nur in eine Richtung wirken kann, hat genau das getan.
 
 ---
 
@@ -106,9 +119,9 @@ und wie viel davon können zusätzliche Effizienzgewinne der Rechenzentren wiede
 | ------------------------ | ---------------- | ------------------- | ------------------- |
 | DC-Nachfrage 2035        | 152 TWh (5,3 %)  | 217 TWh (7,4 %)     | 198 TWh (6,8 %)     |
 | DC-Nachfrage 2045        | 218 TWh (6,7 %)  | **336 TWh (9,9 %)** | **283 TWh (8,5 %)** |
-| Stress-Flags 2045        | LU               | **LT, EE, LV, LU**  | **LU**              |
+| Stress-Flags 2045        | **keine**        | **EE, LV, LU**      | **LU**              |
 | Irland: DC 2045          | 8,6 TWh (19,6 %) | 8,6 TWh (19,6 %)    | 8,6 TWh (19,6 %)    |
-| Luxemburg: Anteil Spitze | 16,5 %           | 25,1 %              | 21,9 %              |
+| Luxemburg: Anteil Spitze | 14,5 %           | 22,5 %              | 19,5 %              |
 | Deutschland: DC 2045     | 40,5 TWh (7,0 %) | 53,8 TWh (9,1 %)    | 47,9 TWh (8,2 %)    |
 
 **Befunde:**
@@ -116,12 +129,13 @@ und wie viel davon können zusätzliche Effizienzgewinne der Rechenzentren wiede
 1. **Der Boom hebt den DC-Anteil an der EU-Stromnachfrage auf 9,9 %** und die Nachfrage um
    +118 TWh über den Zentralpfad — grob der heutige Jahresverbrauch der Niederlande.
 2. **2 %/Jahr Zusatz-Effizienz kauft ~53 TWh zurück** (335 → 283 TWh, −16 %) und **räumt
-   Litauen, Estland und Lettland von der Flag-Liste** — von vier geflaggten Ländern bleibt eines. Anders als in der ersten P2-Fassung wirkt Effizienz damit nicht nur auf die Menge,
-   sondern auch auf die Ränder — weil die gedeckelten Hubs Last in kleine Systeme abdrängen,
-   wo Mengenreduktion über Schwellen entscheidet. Dass hier drei statt eines Landes fallen,
-   liegt an der Korrektur des Spitzenlast-Nenners (Issue #30, B1): Die baltischen Systeme
-   lagen vorher knapp unter der 15-%-Linie, weil ihr RZ-Anteil an der Spitze systematisch zu
-   klein gerechnet wurde.
+   Estland und Lettland von der Flag-Liste** — von drei geflaggten Ländern bleibt eines
+   (Luxemburg). Anders als in der ersten P2-Fassung wirkt Effizienz damit nicht nur auf die
+   Menge, sondern auch auf die Ränder — weil die gedeckelten Hubs Last in kleine Systeme
+   abdrängen, wo Mengenreduktion über Schwellen entscheidet. Dass hier zwei statt eines Landes
+   fallen, liegt an der Korrektur des Spitzenlast-Nenners (Issue #30, B1); dass es zwei und
+   nicht mehr sind, liegt am gemessenen Spitzenlast-Trend (#39), der Litauen schon im
+   Referenzfall unter die Schwelle gedrückt hat, bevor Effizienz überhaupt greift.
 
    _Zur Lesart:_ Der Hebel wirkt seit
    [Issue #27](https://github.com/Tobias-Run/Energie-4-AI/issues/27) auf den **globalen**
@@ -135,14 +149,16 @@ und wie viel davon können zusätzliche Effizienzgewinne der Rechenzentren wiede
    Seine Anschlussgrenze bindet in jedem Fall zuerst. Das ist die sichtbarste Folge der
    Pipeline-Korrektur — und es ist die Aussage, die das Modell über ein Land mit Moratorium
    überhaupt erst treffen kann.
-4. **Luxemburg trägt den Boom stattdessen:** 16,5 % → 25,1 % der Spitzenlast. Klein,
-   importabhängig, ohne Anschlussbeschränkung im Modell — es nimmt auf, was Irland abweist.
+4. **Luxemburg trägt den Boom stattdessen:** 14,5 % → 22,5 % der Spitzenlast. Klein,
+   importabhängig, ohne Anschlussbeschränkung im Modell — es nimmt auf, was Irland abweist. Im
+   Zentralszenario reicht das inzwischen nicht mehr für ein Flag (siehe Nachtrag zu Korrektur 5,
+   oben); im Boom-Fall schon.
 
 ![Zentralszenario 2035](img/cs-A0-central-2035.png)
 _Referenz: Zentralszenario 2035 — DC-Anteil an der Stromnachfrage._
 
 ![Boom 2045](img/cs-A1-boom-2045.png)
-_A1 „Boom" 2045: 335 TWh, 9,9 % — Litauen, Estland, Lettland und Luxemburg geflaggt._
+_A1 „Boom" 2045: 335 TWh, 9,9 % — Estland, Lettland und Luxemburg geflaggt._
 
 ![Boom + Effizienz 2045](img/cs-A2-boomeff-2045.png)
 _A2 „Boom + Effizienz" 2045: 283 TWh, 8,5 % — Lettland fällt wieder heraus._
@@ -219,59 +235,67 @@ Spitzenlast**, weil daran das Flag-Kriterium hängt (Schwelle 15 %).
 
 **Ergebnis (2045, EU-27):**
 
-| Kennzahl             | C1 Referenz    | C2 Flex 20 % | C3 Erneuerbare     | C4 Gedeckelt |
-| -------------------- | -------------- | ------------ | ------------------ | ------------ |
-| EU-27 DC-Nachfrage   | 335 TWh        | 335 TWh      | 335 TWh            | 335 TWh      |
-| Stress-Flags         | LT, EE, LV, LU | **LU**       | **LT, EE, LV, LU** | **keine**    |
-| Emissionen (Europa)  | 30 Mt          | 30 Mt        | **28 Mt**          | 30 Mt        |
-| LU: Anteil an Spitze | 25,1 %         | 21,6 %       | 26,2 %             | 13,8 %       |
-| LV: Anteil an Spitze | 16,3 %         | 13,9 %       | 18,1 %             | 13,1 %       |
-| EE: Anteil an Spitze | 16,9 %         | 14,2 %       | 19,5 %             | 12,2 %       |
-| LT: Anteil an Spitze | 16,4 %         | 13,7 %       | 19,5 %             | 12,4 %       |
+| Kennzahl             | C1 Referenz | C2 Flex 20 % | C3 Erneuerbare     | C4 Gedeckelt |
+| -------------------- | ----------- | ------------ | ------------------ | ------------ |
+| EU-27 DC-Nachfrage   | 335 TWh     | 335 TWh      | 335 TWh            | 335 TWh      |
+| Stress-Flags         | EE, LV, LU  | **LU**       | **LT, EE, LV, LU** | **keine**    |
+| Emissionen (Europa)  | 30 Mt       | 30 Mt        | **28 Mt**          | 30 Mt        |
+| LU: Anteil an Spitze | 22,5 %      | 19,2 %       | 23,4 %             | 12,1 %       |
+| LV: Anteil an Spitze | 15,0 %      | 12,8 %       | 16,6 %             | 12,0 %       |
+| EE: Anteil an Spitze | 15,4 %      | 12,8 %       | 17,7 %             | 11,0 %       |
+| LT: Anteil an Spitze | 12,7 %      | 10,4 %       | 15,1 %             | 9,4 %        |
 
-> **Diese Tabelle wurde zweimal an einem Tag neu gerechnet** — nach der Korrektur des
-> Spitzenlast-Nenners ([#30](https://github.com/Tobias-Run/Energie-4-AI/issues/30), B1) und nach
-> der Überarbeitung der Vorlaufzeit ([#28](https://github.com/Tobias-Run/Energie-4-AI/issues/28)).
-> Litauen war dabei zweimal auf beiden Seiten der 15-%-Schwelle. Die Befunde unten stehen
-> korrigiert statt still ersetzt; welcher Befund dabei gefallen ist, ist jeweils vermerkt.
+> **Diese Tabelle wurde inzwischen dreimal an einem Tag neu gerechnet** — nach der Korrektur des
+> Spitzenlast-Nenners ([#30](https://github.com/Tobias-Run/Energie-4-AI/issues/30), B1), nach der
+> Überarbeitung der Vorlaufzeit ([#28](https://github.com/Tobias-Run/Energie-4-AI/issues/28)) und
+> nach Anwendung des gemessenen Spitzenlast-Trends ([#39](https://github.com/Tobias-Run/Energie-4-AI/issues/39),
+> diese Fassung). Litauen war dabei mehrfach auf beiden Seiten der 15-%-Schwelle. Die Befunde
+> unten stehen korrigiert statt still ersetzt; welcher Befund dabei gefallen ist, ist jeweils
+> vermerkt.
 
 **Befunde:**
 
 1. **Das EU-Total ist gegen alle drei Hebel unempfindlich — 335 TWh in jedem Fall.** Die
    Standortsteuerung verschiebt Last, sie entfernt keine. Wer diese Hebel an der Gesamtkurve
-   misst, misst nichts. _(Unverändert durch beide Korrekturen.)_
-2. **„Grüne" Standortsteuerung senkt Emissionen und verschärft den lokalen Stress
-   gleichzeitig.** C3 lenkt Zubau in Systeme mit hohem Erneuerbaren-Anteil — in Europa
-   überwiegend Nordics und Baltikum. Emissionen −2 Mt (−7 %), die Flag-Liste bleibt bei vier
-   Ländern, aber die Überschreitung wird tiefer: Estland 16,9 % → **19,5 %**, Litauen 16,4 % →
-   **19,5 %**. **Eine Politik, die nur auf den Strommix optimiert, verlagert das
-   Adäquanzproblem in die Systeme, die es am wenigsten tragen können.**
+   misst, misst nichts. _(Unverändert durch alle drei Korrekturen.)_
+2. **„Grüne" Standortsteuerung senkt Emissionen und flaggt jetzt ein Land mehr als die
+   Referenz, nicht mehr gleich viele.** C3 lenkt Zubau in Systeme mit hohem
+   Erneuerbaren-Anteil — in Europa überwiegend Nordics und Baltikum. Emissionen −2 Mt (−7 %),
+   aber die Flag-Liste wächst von drei (Referenz) auf vier: Litauen, das der gemessene
+   Spitzenlast-Trend (#39) gerade erst unter die Schwelle gedrückt hat, steht unter dieser
+   Standortpolitik wieder darüber, 12,7 % → **15,1 %**. Estland verschärft sich ebenso,
+   15,4 % → **17,7 %**. **Eine Politik, die nur auf den Strommix optimiert, verlagert das
+   Adäquanzproblem in die Systeme, die es am wenigsten tragen können — deutlich genug, um ein
+   Land zurück über die Schwelle zu drücken, die eine andere Korrektur gerade geräumt hatte.**
 3. **Lastflexibilität wirkt direkt auf das Flag-Kriterium.** 20 % nicht-firme DC-Last nimmt
-   **Litauen, Estland und Lettland** von der Liste; von vier geflaggten Ländern bleibt eines.
-   Luxemburg bleibt mit 21,6 % zu weit über der Schwelle. Wirksam, aber kein Freibrief.
+   **Estland und Lettland** von der Referenz-Liste; von drei geflaggten Ländern bleibt eines.
+   Luxemburg bleibt mit 19,2 % zu weit über der Schwelle. Wirksam, aber kein Freibrief.
 4. **Der Deckel räumt alle Flags ab — und diese Aussage wurde hier schon zweimal gedreht.**
    Die P1-Fassung behauptete es, die Korrektur des Spitzenlast-Nenners (#30, B1) widerlegte es
-   (Luxemburg bei 15,4 %, knapp darüber), und mit gemessenen Spitzenlastfaktoren (#39) stimmt es
-   wieder: Luxemburg liegt unter C4 bei **13,8 %**. Beide Widerrufe waren zum Zeitpunkt der
-   Messung korrekt. Was sie verbindet, ist ein Parameter, der nie gemessen worden war.
+   (Luxemburg bei 15,4 %, knapp darüber), und mit gemessenen Spitzenlastfaktoren (#39) stimmte
+   es wieder. Mit dem Trend obendrauf (#39, diese Fassung) fällt Luxemburg unter C4 noch
+   weiter, auf **12,1 %** — mit deutlicherem Abstand zur Schwelle als je zuvor. Beide früheren
+   Widerrufe waren zum Zeitpunkt der Messung korrekt. Was sie verbindet, ist ein Parameter, der
+   nie gemessen worden war.
 5. **Die Flag-Liste hängt an einem einzelnen Schwellenwert, und das ist hier inzwischen
-   viermal vorgeführt worden.** Litauens Weg über die 15-%-Linie: darunter (P1) → darüber
-   (#30 B1) → darunter (#28) → **darüber** (#39, gemessene Faktoren, jetzt 16,4 %). Drei
-   Modellkorrekturen und eine Datenkorrektur, von denen keine die Mengen nennenswert bewegt
-   hat. Wer die Flag-Liste zitiert, sollte den Tornado-Chart danebenlegen — sie ist eine
-   Schwellenaussage, keine robuste Größe.
+   fünfmal vorgeführt worden.** Litauens Weg über die 15-%-Linie: darunter (P1) → darüber
+   (#30 B1) → darunter (#28) → darüber (#39, gemessene Faktoren, 16,4 %) → **darunter** (#39,
+   Trend angewendet, jetzt 12,7 % in der Referenz — aber weiterhin darüber unter „grüner"
+   Standortsteuerung, Befund 2). Vier Modellkorrekturen und eine Datenkorrektur, von denen keine
+   die Mengen nennenswert bewegt hat. Wer die Flag-Liste zitiert, sollte den Tornado-Chart
+   danebenlegen — sie ist eine Schwellenaussage, keine robuste Größe.
 
 ![Boom, Anteil an der Spitzenlast 2045](img/cs-C1-peakshare-2045.png)
-_C1: Referenz. Luxemburg (25,1 %), Estland (16,9 %), Litauen (16,4 %) und Lettland (16,3 %) über der 15-%-Schwelle._
+_C1: Referenz. Luxemburg (22,5 %), Estland (15,4 %) und Lettland (15,0 %) über der 15-%-Schwelle; Litauen (12,7 %) inzwischen darunter._
 
 ![Flexibilität 2045](img/cs-C2-flex-2045.png)
-_C2: 20 % Lastflexibilität — Litauen, Estland und Lettland fallen unter die Schwelle, Luxemburg bleibt geflaggt._
+_C2: 20 % Lastflexibilität — Estland und Lettland fallen unter die Schwelle, Luxemburg bleibt geflaggt._
 
 ![Standortsteuerung nach Erneuerbaren 2045](img/cs-C3-renewables-2045.png)
-_C3: Standort nach Erneuerbaren — niedrigere Emissionen, aber das Baltikum rückt tiefer über die Schwelle._
+_C3: Standort nach Erneuerbaren — niedrigere Emissionen, aber das Baltikum rückt tiefer über die Schwelle, Litauen eingeschlossen._
 
 ![Standortdeckel 2045](img/cs-C4-capped-2045.png)
-_C4: Gedeckelte Standortwahl — keine Flags mehr; Luxemburg fällt auf 13,8 %._
+_C4: Gedeckelte Standortwahl — keine Flags mehr; Luxemburg fällt auf 12,1 %._
 
 ---
 

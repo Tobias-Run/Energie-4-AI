@@ -7,7 +7,12 @@ function piecewise(base: number, pre2030PerYear: number, post2030PerYear: number
   return base + pre2030PerYear * yearsPre + post2030PerYear * yearsPost;
 }
 
-/** Renewables generation (TWh) for a country in a given year (NECP-aligned linear buildout). */
+/**
+ * Renewables generation (TWh) for a country in a given year (NECP-aligned linear buildout).
+ * Category = Ember's Wind + Solar + Hydro + Bioenergy + Other Renewables (issue #38, see
+ * mixCategoryMapping in countries.json) -- Hydro here excludes pumped storage's contribution,
+ * per Ember's own methodology, not the model's choice.
+ */
 export function renewablesTwh(c: CountryParams, year: number): number {
   return Math.max(
     0,
@@ -23,7 +28,12 @@ export function nuclearTwh(c: CountryParams, year: number): number {
   );
 }
 
-/** Other firm generation (coal, lignite, oil, waste): linear phase-out, floored at zero. */
+/**
+ * Other firm generation (coal, lignite, oil, waste): linear phase-out, floored at zero.
+ * Waste sits here, not in `renewablesTwh`, per Ember's own taxonomy (issue #38) -- a
+ * published ENTSO-E-level mapping (Unnewehr et al. 2022) keeps Waste separate instead, see
+ * mixCategoryMapping in countries.json for why that mapping doesn't apply to this model's data.
+ */
 export function otherFirmTwh(c: CountryParams, year: number): number {
   return Math.max(0, c.otherFirmTwh2024 - c.otherFirmDeclinePerYear * (year - BASE_YEAR));
 }
