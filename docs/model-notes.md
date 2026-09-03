@@ -80,10 +80,24 @@ proxy.
   until #30/B1 was fixed, inflated the denominator exactly where DC load was largest and diluted
   every share below.
 
-**In the central run the late-horizon flags come from the peak-share criterion, not adequacy.** In
-2045 only Luxembourg trips it, at 16.46%. Ireland sits at 12.47% of peak and is not flagged — its
-own connection ceiling holds it there (see "Repaired defects"). Anyone reviewing the adequacy
-formula should know it is not what produces the headline result.
+**In the central run, nobody is flagged in 2045 — a result that changed sign under this same
+model within the space of one issue (#39).** `peakFactor` used to be held at its 2024 value for
+the whole horizon even after the value itself was corrected to a measured one (see "`peakFactor`
+was borrowed from an interconnection dataset", below). ENTSO-E's own load series show it is
+rising, not flat, in 33 of 38 countries measured (median +0.0115/year); applying that trend
+linearly from 2024 raises `peakFactor` at every country, which raises the baseline-peak
+denominator, which dilutes the DC share of peak everywhere. Luxembourg — the sole country that
+still tripped the line under a held-flat 2024 factor — falls from 16.46% to **14.51%** of peak,
+under the 15% threshold. Ireland sits at **14.19%** and is closer to the line than Luxembourg is,
+but still not flagged — its own connection ceiling holds it there (see "Repaired defects").
+
+This is the trade the issue itself named before it was made: the trend captures one real effect
+(electrification of heat and transport raises the baseline peak) and not its opposite (a growing
+near-flat data centre share lowers the system's overall peakiness), so applying it alone is a
+one-sided correction, not a netted forecast — see "Known simplifications" below. It happens to
+be enough, on its own, to clear the model's only 2045 flag. That the central case now names no
+country at all is a fact about this one-sided correction, not a claim that grid stress has gone
+away; the boom scenario (compute growth ×1.75) still flags three countries (below).
 
 The adequacy criterion is close to inert, and a reviewer should know how close. It fires only on
 base-year data: Poland is flagged in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903, and from 2027
@@ -115,11 +129,15 @@ one-at-a-time sensitivity and does not capture interactions; the corridor does.
 
 Two results from that machinery a reviewer should see early:
 
-- **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in 68.5% of runs, Latvia in
-  6.5%, Estonia in 6.0%, Lithuania in 3.5%, Malta in 2.5% and **Ireland in 2.0%**. Ireland used to
-  appear in no sampled run at all; measured peak factors (#39) brought it close enough to the line
-  that some parameter draws now flag it.
+- **Flag frequencies say more than the flags.** For 2045 the deterministic run names nobody at
+  all; across sampled ranges (200 runs, seed 1) Luxembourg is still flagged in **46.5%** of runs,
+  Ireland in **16.5%**, Latvia in 4.0%, Estonia in 3.5% and Malta in 2.5%. A country the
+  deterministic central run clears can still be one uncertainty draw away from tripping the line
+  in nearly half the sampled runs — the flag list is a single point on a distribution, not the
+  distribution. Ireland's jump is the sharper story: it appeared in no sampled run at all before
+  peak factors were measured (#39), then 2.0% once they were, and now 16.5% once their trend is
+  applied on top (#39, this section) — the same correction that clears Luxembourg's deterministic
+  flag makes Ireland's the more exposed of the two under uncertainty.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -664,7 +682,7 @@ COVID load shape — decides a country's number.
 (1.99 → 1.47), the Netherlands (1.86 → 1.43), Croatia (1.86 → 1.48) and Denmark (1.83 → 1.45).
 Luxembourg went the other way, 1.24 → 1.42, which is why its peak share drops.
 
-**What moved, in published figures:**
+**What moved, in published figures, before the trend was applied:**
 
 |                            | before             | after                 |
 | -------------------------- | ------------------ | --------------------- |
@@ -680,12 +698,37 @@ was called false after B1; on measured peak factors it is true again. _"Clearing
 30% enrolment"_ was published with #42 and is now 20% again. Neither claim was wrong when measured —
 both rested on a parameter that had never been measured at all, and that is the finding.
 
-**The trend answers the second half of the question.** The peak-to-average ratio is **rising in 33
-of 38 countries**, median **+0.0115 per year** across 2019–2025. Over the 21 years to 2045 that is
-about +0.24 — larger than the entire correction just applied. So holding `peakFactor` constant to
-2045 is **not** defensible, and the direction is known. Making it time-varying is not done here: it
-is a model change rather than a parameter one, and it needs deciding against the opposing pull of a
-growing near-flat data centre share. Tracked in #39.
+**The trend answers the second half of the question, and it has now been applied.** The
+peak-to-average ratio is **rising in 33 of 38 countries**, median **+0.0115 per year** across
+2019–2025. Over the 21 years to 2045 that is about +0.24 — larger than the entire correction just
+applied. Holding `peakFactor` constant to 2045 was **not** defensible, and the direction was
+known, so `stressAdequacy.ts` now extrapolates each country's measured trend linearly from 2024
+(`peakFactorAt`, floored at 1 — a physical bound, peak cannot be below average). Malta, with no
+trend to measure, keeps a flat `expert-guess` peakFactor throughout.
+
+This is a genuine model change, not a parameter update, and it was flagged as needing a decision
+before it landed: the trend captures the electrification side of two opposing real effects (rising
+baseline peak) without the data-centre-flattening side (a growing near-flat load lowering system
+peakiness) to net it against, because the latter has no published measurement. Applying it moves
+every figure in the table above a second time:
+
+|                            | measured, flat (above) | trend applied (this PR)    |
+| -------------------------- | ---------------------- | -------------------------- |
+| Luxembourg peak share 2045 | 16.46%                 | **14.51%**                 |
+| Ireland peak share 2045    | 12.47%                 | **14.19%**                 |
+| Central 2045 flag list     | LU                     | **(none)**                 |
+| Boom flag list             | LT, EE, LV, LU         | **EE, LV, LU**             |
+| Capped siting              | clears every flag      | **still nothing to clear** |
+| Ireland in Monte Carlo     | 2.0% of runs           | **16.5% of runs**          |
+| Luxembourg in Monte Carlo  | 68.5% of runs          | **46.5% of runs**          |
+
+The direction is exactly what the "opposing pull" warning predicted: a rising baseline peak
+dilutes the DC share of peak everywhere, so flags clear rather than appear. Applied alone, it is
+enough to erase the model's only central-run flag entirely — not because grid stress went away,
+but because this correction only ever pointed one way. The boom scenario still flags three
+countries, and Ireland — never flagged, but always the closer call — moves markedly closer to the
+line in both the deterministic run and under sampled uncertainty. Both directions of "the flag
+list changed and nothing about actual grid stress did" are now on the record for this parameter.
 
 **Malta has no value.** ENTSO-E publishes no load series for it, so `MT.peakFactor` stays
 `expert-guess` and is now the only country in the bundle without a measured one. Great Britain has
@@ -757,11 +800,13 @@ both locales, with labels naming which one belongs to which quantity.
   parameters does not, which is the point.
 - No feedback from new load onto prices, and none from stress onto siting beyond the explicit
   levers.
-- `peakFactor` is held constant across the whole horizon. Two real effects push it in opposite
-  directions and neither is modelled: electrification of heat and transport raises the baseline
-  peak, while a growing share of near-flat data centre load lowers the system's overall peakiness.
-  The construct is now at least self-consistent (issue #30, B1), but it is still a 2024 shape
-  carried unchanged to 2045.
+- `peakFactor` now moves (issue #39), but only one of two real effects that push it in opposite
+  directions is modelled: electrification of heat and transport raises the baseline peak
+  (measured, applied); a growing share of near-flat data centre load lowers the system's overall
+  peakiness (real, but not sourced, so not modelled). Applying the measured half alone is a
+  one-sided correction, and it is strong enough on its own to clear the model's only central-run
+  2045 flag — a result to read as "this correction only pushes one way," not as good news about
+  grid stress.
 - `pipelineTightness` collapses permitting throughput, construction capacity and skilled labour
   into a single number per country. That the third of those is a constraint at all is invisible
   here.

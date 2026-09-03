@@ -61,7 +61,7 @@ export const en = {
       'Annual demand divided by total available resources (renewables + nuclear + legacy firm + gas capacity + NTC import capability). Import capability is direction-aware and grows along sourced 2024/2030/2040 anchors. A coarse adequacy proxy — no load flow, no intra-hour dispatch.',
     dcShareOfPeak: 'DC share of peak load',
     dcShareOfPeakNote:
-      'Firm (inference) data center draw as a share of national peak load. This is the criterion that actually trips the late-horizon stress flags — in the central run Ireland and Luxembourg cross it while their adequacy ratios stay comfortable. The flexibility lever acts directly on it.',
+      'Firm (inference) data center draw as a share of national peak load. This is the criterion that actually trips the late-horizon stress flags — in the central run nobody crosses it, but Luxembourg (14.5%) and Ireland (14.2%) sit closest to the line while their adequacy ratios stay comfortable. Under stronger growth assumptions this is where the flags appear. The flexibility lever acts directly on it.',
     renewablesShare: 'Renewables share of generation',
     renewablesShareNote:
       'Renewables (incl. hydro and bioenergy) divided by total domestic generation. Production-based accounting: imports are not attributed to any mix category (NTC model, no flow tracing) — check the net-import share alongside.',

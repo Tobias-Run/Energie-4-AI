@@ -45,8 +45,9 @@ describe('documentation matches the model', () => {
     it('names the countries actually flagged in 2045, and their peak shares', () => {
       expect(modelNotes).toContain(facts.luPeakShare2045Pct);
       expect(modelNotes).toContain(facts.iePeakShare2045Pct);
-      // Ireland is held below the line by its connection ceiling; the file used to claim it trips.
-      expect(facts.flags2045).toBe('LU');
+      // Luxembourg was the sole 2045 flag until #39 applied the measured peakFactor trend --
+      // that alone pushes it under both thresholds, so the central run now flags nobody.
+      expect(facts.flags2045).toBe('');
       expect(modelNotes).not.toMatch(/Ireland and Luxembourg trip it/);
     });
 
@@ -56,9 +57,11 @@ describe('documentation matches the model', () => {
       }
       // Ireland used to appear in no sampled run at all, and this assertion said so. Deriving
       // peakFactor from measured load (#39) lowered Ireland's and raised its peak share, and it
-      // now shows up in 2.0% of runs. The assertion is inverted rather than deleted, because the
-      // country crossing into the sampled flag distribution is exactly the kind of change the
-      // prose must not be allowed to miss.
+      // showed up in 2.0% of runs. Applying the measured trend on top (#39, this PR) pushes it
+      // further still, to 16.5% -- the same trend that clears Luxembourg from the deterministic
+      // run leaves it exposed under sampled uncertainty far more often than before. The assertion
+      // is inverted rather than deleted, because the country crossing into the sampled flag
+      // distribution is exactly the kind of change the prose must not be allowed to miss.
       expect(facts.mcFlagFrequency.map((f) => f.iso)).toContain('IE');
     });
   });
@@ -81,9 +84,10 @@ describe('documentation matches the model', () => {
     it('case studies name the countries the boom run actually flags', () => {
       // The single figure most likely to be left behind: it is prose in three places and a
       // screenshot caption, and it changes whenever the flag arithmetic changes.
-      // Lithuania's fourth crossing of the 15% line. LV,LU → LT,EE,LV,LU (B1) → EE,LV,LU (A4)
-      // → LT,EE,LV,LU (#39, measured peak factors). The flag list is a threshold statement.
-      expect(facts.flags2045Boom).toBe('LT, EE, LV, LU');
+      // Lithuania's fifth crossing of the 15% line. LV,LU → LT,EE,LV,LU (B1) → EE,LV,LU (A4)
+      // → LT,EE,LV,LU (#39 measured peak factors) → EE,LV,LU (#39 trend applied, this PR):
+      // the rising peakFactor trend pushes Lithuania back under the line in the boom run too.
+      expect(facts.flags2045Boom).toBe('EE, LV, LU');
       for (const iso of facts.flags2045Boom.split(', ')) {
         const name = { LT: 'Litauen', EE: 'Estland', LV: 'Lettland', LU: 'Luxemburg' }[iso]!;
         expect(fallstudien, `fallstudien.md should name ${name}`).toContain(name);

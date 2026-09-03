@@ -95,17 +95,21 @@ describe('P2 levers (issue #6)', () => {
     expect(flex.row('IE').dcShareOfPeak).toBeGreaterThan(b.dcShareOfPeak * 0.8);
   });
 
-  it('peak channel: 20% enrolment clears Luxembourg', () => {
-    // This assertion has now been written three ways, and the sequence is the point.
+  it('peak channel: lowers a Luxembourg peak share that no longer needs clearing (#39)', () => {
+    // This assertion has now been written four ways, and the sequence is the point.
     //
     //   18.37 / 16.84 / 15.26 / 13.61  — measured after B1, then left stale through A4 (#28)
     //   18.35 / 16.83 / 15.24 / 13.59  — the same code, correctly re-measured in #42
     //   16.46 / 15.06 / 13.61 / 12.12  — peakFactor derived from measured load (#39)
+    //   14.51 / 13.25 / 11.96 / 10.62  — the same peakFactor's own measured trend, applied (#39)
     //
-    // Only the last of those rests on a peak factor anyone measured: the first two came from
-    // `ember2026interconnection`, a dataset of interconnection capacity rather than load. The
-    // claim that clearing Luxembourg costs 30% enrolment — half the lever's range — was true of
-    // the arithmetic and false of the world. At 20% Luxembourg is now at 13.61% and clear.
+    // The third row is where a flag actually needed clearing: at 0% Luxembourg sat above the
+    // 15% line, and 20% enrolment brought it under. Issue #39 flagged the trend row as the one
+    // piece left undone -- "needs weighing against the opposing pull of a growing near-flat data
+    // centre share" -- and weighing it the other way, applying only the measured (electrification)
+    // side without a countervailing (DC-flattening) one to net it against, was enough on its own
+    // to put Luxembourg under the line before the lever does anything. The lever still lowers the
+    // share sub-proportionally, exactly as before; it just no longer has a threshold to cross.
     const shares = [0, 0.1, 0.2, 0.3].map((f) =>
       Number(
         (peakChannelOnly({ ...BASE, flexibilityShare: f }).row('LU').dcShareOfPeak * 100).toFixed(
@@ -113,12 +117,12 @@ describe('P2 levers (issue #6)', () => {
         ),
       ),
     );
-    expect(shares).toEqual([16.46, 15.06, 13.61, 12.12]);
+    expect(shares).toEqual([14.51, 13.25, 11.96, 10.62]);
+    expect(shares[0]).toBeLessThan(15);
 
-    const base = peakChannelOnly(BASE);
-    expect(base.agg.flaggedRegions).toEqual(['LU']);
-    expect(peakChannelOnly({ ...BASE, flexibilityShare: 0.1 }).agg.flaggedRegions).toEqual(['LU']);
-    expect(peakChannelOnly({ ...BASE, flexibilityShare: 0.2 }).agg.flaggedRegions).toEqual([]);
+    for (const f of [0, 0.1, 0.2, 0.3]) {
+      expect(peakChannelOnly({ ...BASE, flexibilityShare: f }).agg.flaggedRegions).toEqual([]);
+    }
   });
 
   it('connection channel: flexible load reaches the grid sooner, and only during the ramp', () => {

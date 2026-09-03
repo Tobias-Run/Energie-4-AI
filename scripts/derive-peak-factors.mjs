@@ -30,7 +30,9 @@
  *
  * Downloads roughly 280 MB of CSV to a temporary directory and deletes it again unless --keep
  * is given. Prints the derived table and, with --out, writes JSON ready to merge into
- * `data/v1/countries.json`.
+ * `data/v1/countries.json` -- one `{ peakFactor, trendPerYear }` object per country. Issue #39
+ * left `trendPerYear` measured but unused; `peakFactorTrendPerYear` in `countries.json` is now
+ * that same number, applied linearly from 2024 by `stressAdequacy.ts`.
  */
 
 import { createWriteStream } from 'node:fs';
@@ -151,17 +153,19 @@ for (const [iso, entries] of [...byCountry].sort()) {
     continue;
   }
   const factors = entries.map((e) => e.peakFactor);
-  derived[iso] = Number(median(factors).toFixed(3));
+  const peakFactor = Number(median(factors).toFixed(3));
+  const trendPerYear = Number(
+    slope(
+      entries.map((e) => e.year),
+      factors,
+    ).toFixed(4),
+  );
+  derived[iso] = { peakFactor, trendPerYear };
   report.push({
     iso,
-    peakFactor: derived[iso],
+    peakFactor,
     years: entries.length,
-    trendPerYear: Number(
-      slope(
-        entries.map((e) => e.year),
-        factors,
-      ).toFixed(4),
-    ),
+    trendPerYear,
     series: entries.map((e) => `${e.year}:${e.peakFactor.toFixed(3)}`).join(' '),
   });
 }

@@ -66,7 +66,7 @@ export const de: typeof en = {
       'Jahresnachfrage geteilt durch alle verfügbaren Ressourcen (Erneuerbare + Kernkraft + Bestands-Firmerzeugung + Gaskapazität + NTC-Importfähigkeit). Die Importfähigkeit ist richtungsabhängig und wächst entlang belegter Stützjahre 2024/2030/2040. Ein grober Adäquanz-Näherungswert — kein Lastfluss, keine untertägige Auflösung.',
     dcShareOfPeak: 'RZ-Anteil an der Spitzenlast',
     dcShareOfPeakNote:
-      'Firme (Inferenz-)Rechenzentrumslast als Anteil der nationalen Spitzenlast. Dies ist das Kriterium, das die Stress-Flags am Ende des Horizonts tatsächlich auslöst — im Zentralszenario überschreiten Irland und Luxemburg es, während ihre Adäquanzquoten unauffällig bleiben. Der Flexibilitätshebel wirkt direkt darauf.',
+      'Firme (Inferenz-)Rechenzentrumslast als Anteil der nationalen Spitzenlast. Dies ist das Kriterium, das die Stress-Flags am Ende des Horizonts tatsächlich auslöst — im Zentralszenario überschreitet es niemand, aber Luxemburg (14,5 %) und Irland (14,2 %) liegen am nächsten an der Schwelle, während ihre Adäquanzquoten unauffällig bleiben. Unter stärkeren Wachstumsannahmen ist dies, wo die Flags erscheinen. Der Flexibilitätshebel wirkt direkt darauf.',
     renewablesShare: 'Anteil Erneuerbarer an der Erzeugung',
     renewablesShareNote:
       'Erneuerbare (inkl. Wasserkraft und Bioenergie) geteilt durch die gesamte heimische Erzeugung. Erzeugungsseitige Rechnung: Importe werden keiner Mix-Kategorie zugeordnet (NTC-Modell ohne Flussverfolgung) — ziehen Sie den Netto-Importanteil daneben heran.',
