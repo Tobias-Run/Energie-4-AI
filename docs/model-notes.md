@@ -295,6 +295,18 @@ sources happens to agree.
   fourteen matches, which is what the allocation module is held to for now.
 - **Ireland is not checked against national statistics.** The single most concentrated case in the
   model has no anchor of its own.
+- **EU-27 and Europe are two different scopes, and the anchor bundle now says so explicitly
+  (issue #31, C5) — but re-scoping does not change any verdict.** "Europe" here means all 30
+  countries; GB, NO and CH sit outside EU-27 and carry their own fixed capture shares
+  (`captureShareOfGlobalAdditions.nonEu`) on top of the EU-27 mechanism, so Europe's DC total
+  runs consistently above EU-27's — 22% in 2024, 21–22% across 2030–2035. The volume anchors
+  (`europeDc2024Twh`, `europeDc2030TwhMin`, `europeDc2035TwhMin`) are already Europe-scoped, and
+  the share anchors (`euDcShareOfDemand2030`, `euDcShareOfDemand2035`) are already EU-27-scoped
+  against an EU-27-scoped source (Ember/ICIS) — each compares like with like. Measured directly:
+  recomputing those two share anchors at Europe scope moves them from 4.18%/5.32% to only
+  4.27%/5.46% — GB/NO/CH's capture is too small a share of the total to matter much either way,
+  and both anchors already pass at either scope. The scope distinction was worth disclosing
+  (done in #32), but it was never the reason any anchor here passes or fails.
 
 ## Data provenance
 
