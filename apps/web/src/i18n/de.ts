@@ -144,6 +144,9 @@ export const de: typeof en = {
       'Diese Kennzahl zählt ganze Regionen, ihre Auflösung beträgt also eine Region — gleich lange Balken bedeuten „verschiebt die Zahl um eins", nicht „gleich wichtig".',
     inert:
       'Ohne Wirkung auf diese Kennzahl ({count}): {list}. Das ist eine Aussage über diese Kennzahl, nicht über den Parameter — wechseln Sie oben das Maß, um zu sehen, wo sie wirken.',
+    thresholdHeading: 'Definitorische Schwellenwerte (keine physikalische Unsicherheit)',
+    thresholdNote:
+      'Diese Balken sagen: die Wahl der Schwelle ist offen — nicht, dass der Wert in der Welt unsicher ist. Eine andere Art von Nicht-Wissen, deshalb getrennt statt in das Band oben gemischt.',
     targetDemand: 'EU-27 Rechenzentrumsnachfrage',
     targetFlags: 'Anzahl der Regionen mit Stress-Flag',
     targetEmissions: 'Emissionen des europäischen Stromsektors',

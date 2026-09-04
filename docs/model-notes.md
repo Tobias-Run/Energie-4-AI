@@ -131,7 +131,7 @@ emissions are therefore a lower bound.
 
 ## Uncertainty (mission document §5.5)
 
-19 parameters carry triangular low/central/high ranges in `data/v1/uncertainty.json`. Two kinds live
+20 parameters carry triangular low/central/high ranges in `data/v1/uncertainty.json`. Two kinds live
 there and are labelled as such: ranges taken from a publication's own scenario spread (IEA gives
 700 / 945 / 1300 TWh for global 2030 demand; IPCC AR5 gives 740–910 gCO₂eq/kWh for coal) and ranges
 on model-internal parameters with no published equivalent — for those the range _is_ the statement,
@@ -139,6 +139,44 @@ and the central value alone was always false precision.
 
 Monte Carlo mode samples all of them jointly, seeded and deterministic per seed. The tornado is a
 one-at-a-time sensitivity and does not capture interactions; the corridor does.
+
+### The corridor was four-dimensional and presented as nineteen (now twenty) (issue #30, B3)
+
+Three separate complaints, and they age differently.
+
+**Ten-plus parameters with zero measured effect on the default target** was already handled by
+the time this was filed: the tornado only draws a bar for a parameter that moves the selected
+metric, and lists the rest as "no effect on this metric" rather than as empty bars — a fact about
+the metric, not the parameter (switching the target, e.g. to the flagged-region count, moves
+several of them out of that list). Worth crediting explicitly rather than re-claiming as new work.
+
+**Definitional thresholds sharing a band with physical parameters was real, and is fixed.** Every
+range now carries a `kind`: `'physical'` (a claim about the true value in the world) or
+`'threshold'` (a claim about which cutoff convention to use — `stressFlagThreshold` and
+`dcPeakShareFlagThreshold`, the only two). The tornado chart draws threshold bars in their own
+section, on a dashed axis, under an explicit heading, rather than interleaved with physical ones
+on equal footing. The two kinds were always sampled the same way in the corridor — a triangular
+draw does not care which kind it is — so nothing about the joint sampling changed; only the
+tornado's presentation of one-at-a-time swings did, which is where the complaint was aimed.
+
+**Correlated quantities sampled independently, and the un-sampleable country layer, are not
+fixed, and fixing them honestly is harder than it looks.** `pue2024`/`pueAnnualDeclineRate` and
+`firmLoadShare`/`connectionLoadFactor` are drawn independently each run, so some sampled worlds
+pair a pessimistic value of one with an optimistic value of the other in combinations a real
+correlation might rule out or make more likely. Correcting this needs a correlation coefficient —
+a new number with its own uncertainty, sourced from nowhere, since no publication states how
+these specific model parameters co-vary. Adding one would trade a visible, named gap for an
+invisible, fabricated precision, which is the wrong direction for this project's own discipline.
+Left open and disclosed rather than patched with a guess.
+
+The country-parameter layer is the same shape at larger scale: `priceIndex`, `pipelineTightness`,
+`baseConnectableGwPerYear` and the growth-rate fields vary by country and drive what the map
+shows, but none of them carries a low/central/high range, so the map's per-country figures carry
+no uncertainty at all regardless of how wide the aggregate corridor is. Building 30-country ranges
+for each would multiply the sourcing burden by the country count, for parameters that are
+mostly still `expert-guess` at the point estimate (#4) — ranging an unsourced guess produces a
+wider unsourced guess, not a narrower gap. This one stays open for the same reason as the last:
+honest absence beats invented precision.
 
 Two results from that machinery a reviewer should see early:
 

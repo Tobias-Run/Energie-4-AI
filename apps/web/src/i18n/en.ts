@@ -138,6 +138,9 @@ export const en = {
       'This target counts whole regions, so its resolution is one region — bars of equal length mean "moves the count by one", not "equally important".',
     inert:
       'No effect on this metric ({count}): {list}. That is a statement about this metric, not about the parameter — switch the measure above to see where they act.',
+    thresholdHeading: 'Definitional thresholds (not physical uncertainty)',
+    thresholdNote:
+      'These bars say the cutoff convention is unsettled, not that the value in the world is uncertain — a different kind of not-knowing, kept separate rather than blended into the band above.',
     targetDemand: 'EU-27 data center demand',
     targetFlags: 'Number of stress-flagged regions',
     targetEmissions: 'Europe power-sector emissions',
