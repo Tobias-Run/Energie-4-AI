@@ -60,13 +60,23 @@ export interface Hub {
   sizeClass: 'major' | 'mid' | 'regional' | 'none';
 }
 
-/** One parameter's triangular uncertainty range (mission document §5.5). */
+/**
+ * One parameter's triangular uncertainty range (mission document §5.5).
+ *
+ * `kind` distinguishes 'physical' parameters -- quantities the range says "the true value in
+ * the world is uncertain" about -- from 'threshold' ones, where the range says "which cutoff
+ * convention to use is unsettled," a different kind of not-knowing. Sampling both the same way
+ * is correct (a triangular draw does not care which kind it is); presenting both in one band
+ * without saying which is which is not, because a reader cannot tell "the model doesn't know
+ * the physical value" from "the model doesn't know which line to draw" (issue #30, B3).
+ */
 export interface UncertaintyRange {
   low: number;
   central: number;
   high: number;
   rationale: string;
   source_id: string;
+  kind: 'physical' | 'threshold';
 }
 
 export interface RegionalBenchmarks {

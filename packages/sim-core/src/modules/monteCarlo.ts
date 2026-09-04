@@ -24,6 +24,10 @@ export interface TornadoEntry {
   path: string;
   rationale: string;
   sourceId: string;
+  /** 'threshold' entries say the cutoff convention is unsettled, not that the world is
+   *  uncertain -- a different kind of not-knowing (issue #30, B3). Kept separate from
+   *  'physical' ones wherever they would otherwise share one band. */
+  kind: 'physical' | 'threshold';
   /** Target metric when this parameter alone is set to its low / high bound. */
   lowValue: number;
   highValue: number;
@@ -175,6 +179,7 @@ export function runMonteCarlo(config: MonteCarloConfig): MonteCarloResult {
         path,
         rationale: range.rationale,
         sourceId: range.source_id,
+        kind: range.kind,
         lowValue,
         highValue,
         centralValue: centralTarget,

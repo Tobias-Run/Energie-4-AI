@@ -36,7 +36,14 @@ describe('uncertainty ranges (issue #5)', () => {
 
   it('triangular sampling stays inside its bounds and centers near the mode', () => {
     const rng = mulberry32(7);
-    const r = { low: 1, central: 2, high: 6, rationale: '', source_id: 'expert-guess' };
+    const r = {
+      low: 1,
+      central: 2,
+      high: 6,
+      rationale: '',
+      source_id: 'expert-guess',
+      kind: 'physical' as const,
+    };
     const draws = Array.from({ length: 4000 }, () => sampleTriangular(r, rng));
     expect(Math.min(...draws)).toBeGreaterThanOrEqual(1);
     expect(Math.max(...draws)).toBeLessThanOrEqual(6);

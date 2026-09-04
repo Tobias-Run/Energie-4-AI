@@ -8,140 +8,160 @@
       "central": 945,
       "high": 1300,
       "rationale": "IEA Energy and AI 2025 scenario spread: Headwinds ~700, Base Case 945, Lift-Off ~1300 TWh. The single largest driver of every downstream result.",
-      "source_id": "iea2025energyai"
+      "source_id": "iea2025energyai",
+      "kind": "physical"
     },
     "globalCompute.saturationTwh": {
       "low": 2200,
       "central": 3000,
       "high": 4500,
       "rationale": "No published long-horizon anchor beyond 2035; the range spans plausible saturation levels for the logistic curve.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.captureShareOfGlobalAdditions.euPre2030": {
       "low": 0.06,
       "central": 0.085,
       "high": 0.11,
       "rationale": "How much of global DC growth Europe captures before 2030. IEA puts Europe at roughly a tenth of demand growth; the range covers slower and faster European capture.",
-      "source_id": "iea2025energyai"
+      "source_id": "iea2025energyai",
+      "kind": "physical"
     },
     "scenarioDefaults.captureShareOfGlobalAdditions.euPost2030": {
       "low": 0.045,
       "central": 0.065,
       "high": 0.09,
       "rationale": "Post-2030 capture, anchored on the ICIS/Ember demand shares; wider than the pre-2030 range because it is further out.",
-      "source_id": "ember2025grids"
+      "source_id": "ember2025grids",
+      "kind": "physical"
     },
     "scenarioDefaults.pue2024": {
       "low": 1.21,
       "central": 1.36,
       "high": 1.64,
       "rationale": "Energy-weighted EU average (n=681); the report itself shows this varies strongly by facility size, from 1.21 above 10 MW to 1.63-1.64 below 1 MW, which brackets the range used here (issue #34).",
-      "source_id": "eucommission2025eedassessment"
+      "source_id": "eucommission2025eedassessment",
+      "kind": "physical"
     },
     "scenarioDefaults.pueAnnualDeclineRate": {
       "low": 0.004,
       "central": 0.008,
       "high": 0.014,
       "rationale": "Pace of cooling and facility efficiency improvement. No published European trajectory; the range spans stagnation to rapid retrofit.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.itUtilization": {
       "low": 0.25,
       "central": 0.316,
       "high": 0.41,
       "rationale": "Implied by mandatory EED reporting: (14,088 GWh / 1.36) / (3,738.86 MW x 8,760 h) = 0.316 across all reporting data centres (n=770, coverage-independent ratio). The German sample facility gives an independent cross-check of 0.41, taken as the high bound; the low bound is a conservative allowance for first-reporting-cycle noise, not a second measurement (issue #34).",
-      "source_id": "eucommission2025eedassessment"
+      "source_id": "eucommission2025eedassessment",
+      "kind": "physical"
     },
     "scenarioDefaults.firmLoadShare": {
       "low": 0.75,
       "central": 0.85,
       "high": 0.92,
       "rationale": "Share of DC load that is firm (inference-like) rather than interruptible. Drives the peak-share stress flag directly.",
-      "source_id": "noland2024baseload"
+      "source_id": "noland2024baseload",
+      "kind": "physical"
     },
     "scenarioDefaults.connectionLoadFactor": {
       "low": 0.75,
       "central": 0.85,
       "high": 0.92,
       "rationale": "Energy delivered per GW of grid connection; depends on ramp profile and contracted capacity.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.spareCapacityFactor": {
       "low": 1.0,
       "central": 1.5,
       "high": 3.0,
       "rationale": "How much surplus buildable capacity the connection pipeline generates below a country's capability ceiling (issue #30, B6) -- renamed from phantomQueueFactor, which claimed to represent speculative queue inflation but never actually did: the mechanism multiplies desired connections before capping at capability, so wherever the ceiling doesn't bind -- true almost everywhere -- it builds more than was desired, and that surplus (sparePool) is the only capacity the cross-country spillover mechanism has to redistribute unserved demand into. Sourced discount figures for genuine speculation (Terna ~40x oversubscription, Energinet's moratorium at 60 GW against ~7 GW peak) are deliberately still not plugged in: they would shrink a queue, and this parameter does not model a queue, it models Europe's redistribution headroom. The range still spans the point where Ireland's 2045 flag switches on (it flips between 1.0 and 1.5), so the corridor shows that flag as uncertain rather than definite. See docs/model-notes.md.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.spillShare": {
       "low": 0.35,
       "central": 0.6,
       "high": 0.8,
       "rationale": "How much unserved demand relocates to countries with spare connection capacity instead of waiting. Governs whether hub congestion spreads or bottles up.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.allocationGravityExponent": {
       "low": 0.5,
       "central": 0.7,
       "high": 0.9,
       "rationale": "Strength of agglomeration in the siting allocation: higher means new capacity follows existing clusters more tightly.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.sitingConnectionExponent": {
       "low": 0.3,
       "central": 0.5,
       "high": 0.8,
       "rationale": "Strength of the ex-ante connection-tightness deterrent on siting (issue #30, B5): how strongly pipelineTightness discourages new build in a constrained country before any project is even proposed, as opposed to after it fails to connect. Damped below 1 deliberately -- applying pipelineTightness at full strength here exactly cancels its other use as the ex-post connection ceiling (capabilityGw), collapsing the EU-wide connection queue to zero regardless of scenario, measured directly. No published figure exists for how far in advance developers price in a known moratorium.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.ntcUtilization": {
       "low": 0.2,
       "central": 0.3,
       "high": 0.45,
       "rationale": "Share of nameplate NTC usable as firm annual import capability. A pure modelling convention standing in for the absent flow model — one of the most consequential unsourced numbers in the model.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "physical"
     },
     "scenarioDefaults.stressFlagThreshold": {
       "low": 0.85,
       "central": 0.9,
       "high": 0.95,
       "rationale": "Definitional, not physical: the demand-to-resources ratio at which a region is called stressed. Included so the corridor exposes how much a flag depends on the chosen line.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "threshold"
     },
     "scenarioDefaults.dcPeakShareFlagThreshold": {
       "low": 0.12,
       "central": 0.15,
       "high": 0.2,
       "rationale": "Share of national peak load from firm DC draw at which a region is flagged. Definitional like stressFlagThreshold, but far more consequential: in the central run the 2045 flags are triggered by THIS criterion, not by the adequacy ratio, so the corridor must show how sensitive the flag map is to where this line sits.",
-      "source_id": "expert-guess"
+      "source_id": "expert-guess",
+      "kind": "threshold"
     },
     "scenarioDefaults.gasEmissionFactorMtPerTwh": {
       "low": 0.33,
       "central": 0.37,
       "high": 0.45,
       "rationale": "Direct-combustion factor across the plant-efficiency spread (roughly 45–60% for the European CCGT fleet). Excludes upstream methane, so the whole range is a lower bound.",
-      "source_id": "ipcc2014ar5annex3"
+      "source_id": "ipcc2014ar5annex3",
+      "kind": "physical"
     },
     "scenarioDefaults.otherFirmEmissionFactorMtPerTwh": {
       "low": 0.75,
       "central": 0.85,
       "high": 1.0,
       "rationale": "Legacy coal/lignite/oil mix, direct combustion. The upper end reflects lignite-heavy systems; IPCC AR5 reports 740–910 gCO2eq/kWh on a lifecycle basis for coal.",
-      "source_id": "ipcc2014ar5annex3"
+      "source_id": "ipcc2014ar5annex3",
+      "kind": "physical"
     },
     "scenarioDefaults.permittingYearsBaseline": {
       "low": 8,
       "central": 9,
       "high": 10,
       "rationale": "Baseline grid-connection permitting duration, ~8–10 years per the Grids Package impact material.",
-      "source_id": "ec2025gridspackage"
+      "source_id": "ec2025gridspackage",
+      "kind": "physical"
     },
     "scenarioDefaults.permittingYearsReform": {
       "low": 4,
       "central": 5,
       "high": 6,
       "rationale": "Post-reform permitting duration, ~4–6 years.",
-      "source_id": "ec2025gridspackage"
+      "source_id": "ec2025gridspackage",
+      "kind": "physical"
     }
   },
   "provenance": {
