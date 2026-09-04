@@ -26,7 +26,7 @@ const LABELS: Record<string, string> = {
   'scenarioDefaults.itUtilization': 'IT utilization',
   'scenarioDefaults.firmLoadShare': 'Firm (inference) load share',
   'scenarioDefaults.connectionLoadFactor': 'Connection load factor',
-  'scenarioDefaults.phantomQueueFactor': 'Phantom queue factor',
+  'scenarioDefaults.spareCapacityFactor': 'Spare capacity factor',
   'scenarioDefaults.spillShare': 'Siting spillover share',
   'scenarioDefaults.allocationGravityExponent': 'Agglomeration strength',
   'scenarioDefaults.ntcUtilization': 'NTC utilization',

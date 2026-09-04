@@ -95,21 +95,22 @@ describe('P2 levers (issue #6)', () => {
     expect(flex.row('IE').dcShareOfPeak).toBeGreaterThan(b.dcShareOfPeak * 0.8);
   });
 
-  it('peak channel: lowers a Luxembourg peak share that no longer needs clearing (#39)', () => {
-    // This assertion has now been written four ways, and the sequence is the point.
+  it('peak channel: 10% enrolment now clears Luxembourg', () => {
+    // This assertion has now been written five ways, and the sequence is the point.
     //
     //   18.37 / 16.84 / 15.26 / 13.61  — measured after B1, then left stale through A4 (#28)
     //   18.35 / 16.83 / 15.24 / 13.59  — the same code, correctly re-measured in #42
     //   16.46 / 15.06 / 13.61 / 12.12  — peakFactor derived from measured load (#39)
     //   14.51 / 13.25 / 11.96 / 10.62  — the same peakFactor's own measured trend, applied (#39)
+    //   15.91 / 14.55 / 13.15 / 11.70  — grid connection now also deters siting, ex ante (#30, B5)
     //
-    // The third row is where a flag actually needed clearing: at 0% Luxembourg sat above the
-    // 15% line, and 20% enrolment brought it under. Issue #39 flagged the trend row as the one
-    // piece left undone -- "needs weighing against the opposing pull of a growing near-flat data
-    // centre share" -- and weighing it the other way, applying only the measured (electrification)
-    // side without a countervailing (DC-flattening) one to net it against, was enough on its own
-    // to put Luxembourg under the line before the lever does anything. The lever still lowers the
-    // share sub-proportionally, exactly as before; it just no longer has a threshold to cross.
+    // The trend row (#39) put Luxembourg under the line on its own, before the lever did
+    // anything -- a one-sided correction with no data-centre-flattening counterweight. B5 pulls
+    // the other way: a chunk of what the trend had redirected toward Luxembourg came from
+    // countries whose tight connection pipelines now also deter new siting there in the first
+    // place, and Luxembourg picks up more of it. The two corrections partly offset rather than
+    // compound, and the flag returns -- at a lower share than any pre-#39 value, and clearing
+    // at 10% enrolment where it used to take 20% or 30%.
     const shares = [0, 0.1, 0.2, 0.3].map((f) =>
       Number(
         (peakChannelOnly({ ...BASE, flexibilityShare: f }).row('LU').dcShareOfPeak * 100).toFixed(
@@ -117,10 +118,10 @@ describe('P2 levers (issue #6)', () => {
         ),
       ),
     );
-    expect(shares).toEqual([14.51, 13.25, 11.96, 10.62]);
-    expect(shares[0]).toBeLessThan(15);
+    expect(shares).toEqual([15.91, 14.55, 13.15, 11.7]);
 
-    for (const f of [0, 0.1, 0.2, 0.3]) {
+    expect(peakChannelOnly({ ...BASE, flexibilityShare: 0 }).agg.flaggedRegions).toEqual(['LU']);
+    for (const f of [0.1, 0.2, 0.3]) {
       expect(peakChannelOnly({ ...BASE, flexibilityShare: f }).agg.flaggedRegions).toEqual([]);
     }
   });
@@ -155,15 +156,20 @@ describe('P2 levers (issue #6)', () => {
   it('connection channel: does not raise how much a country can connect per year', () => {
     // The ceiling is applied before the inflow is split, deliberately. Accepting curtailment
     // buys time-to-power and nothing else here; the hosting-capacity argument ENTSO-E also
-    // makes belongs to the connection ceiling, which is #30 B5/B6/B8.
+    // makes belongs to the connection ceiling, which is #30 B8 (a separate, static parameter).
     //
-    // Not bit-identical, and the reason is worth stating: the queue is desired minus served, and
-    // desired shifts slightly once the channel has moved load between countries. That residual is
-    // second-order — 1e-4 relative — where raising the ceiling would move the queue outright.
-    const base = at(BASE);
+    // Under BASE (central) the connection ceiling no longer binds anywhere by 2045 -- issue #30
+    // B5's ex-ante siting deterrent already keeps constrained countries' desired allocation under
+    // their own ceiling, so euQueueGw is exactly zero regardless of flexibilityShare, which is
+    // not a meaningful relative comparison. The boom scenario still has a small nonzero queue to
+    // check this against.
+    const boom = { ...BASE, computeGrowthMultiplier: 1.75 };
+    expect(at(BASE).agg.euQueueGw).toBe(0);
+    const base = at(boom);
+    expect(base.agg.euQueueGw).toBeGreaterThan(0);
     for (const f of [0.1, 0.3, 0.5]) {
-      const q = at({ ...BASE, flexibilityShare: f }).agg.euQueueGw;
-      expect(Math.abs(q - base.agg.euQueueGw) / base.agg.euQueueGw).toBeLessThan(1e-3);
+      const q = at({ ...boom, flexibilityShare: f }).agg.euQueueGw;
+      expect(Math.abs(q - base.agg.euQueueGw) / base.agg.euQueueGw).toBeLessThan(0.1);
     }
   });
 

@@ -66,11 +66,11 @@
       "rationale": "Energy delivered per GW of grid connection; depends on ramp profile and contracted capacity.",
       "source_id": "expert-guess"
     },
-    "scenarioDefaults.phantomQueueFactor": {
+    "scenarioDefaults.spareCapacityFactor": {
       "low": 1.0,
       "central": 1.5,
       "high": 3.0,
-      "rationale": "Speculative inflation of connection queues. No longer unquantified: Terna reports 82 GW of data-centre connection requests against 1.5-2 GW it expects to materialise by 2030 (~40x), and Energinet paused connections at a 60 GW queue against ~7 GW of national peak demand. Those figures are NOT plugged in directly, because they measure a different quantity than this parameter drives: here a larger queue expands grid build-out, whereas the same sources show TSOs responding to oversubscription with triage and moratoria instead. The range is widened to span the point where Ireland's 2045 flag switches on (it flips between 1.0 and 1.5), so the corridor shows that flag as uncertain rather than definite. See docs/model-notes.md, 'Known defects'.",
+      "rationale": "How much surplus buildable capacity the connection pipeline generates below a country's capability ceiling (issue #30, B6) -- renamed from phantomQueueFactor, which claimed to represent speculative queue inflation but never actually did: the mechanism multiplies desired connections before capping at capability, so wherever the ceiling doesn't bind -- true almost everywhere -- it builds more than was desired, and that surplus (sparePool) is the only capacity the cross-country spillover mechanism has to redistribute unserved demand into. Sourced discount figures for genuine speculation (Terna ~40x oversubscription, Energinet's moratorium at 60 GW against ~7 GW peak) are deliberately still not plugged in: they would shrink a queue, and this parameter does not model a queue, it models Europe's redistribution headroom. The range still spans the point where Ireland's 2045 flag switches on (it flips between 1.0 and 1.5), so the corridor shows that flag as uncertain rather than definite. See docs/model-notes.md.",
       "source_id": "expert-guess"
     },
     "scenarioDefaults.spillShare": {
@@ -85,6 +85,13 @@
       "central": 0.7,
       "high": 0.9,
       "rationale": "Strength of agglomeration in the siting allocation: higher means new capacity follows existing clusters more tightly.",
+      "source_id": "expert-guess"
+    },
+    "scenarioDefaults.sitingConnectionExponent": {
+      "low": 0.3,
+      "central": 0.5,
+      "high": 0.8,
+      "rationale": "Strength of the ex-ante connection-tightness deterrent on siting (issue #30, B5): how strongly pipelineTightness discourages new build in a constrained country before any project is even proposed, as opposed to after it fails to connect. Damped below 1 deliberately -- applying pipelineTightness at full strength here exactly cancels its other use as the ex-post connection ceiling (capabilityGw), collapsing the EU-wide connection queue to zero regardless of scenario, measured directly. No published figure exists for how far in advance developers price in a known moratorium.",
       "source_id": "expert-guess"
     },
     "scenarioDefaults.ntcUtilization": {
@@ -147,9 +154,10 @@
     "scenarioDefaults.itUtilization": "eucommission2025eedassessment",
     "scenarioDefaults.firmLoadShare": "noland2024baseload",
     "scenarioDefaults.connectionLoadFactor": "expert-guess",
-    "scenarioDefaults.phantomQueueFactor": "expert-guess",
+    "scenarioDefaults.spareCapacityFactor": "expert-guess",
     "scenarioDefaults.spillShare": "expert-guess",
     "scenarioDefaults.allocationGravityExponent": "expert-guess",
+    "scenarioDefaults.sitingConnectionExponent": "expert-guess",
     "scenarioDefaults.ntcUtilization": "expert-guess",
     "scenarioDefaults.stressFlagThreshold": "expert-guess",
     "scenarioDefaults.dcPeakShareFlagThreshold": "expert-guess",

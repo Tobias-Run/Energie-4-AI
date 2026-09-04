@@ -45,9 +45,11 @@ describe('documentation matches the model', () => {
     it('names the countries actually flagged in 2045, and their peak shares', () => {
       expect(modelNotes).toContain(facts.luPeakShare2045Pct);
       expect(modelNotes).toContain(facts.iePeakShare2045Pct);
-      // Luxembourg was the sole 2045 flag until #39 applied the measured peakFactor trend --
-      // that alone pushes it under both thresholds, so the central run now flags nobody.
-      expect(facts.flags2045).toBe('');
+      // Luxembourg was the sole 2045 flag; #39's peakFactor trend alone pushed it under both
+      // thresholds, so the central run briefly flagged nobody. #30 B5's ex-ante siting deterrent
+      // partly reverses that -- Luxembourg absorbs more of what tighter-pipeline countries no
+      // longer attract in the first place -- and the flag returns, below its pre-#39 level.
+      expect(facts.flags2045).toBe('LU');
       expect(modelNotes).not.toMatch(/Ireland and Luxembourg trip it/);
     });
 
@@ -56,12 +58,11 @@ describe('documentation matches the model', () => {
         expect(modelNotes, `model-notes.md should quote ${pct}%`).toContain(`${pct}%`);
       }
       // Ireland used to appear in no sampled run at all, and this assertion said so. Deriving
-      // peakFactor from measured load (#39) lowered Ireland's and raised its peak share, and it
-      // showed up in 2.0% of runs. Applying the measured trend on top (#39, this PR) pushes it
-      // further still, to 16.5% -- the same trend that clears Luxembourg from the deterministic
-      // run leaves it exposed under sampled uncertainty far more often than before. The assertion
-      // is inverted rather than deleted, because the country crossing into the sampled flag
-      // distribution is exactly the kind of change the prose must not be allowed to miss.
+      // peakFactor from measured load (#39) lowered Ireland's and raised its peak share, then
+      // applying the same series' own trend (#39) pushed it further, to 16.5%; giving grid
+      // connection a say in siting itself (#30, B5) pushes it further still, to 18.0%. The
+      // assertion is inverted rather than deleted, because the country crossing into the sampled
+      // flag distribution is exactly the kind of change the prose must not be allowed to miss.
       expect(facts.mcFlagFrequency.map((f) => f.iso)).toContain('IE');
     });
   });

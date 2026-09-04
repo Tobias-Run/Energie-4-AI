@@ -83,10 +83,10 @@ describe('calibration gate V1', () => {
     });
 
     it('clears the ENTSO-E 2030 level — which is a floor, not a target', () => {
-      // ENTSO-E Figure 1 labels 134 TWh "2030 (min)". The model clears it by 0.4%, so this is
+      // ENTSO-E Figure 1 labels 134 TWh "2030 (min)". The model clears it by 0.7%, so this is
       // agreement with the lower bound of the published range and nothing more.
       expect(get('europeDc2030TwhMin').met).toBe(true);
-      expect(dev('europeDc2030TwhMin')).toBe(0.4);
+      expect(dev('europeDc2030TwhMin')).toBe(0.7);
     });
 
     it('puts the same fourteen countries in the lead as ENTSO-E', () => {
@@ -98,17 +98,17 @@ describe('calibration gate V1', () => {
     });
 
     it('reproduces the Ember share of EU-27 demand within 10%', () => {
-      expect(dev('euDcShareOfDemand2030')).toBe(-7.0);
-      expect(dev('euDcShareOfDemand2035')).toBe(-6.6);
+      expect(dev('euDcShareOfDemand2030')).toBe(-6.4);
+      expect(dev('euDcShareOfDemand2035')).toBe(-6.0);
     });
   });
 
   describe('independent anchors that the model misses', () => {
-    it('is 6.9% below the ENTSO-E 2035 floor', () => {
+    it('is 6.8% below the ENTSO-E 2035 floor', () => {
       // Against the "2035 (min)" value of 199 TWh; the same figure gives 254 TWh as the maximum,
       // so measured against ENTSO-E's own upper bound the shortfall is 27%.
       expect(get('europeDc2035TwhMin').met).toBe(false);
-      expect(dev('europeDc2035TwhMin')).toBe(-6.9);
+      expect(dev('europeDc2035TwhMin')).toBe(-6.8);
     });
 
     it('is 30.5% above the EUDCA base-year share reading (issue #40)', () => {
@@ -125,8 +125,8 @@ describe('calibration gate V1', () => {
     it('records how far the model sits from each published reading of Europe 2030', () => {
       // The model follows ENTSO-E, so it cannot also satisfy these. Both deviations are
       // recorded rather than absorbed by a tolerance: that spread IS the finding.
-      expect(dev('europeDc2030TwhEmber')).toBe(-19.9);
-      expect(dev('europeDc2030TwhIea')).toBe(23.5);
+      expect(dev('europeDc2030TwhEmber')).toBe(-19.6);
+      expect(dev('europeDc2030TwhIea')).toBe(23.8);
       expect(report.anchors.filter((a) => a.tier === 'contested').every((a) => !a.met)).toBe(true);
     });
 

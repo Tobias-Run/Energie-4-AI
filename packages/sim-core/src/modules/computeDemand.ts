@@ -67,24 +67,45 @@ export function efficiencyFactor(year: number, levers: Levers): number {
 
 /**
  * Allocation weight of a country for new DC additions: gravity toward existing stock,
- * tilted by relative electricity price, and — under the 'renewables' siting policy —
- * by how clean that country's generation is. The 'capped' policy is not expressible as
- * a weight; it is applied to the normalized shares afterwards (see applyHubCap).
+ * tilted by relative electricity price and by grid connection prospects, and — under the
+ * 'renewables' siting policy — by how clean that country's generation is. The 'capped' policy
+ * is not expressible as a weight; it is applied to the normalized shares afterwards (see
+ * applyHubCap).
+ *
+ * `pipelineTightness` now scales this weight too (issue #30, B5), not just what happens after a
+ * project has already been sited there. Spec §5.1 asks for inflows "modulated by relative
+ * electricity cost, grid connection lead time, and policy attractiveness" — this model used to
+ * have price, and connection lead time only ex post: a project was allocated first and queued or
+ * relocated only once it failed to connect. A developer avoids Dublin *because of* the
+ * moratorium, not after building there anyway.
+ *
+ * Applied at full strength (`pipelineTightness` unexponentiated) this cancels the OTHER place
+ * the same value already appears, `capabilityGw` in the engine's connection module: both terms
+ * would then scale linearly with tightness, so their ratio — and therefore whether the
+ * connection ceiling binds at all — stops depending on tightness, and the EU-wide queue this
+ * model spent three prior fixes (#23, #28, #43) making into a usable stranded-asset indicator
+ * collapses to zero regardless of scenario. Measured, not assumed: it does, in both the central
+ * and boom runs. `sitingConnectionExponent` (< 1, expert-guess like the other two exponents in
+ * this function) softens the ex-ante effect so it decays slower than the ex-post ceiling as
+ * tightness falls — both channels still reach zero at a true moratorium, but the ex-post one
+ * gets there faster, so a binding queue still forms below it rather than the two cancelling.
  */
 export function allocationWeight(
   dcStockTwh: number,
   priceIndex: number,
+  pipelineTightness: number,
   defaults: ScenarioDefaults,
   levers: Levers,
   renewablesShare: number,
 ): number {
   const gravity = Math.pow(Math.max(dcStockTwh, 0.01), defaults.allocationGravityExponent);
   const price = Math.pow(1 / priceIndex, defaults.priceElasticity * levers.priceSensitivity);
+  const connection = Math.pow(pipelineTightness, defaults.sitingConnectionExponent);
   const clean =
     levers.sitingPolicy === 'renewables'
       ? Math.pow(Math.max(renewablesShare, 0.01), defaults.sitingRenewablesExponent)
       : 1;
-  return gravity * price * clean;
+  return gravity * price * connection * clean;
 }
 
 /**
