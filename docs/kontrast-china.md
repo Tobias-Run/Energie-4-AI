@@ -37,15 +37,62 @@ zu behaupten, das Modell könne ihn rechnen.
 | Jahresinvestition                   | > 650 Mrd. RMB ≈ 89 Mrd. USD (2025), nach 600 Mrd. (2024)                    | —                                                                                                                      |
 | Höchstspannungs-Fernleitungen (UHV) | 38 Strecken bis Ende 2024 in Betrieb; **15 weitere** geplant 2026–2030       | keine UHV-Spannungsebene; HVDC-Ausbau eine Klasse darunter (siehe unten)                                               |
 
-**Der Punkt ist nicht das Geld.** Die beiden großen Zahlen liegen in derselben Größenordnung —
-rund 580 Mrd. USD gegen rund 584 Mrd. EUR. Der Unterschied ist, dass die eine ein **Budget** ist
-und die andere ein **Bedarf**. Was Europa fehlt, ist in diesem Modell nicht Kapital, sondern
-Durchsatz: die Genehmigungsdauer, die Anschlusswarteschlange, die Reihenfolge, in der Projekte
-bedient werden. Genau dafür gibt es in den chinesischen Zahlen keine Entsprechung — sie berichten
-Investition und Kilometer, nicht Wartezeit.
+**Der Punkt ist nicht das Geld.** Die beiden großen Zahlen liegen beim Marktkurs in ähnlicher
+Größenordnung — rund 580 Mrd. USD gegen rund 584 Mrd. EUR —, aber dieser Vergleich ist nicht
+wie-für-wie; die Korrektur dafür steht im nächsten Abschnitt. Unabhängig davon gilt: Der
+Unterschied ist, dass die eine Zahl ein **Budget** ist und die andere ein **Bedarf**. Was Europa
+fehlt, ist in diesem Modell nicht Kapital, sondern Durchsatz: die Genehmigungsdauer, die
+Anschlusswarteschlange, die Reihenfolge, in der Projekte bedient werden. Genau dafür gibt es in
+den chinesischen Zahlen keine Entsprechung — sie berichten Investition und Kilometer, nicht
+Wartezeit.
 
 Das ist auch der Grund, warum sich daraus **kein Regler ableiten lässt**. Ein „China-Modus" wäre
 eine Behauptung über Genehmigungsdauern, für die keine der obigen Quellen eine Zahl liefert.
+
+### Der Dollarvergleich ist nicht wie-für-wie
+
+Die 580-Mrd.-Zahl oben entsteht durch Umrechnung zum Marktkurs (rund 6,9 RMB/USD). Das
+unterschätzt China systematisch: Bauleistung — Arbeit, Grunderwerb, Tiefbau — hat dort ein
+anderes Preisniveau als in Europa, und der Marktkurs bildet das nicht ab.
+
+Die einschlägige Korrektur ist ein **Kaufkraftparitäts-Faktor (PPP)**. Die letzte offizielle
+Erhebung — International Comparison Program (ICP) 2021, World Bank/OECD, Ergebnisse 2024
+veröffentlicht — beziffert Chinas PPP-Umrechnungsfaktor fürs BIP auf **3,99 RMB je
+internationalem Dollar**, rund 62 % des damaligen Marktkurses. Angewandt direkt auf die
+RMB-Größen oben (nicht auf die bereits gerundeten USD-Werte):
+
+|                                        | Marktkurs (~6,9 RMB/USD) | PPP (3,99 RMB/int.$, ICP 2021) |
+| -------------------------------------- | ------------------------ | ------------------------------ |
+| Fünfjahresplan 2026–2030 (4 Bio. RMB)  | ≈ 580 Mrd. USD           | ≈ **1,0 Bio. int.$**           |
+| Jahresinvestition 2025 (>650 Mrd. RMB) | ≈ 89 Mrd. USD            | ≈ **163 Mrd. int.$**           |
+| Jahresinvestition 2024 (600 Mrd. RMB)  | —                        | ≈ **150 Mrd. int.$**           |
+
+Die Richtung ist eindeutig: **die PPP-korrigierte Zahl ist fast doppelt so groß** wie die
+marktkursbasierte, deutlich über der europäischen 584-Mrd.-Bedarfszahl statt in „derselben
+Größenordnung". Der Marktkurs-Vergleich oben untertreibt China.
+
+_Diese 3,99 stammen aus der Websuche, nicht aus einem direkten Abruf von imf.org,
+worldbank.org oder stats.gov.cn — alle drei sperrt der Egress-Proxy dieser Umgebung. Mehrere
+unabhängige Treffer (World-Bank-Länderseite zum Indikator `PA.NUS.PPP`, chinesisches
+Statistikamt) nennen übereinstimmend denselben Wert für 2021; das ist der Wert, der hier steht._
+
+Zwei Einschränkungen gehören dazu, nicht als Fußnote, sondern weil sie die Zahl einordnen:
+
+- **PPP ist eine Obergrenze der Korrektur, nicht die Korrektur selbst.** Hochspannungsanlagen,
+  Umrichterstationen und Leittechnik sind handelbare Güter zu Weltmarktpreisen; nur der
+  Arbeits- und Tiefbauanteil profitiert vom niedrigeren inländischen Preisniveau. Der tatsächliche
+  physische Mehrwert liegt zwischen der Markt- und der PPP-Zahl — näher an welchem Ende hängt vom
+  Lohn-/Materialanteil der Netzinvestition ab, den keine der hier zitierten Quellen aufschlüsselt.
+- **Der ICP-Faktor stammt von 2021, die Investitionszahlen von 2024–2026.** Die nächste
+  ICP-Erhebungsrunde ist noch nicht veröffentlicht; die Verzerrung durch die Zeitlücke ist
+  ungemessen, aber gegenüber dem Markt/PPP-Unterschied selbst voraussichtlich klein.
+
+**Das ändert die Schlussfolgerung des Abschnitts nicht — es verstärkt sie.** Der Punkt war und
+bleibt Durchsatz, nicht Kapital: Die PPP-Korrektur vergrößert Chinas physischen Bau-Output
+gegenüber Europas Bedarfszahl, ohne an der Aussage zu rühren, dass die chinesischen Zahlen
+Investition und Kilometer berichten, nie Wartezeit. Ein größerer Kapitaleinsatz macht den
+fehlenden Durchsatzvergleich nicht überflüssig — er unterstreicht, dass Geld hier ohnehin nicht
+die bindende Größe ist.
 
 ## Warum Europa keine UHV-Leitungen hat
 
@@ -260,6 +307,10 @@ Belege für die Zahlen oben:
   <https://www.enerdata.net/publications/daily-energy-news/germany-begins-construction-700-km-suedlink-transmission-project.html>
 - Roboterbeschaffung 2026 —
   <https://interestingengineering.com/ai-robotics/china-8500-robots-power-grid>
+- PPP-Umrechnungsfaktor China, ICP-Runde 2021 (3,99 RMB/int.$) —
+  <https://data.worldbank.org/indicator/PA.NUS.PPP?locations=CN> und die Einordnung durch das
+  chinesische Statistikamt (rund 62 % des Marktkurses 2021) —
+  <https://www.stats.gov.cn/english/PressRelease/202406/t20240603_1954216.html>
 
 Das European Grids Package selbst ist als `ec2025gridspackage` in [`sources.bib`](sources.bib)
 geführt und parametrisiert den Genehmigungsregler; es ist die einzige hier berührte Quelle, die
