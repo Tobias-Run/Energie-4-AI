@@ -80,24 +80,37 @@ proxy.
   until #30/B1 was fixed, inflated the denominator exactly where DC load was largest and diluted
   every share below.
 
-**In the central run, nobody is flagged in 2045 — a result that changed sign under this same
-model within the space of one issue (#39).** `peakFactor` used to be held at its 2024 value for
-the whole horizon even after the value itself was corrected to a measured one (see "`peakFactor`
-was borrowed from an interconnection dataset", below). ENTSO-E's own load series show it is
-rising, not flat, in 33 of 38 countries measured (median +0.0115/year); applying that trend
-linearly from 2024 raises `peakFactor` at every country, which raises the baseline-peak
-denominator, which dilutes the DC share of peak everywhere. Luxembourg — the sole country that
-still tripped the line under a held-flat 2024 factor — falls from 16.46% to **14.51%** of peak,
-under the 15% threshold. Ireland sits at **14.19%** and is closer to the line than Luxembourg is,
-but still not flagged — its own connection ceiling holds it there (see "Repaired defects").
+**In the central run, Luxembourg is flagged in 2045 — a result that has now changed sign twice
+within the space of two issues (#39, then #30 B5), settling closer to the second change than the
+first.** `peakFactor` used to be held at its 2024 value for the whole horizon even after the
+value itself was corrected to a measured one (see "`peakFactor` was borrowed from an
+interconnection dataset", below). ENTSO-E's own load series show it is rising, not flat, in 33 of
+38 countries measured (median +0.0115/year); applying that trend linearly from 2024 raises
+`peakFactor` at every country, which raises the baseline-peak denominator, which dilutes the DC
+share of peak everywhere. Applied alone, that was enough to drop Luxembourg — the sole country
+that tripped the line under a held-flat 2024 factor — from 16.46% to 14.51%, clearing the
+model's only 2045 flag entirely.
 
-This is the trade the issue itself named before it was made: the trend captures one real effect
-(electrification of heat and transport raises the baseline peak) and not its opposite (a growing
-near-flat data centre share lowers the system's overall peakiness), so applying it alone is a
-one-sided correction, not a netted forecast — see "Known simplifications" below. It happens to
-be enough, on its own, to clear the model's only 2045 flag. That the central case now names no
-country at all is a fact about this one-sided correction, not a claim that grid stress has gone
-away; the boom scenario (compute growth ×1.75) still flags three countries (below).
+It did not stay cleared. Giving grid connection an ex-ante say in siting (issue #30, B5, below)
+redirects some of what tight-pipeline countries — Germany, France, Italy, the Netherlands,
+Denmark, Ireland — no longer attract in the first place toward the countries that were never
+constrained, Luxembourg included. Combined, Luxembourg sits at **15.91%** of peak, back over the
+15% threshold; Ireland is at **14.17%**, closer than it looks but still not flagged, for the same
+reason as before — its own connection ceiling holds it there (see "Repaired defects").
+
+Both corrections are individually well-founded and their combination was not tuned to land
+anywhere in particular — it was measured after each was implemented on its own merits. The
+trend captures one real effect (electrification of heat and transport raises the baseline peak)
+and not its opposite (a growing near-flat data centre share lowers the system's overall
+peakiness), so it alone is a one-sided correction — see "Known simplifications" below. B5 pulls
+in the other direction for an unrelated reason: it makes the siting allocation itself respond to
+where connections are actually available, which concentrates more of Europe's least-constrained
+demand into the least-constrained countries. That the flag list has now moved three times across
+two issues without any of the underlying volumes changing by more than a percent is itself the
+finding worth carrying forward: **it is a threshold statement about small numbers on both sides
+of a line, not a robust description of where grid stress concentrates.** The boom scenario
+(compute growth ×1.75) still flags three countries throughout, unmoved by either correction
+(below).
 
 The adequacy criterion is close to inert, and a reviewer should know how close. It fires only on
 base-year data: Poland is flagged in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903, and from 2027
@@ -129,15 +142,16 @@ one-at-a-time sensitivity and does not capture interactions; the corridor does.
 
 Two results from that machinery a reviewer should see early:
 
-- **Flag frequencies say more than the flags.** For 2045 the deterministic run names nobody at
-  all; across sampled ranges (200 runs, seed 1) Luxembourg is still flagged in **46.5%** of runs,
-  Ireland in **16.5%**, Latvia in 4.0%, Estonia in 3.5% and Malta in 2.5%. A country the
-  deterministic central run clears can still be one uncertainty draw away from tripping the line
-  in nearly half the sampled runs — the flag list is a single point on a distribution, not the
-  distribution. Ireland's jump is the sharper story: it appeared in no sampled run at all before
-  peak factors were measured (#39), then 2.0% once they were, and now 16.5% once their trend is
-  applied on top (#39, this section) — the same correction that clears Luxembourg's deterministic
-  flag makes Ireland's the more exposed of the two under uncertainty.
+- **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in **60.5%** of runs,
+  Ireland in **18.0%**, Latvia in 6.5%, Estonia in 4.5%, Malta in 2.5% and Lithuania in 0.5%. A
+  country the deterministic run clears — every one of the other five here — can still be a
+  meaningful share of an uncertainty draw away from tripping the line, Latvia in one run of
+  fifteen. Ireland's trajectory is the sharper story across the three corrections that have
+  touched this figure: no sampled run at all, before peak factors were measured (#39); 2.0% once
+  they were; 16.5% once their own trend was applied on top (#39 again); and **18.0%** once grid
+  connection gained a say in siting itself (#30, B5) — a steady climb through corrections that
+  had nothing in common except being individually well-founded.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -160,8 +174,8 @@ Anchors now carry a **tier**, and only the independent tier decides the verdict.
 | Anchor                      | Source  | Target  | Model  | Deviation |
 | --------------------------- | ------- | ------- | ------ | --------- |
 | Global DC demand 2030       | IEA     | 945 TWh | 945.00 | 0.0%      |
-| EU-27 DC increase 2024→2030 | IEA     | +45 TWh | +43.93 | −2.4%     |
-| EU-27 DC growth 2025→2030   | ENTSO-E | ≥ +50%  | +53.0% | —         |
+| EU-27 DC increase 2024→2030 | IEA     | +45 TWh | +44.75 | −0.6%     |
+| EU-27 DC growth 2025→2030   | ENTSO-E | ≥ +50%  | +53.8% | —         |
 
 `k` in the logistic is solved so the global curve passes through 945 at 2030, and the European
 capture share was set to the +45 TWh anchor: 0.085 × (945 − 415) = 45.05. These are regression
@@ -173,12 +187,12 @@ protection. They establish nothing about the model and no longer count toward th
 | ------------------------------------ | ------- | --------- | ------ | ---------- | ------ |
 | Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%      | met    |
 | DC share of EU demand 2024 — EUDCA   | EUDCA   | 2.0%      | 2.61%  | **+30.5%** | missed |
-| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.58 | +0.4%      | met    |
+| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.99 | +0.7%      | met    |
 | Five largest DC countries 2024       | ENTSO-E | set       | match  | —          | met    |
 | Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —          | met    |
-| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.18%  | −7.0%      | met    |
-| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.32%  | −6.6%      | met    |
-| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.18 | **−6.9%**  | missed |
+| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.21%  | −6.4%      | met    |
+| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.36%  | −6.0%      | met    |
+| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.46 | **−6.8%**  | missed |
 
 **What the two misses mean.**
 
@@ -360,7 +374,8 @@ mapping is recorded as the comparison that was checked, in `mixCategoryMapping` 
 
 Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`,
 `baseConnectableGwPerYear`, `priceIndex`, `gasCapTwh2024`, all growth-rate fields, both flag
-thresholds, `phantomQueueFactor`, `spillShare`, `allocationGravityExponent`.
+thresholds, `spareCapacityFactor`, `spillShare`, `allocationGravityExponent`,
+`sitingConnectionExponent`.
 
 ## Repaired defects
 
@@ -722,30 +737,107 @@ This is a genuine model change, not a parameter update, and it was flagged as ne
 before it landed: the trend captures the electrification side of two opposing real effects (rising
 baseline peak) without the data-centre-flattening side (a growing near-flat load lowering system
 peakiness) to net it against, because the latter has no published measurement. Applying it moves
-every figure in the table above a second time:
+every figure in the table above a second time — and giving grid connection a say in siting itself
+(issue #30, B5, below) moves several of them a third:
 
-|                            | measured, flat (above) | trend applied (this PR)    |
-| -------------------------- | ---------------------- | -------------------------- |
-| Luxembourg peak share 2045 | 16.46%                 | **14.51%**                 |
-| Ireland peak share 2045    | 12.47%                 | **14.19%**                 |
-| Central 2045 flag list     | LU                     | **(none)**                 |
-| Boom flag list             | LT, EE, LV, LU         | **EE, LV, LU**             |
-| Capped siting              | clears every flag      | **still nothing to clear** |
-| Ireland in Monte Carlo     | 2.0% of runs           | **16.5% of runs**          |
-| Luxembourg in Monte Carlo  | 68.5% of runs          | **46.5% of runs**          |
+|                            | measured, flat    | trend applied    | + B5 siting effect         |
+| -------------------------- | ----------------- | ---------------- | -------------------------- |
+| Luxembourg peak share 2045 | 16.46%            | 14.51%           | **15.91%**                 |
+| Ireland peak share 2045    | 12.47%            | 14.19%           | **14.17%**                 |
+| Central 2045 flag list     | LU                | (none)           | **LU**                     |
+| Boom flag list             | LT, EE, LV, LU    | EE, LV, LU       | **EE, LV, LU** (unchanged) |
+| Capped siting              | clears every flag | nothing to clear | **clears every flag**      |
+| Ireland in Monte Carlo     | 2.0% of runs      | 16.5% of runs    | **18.0% of runs**          |
+| Luxembourg in Monte Carlo  | 68.5% of runs     | 46.5% of runs    | **60.5% of runs**          |
 
-The direction is exactly what the "opposing pull" warning predicted: a rising baseline peak
-dilutes the DC share of peak everywhere, so flags clear rather than appear. Applied alone, it is
-enough to erase the model's only central-run flag entirely — not because grid stress went away,
-but because this correction only ever pointed one way. The boom scenario still flags three
-countries, and Ireland — never flagged, but always the closer call — moves markedly closer to the
-line in both the deterministic run and under sampled uncertainty. Both directions of "the flag
-list changed and nothing about actual grid stress did" are now on the record for this parameter.
+The direction of the trend, applied alone, is exactly what the "opposing pull" warning
+predicted: a rising baseline peak dilutes the DC share of peak everywhere, so flags clear rather
+than appear. It was enough to erase the model's only central-run flag entirely — not because
+grid stress went away, but because that correction only ever pointed one way. B5 pulls back the
+other way, for an unrelated reason: it makes the countries whose connection pipelines are tight
+(Germany, France, Italy, the Netherlands, Denmark, Ireland) less attractive to site in from the
+start, and the demand that no longer goes there has to land somewhere — disproportionately in the
+countries that were never constrained, Luxembourg included. Both corrections are real and neither
+was tuned to produce this outcome; the flag simply returns, below where it started. The boom
+scenario stays at three countries throughout — the compute-growth pressure there is large enough
+that neither correction moves it. Ireland — never flagged, but always the closer call — keeps
+moving toward the line under every correction so far, in both the deterministic run and under
+sampled uncertainty, without yet crossing it. That the flag list has now reversed twice while the
+underlying volumes barely moved is itself now on the record for this parameter.
 
 **Malta has no value.** ENTSO-E publishes no load series for it, so `MT.peakFactor` stays
 `expert-guess` and is now the only country in the bundle without a measured one. Great Britain has
 only three usable years after Brexit, against seven for most countries, so its 1.559 is the least
 certain of the derived values.
+
+### Grid connection now has a say in siting itself (issue #30, B5)
+
+Spec §5.1 asks for new demand to be allocated by inflows "modulated by relative electricity cost,
+grid connection lead time, and policy attractiveness." This model had price from the start, and
+renewables share under an optional siting policy — but connection prospects acted only **after**
+a project was already allocated: a country got its gravity/price-weighted share regardless of how
+constrained its pipeline was, found out it couldn't connect everything, and 60% of the shortfall
+relocated (`spillShare`). A developer avoids Dublin _because of_ the moratorium; the model had it
+avoiding Dublin only after building there and being turned away.
+
+`pipelineTightness` — already sourced for six countries (Germany, France, Italy, the Netherlands,
+Denmark, Ireland) and already used to cap what can connect — now also scales the ex-ante siting
+weight in `allocationWeight`, damped by a new `sitingConnectionExponent` (0.5, expert-guess).
+The damping is load-bearing, not cosmetic: applying `pipelineTightness` at full, unexponentiated
+strength here exactly cancels the _other_ place it already appears, the connection ceiling
+(`capabilityGw`) — both terms would then scale linearly with the same number, so whether the
+ceiling binds at all stops depending on tightness, and the EU-wide connection queue this model
+spent three prior fixes (#23, #28, #43) turning into a usable stranded-asset indicator collapses
+to zero regardless of scenario. Measured directly, not assumed. `sitingConnectionExponent` softens
+the ex-ante effect so it decays more slowly than the ceiling as tightness falls, and a queue still
+forms below it in the scenarios that need one (the boom run's, below).
+
+**What moved, central run, 2045 (TWh):**
+
+| Country     | before | after | pipelineTightness |
+| ----------- | ------ | ----- | ----------------- |
+| Germany     | 40.51  | 39.24 | 0.8               |
+| France      | 27.40  | 27.36 | 0.9               |
+| Italy       | 10.12  | 9.49  | 0.8               |
+| Netherlands | 17.25  | 15.49 | 0.45              |
+| Denmark     | 5.47   | 4.02  | 0.15              |
+| Ireland     | 8.56   | 8.54  | 0.22              |
+| Luxembourg  | 2.42   | 2.70  | 1.0 (unaffected)  |
+
+The EU-27 total is effectively unchanged (219.04 vs 217.95 TWh, +0.5%) — this redistributes, it
+does not remove, the same finding every other siting lever in this model produces. Ireland barely
+moves, for the same reason it barely moved under the siting cap: its connection pipeline was
+already the binding constraint, so giving it an _additional_ reason to attract less new siting
+has almost nothing left to take. Denmark, the tightest of the affected countries, loses the most
+in relative terms (−26%); Germany and France, the least tight, lose the least (−3%, −0.1%).
+Luxembourg, never constrained, is one of the countries that picks the difference up.
+
+The clearest consequence is on `peakFactor`'s own recent history, immediately above: demand this
+mechanism redirects away from constrained countries lands disproportionately in unconstrained
+ones, Luxembourg included, which is why Luxembourg's flag returns after #39 had just cleared it.
+Neither correction was tuned against the other.
+
+### `spareCapacityFactor` — renamed to match what it does, not what it was meant to (issue #30, B6)
+
+The parameter multiplying desired connections before they hit the capability ceiling used to be
+called `phantomQueueFactor`, and its own documentation already flagged that it "measures the
+wrong direction": a larger value was supposed to represent more _speculative_ demand, but in the
+model a larger value **expands** grid build-out, the opposite of what the sourced oversubscription
+figures (Terna's 82 GW of requests against 1.5–2 GW it expects to materialise; Energinet's
+moratorium at a 60 GW queue against ~7 GW peak) would imply if plugged in directly. That much was
+already known (#23) and left as an open honest-limit rather than "fixed," because the sourced
+figures measure a different quantity than this parameter drives.
+
+What #30 B6 adds: the parameter was never actually modelling speculation at all, wrongly signed
+or otherwise. `min(desired × factor, capability)` means that wherever the ceiling does not bind —
+true almost everywhere, the EU-wide queue is a small fraction of a GW — the factor builds _more_
+than any country desired, and that manufactured surplus (`sparePool`) is the only capacity the
+cross-country spillover mechanism has to redistribute unserved demand into. The parameter's real
+job was always "how much redistribution headroom does Europe have," not "how speculative is the
+queue" — two different quantities that happened to share one name and one number. It is renamed
+`spareCapacityFactor` to match the job it actually does; nothing about its value or its effect on
+any published figure changes. The sourced discount figures are still not plugged in: they would
+shrink a queue, and this parameter was never modelling one.
 
 ### Two load factors share a value, not a meaning (issue #31, C3)
 

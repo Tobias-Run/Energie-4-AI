@@ -93,7 +93,7 @@ export interface ScenarioDefaults {
   itUtilization: number;
   firmLoadShare: number;
   connectionLoadFactor: number;
-  phantomQueueFactor: number;
+  spareCapacityFactor: number;
   spillShare: number;
   permittingYearsBaseline: number;
   permittingYearsReform: number;
@@ -113,6 +113,8 @@ export interface ScenarioDefaults {
   priceElasticity: number;
   /** Strength of the renewables tilt under the 'renewables' siting policy. */
   sitingRenewablesExponent: number;
+  /** Strength of the connection-tightness deterrent on siting, always on (issue #30, B5). */
+  sitingConnectionExponent: number;
   /** DC share of national demand at which 'capped' siting stops new connections. */
   hubCapDcShareOfDemand: number;
   levers: import('./types.js').Levers;

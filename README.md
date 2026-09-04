@@ -69,12 +69,12 @@ badge is the finding, not a defect in the build.
 | -------------------------------------- | ----------------- | --------- | ------ | ---------- |
 | Europe DC demand 2024 (base year)      | ENTSO-E (2026)    | 87 TWh    | 82.13  | −5.6%      |
 | **DC share of EU demand 2024**         | EUDCA (2025)      | 2.0%      | 2.61%  | **+30.5%** |
-| Europe DC demand 2030                  | ENTSO-E (2026)    | ≥ 134 TWh | 134.58 | +0.4%      |
+| Europe DC demand 2030                  | ENTSO-E (2026)    | ≥ 134 TWh | 134.99 | +0.7%      |
 | Five largest DC countries 2024         | ENTSO-E (2026)    | set       | match  | —          |
 | Countries ENTSO-E names individually   | ENTSO-E (2026)    | set of 14 | match  | —          |
-| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | 4.5%      | 4.18%  | −7.0%      |
-| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | 5.7%      | 5.32%  | −6.6%      |
-| **Europe DC demand 2035**              | ENTSO-E (2026)    | ≥ 199 TWh | 185.18 | **−6.9%**  |
+| DC share of EU electricity demand 2030 | ICIS/Ember (2025) | 4.5%      | 4.21%  | −6.4%      |
+| DC share of EU electricity demand 2035 | ICIS/Ember (2025) | 5.7%      | 5.36%  | −6.0%      |
+| **Europe DC demand 2035**              | ENTSO-E (2026)    | ≥ 199 TWh | 185.46 | **−6.8%**  |
 
 **Two anchors moved to the contested tier below and no longer count toward this verdict** —
 installed IT power for Europe and EU-27, formerly missing at −18.9% and −14.9%
@@ -93,8 +93,8 @@ protection only. They no longer count toward the verdict:
 | Construction anchor         | Source     | Target  | Model  |
 | --------------------------- | ---------- | ------- | ------ |
 | Global DC demand 2030       | IEA (2025) | 945 TWh | 945.0  |
-| EU-27 DC increase 2024→2030 | IEA (2025) | +45 TWh | +43.93 |
-| EU-27 DC growth 2025→2030   | ENTSO-E    | > +50%  | +53.0% |
+| EU-27 DC increase 2024→2030 | IEA (2025) | +45 TWh | +44.75 |
+| EU-27 DC growth 2025→2030   | ENTSO-E    | > +50%  | +53.8% |
 
 `k` in the logistic is solved so the global curve passes through 945 at 2030, and the EU capture
 share was set to the +45 TWh anchor.

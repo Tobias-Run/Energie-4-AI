@@ -180,7 +180,10 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         const dcTwh = state.get(c.iso)!.dcEnergyTwh;
         const demand = baselineDemandTwh(c, year) + dcTwh;
         dcShare.set(c.iso, demand > 0 ? dcTwh / demand : 0);
-        weights.set(c.iso, allocationWeight(dcTwh, c.priceIndex, d, levers, renShare));
+        weights.set(
+          c.iso,
+          allocationWeight(dcTwh, c.priceIndex, c.pipelineTightness, d, levers, renShare),
+        );
       }
       if (levers.sitingPolicy === 'capped') {
         weights = applySaturationCap(weights, dcShare, d.hubCapDcShareOfDemand);
@@ -208,14 +211,23 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         // bind; a national moratorium was unrepresentable at any parameter value. Capping the
         // inflow instead keeps both mechanisms live: the ceiling limits the sustainable rate,
         // while permitting duration still governs how fast the chain delivers during a ramp.
+        //
+        // `spareCapacityFactor` inflates what's fed toward the ceiling (formerly
+        // `phantomQueueFactor`, issue #30 B6). Below the ceiling -- true almost everywhere, the
+        // EU-wide queue is 0.007 GW -- this builds more than any country actually desired, and
+        // that surplus becomes `sparePool`, the only capacity the spillover mechanism below has
+        // to redistribute unserved demand into. It never represented speculative demand
+        // shrinking the real queue, whatever the old name implied; it IS Europe's cross-country
+        // redistribution headroom, and is named for that now.
         const capabilityGw = c.baseConnectableGwPerYear * c.pipelineTightness;
-        const inflowGw = Math.min(desiredGw.get(c.iso)! * d.phantomQueueFactor, capabilityGw);
+        const inflowGw = Math.min(desiredGw.get(c.iso)! * d.spareCapacityFactor, capabilityGw);
         // Split the inflow by the flexible share and route each part at its own duration. The
         // ceiling is applied before the split, so accepting curtailment buys time-to-power and
         // nothing else — it does NOT raise how much a country can connect per year. ENTSO-E
         // argues for that second channel too (avoiding "premature or oversized network
-        // reinforcements"), but the ceiling is what #30 B5/B6/B8 are about, and it barely binds
-        // here anyway: the EU-wide queue is 0.007 GW. Keeping the two apart means this lever
+        // reinforcements"), but the ceiling is what #30 B8 is about (a static per-country
+        // constant, unchanged here), and it barely binds anyway: the EU-wide queue is 0.007 GW.
+        // Keeping the two apart means this lever
         // changes one mechanism that can be checked rather than two that cannot (issue #42).
         const builtFlow =
           stepPipeline(

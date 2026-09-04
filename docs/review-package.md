@@ -67,18 +67,20 @@ Stating this up front so the review is not spent rediscovering it.
    `demand2030Twh` (84.0) and the two capture shares (72.9 and 26.2); all fifteen others together
    move it by less than 0.9 TWh.
 2. **The peak-share criterion produces the headline result, and the adequacy criterion is close to
-   inert — and in the central run, the headline result is currently that nobody is flagged.**
-   Luxembourg, the sole country that tripped the 0.15 threshold on firm DC draw ÷ peak load, now
-   sits at **14.51%**; Ireland is closer than it looks, at **14.19%**, and still not flagged.
-   (Both figures have moved three times: up when the peak-load denominator was corrected — issue
-   #30, B1 — apart again when `peakFactor` itself was derived from ENTSO-E's hourly load series
-   instead of borrowed from an interconnection dataset — issue #39 — and together a third time
-   when that same series' measured trend was applied linearly from 2024, rather than holding the
-   2024 value flat to 2045 — issue #39 again. The trend represents only one of two opposing real
-   effects — electrification raises the baseline peak; a growing near-flat data centre share
-   would lower it, but that effect is not sourced — so this is a one-sided correction, and it
-   alone is enough to clear the model's only central-run flag. The boom run still flags three
-   countries, EE/LV/LU, Lithuania having dropped back under the line a second time.) Adequacy
+   inert — and the headline result has now reversed twice in short order.** Luxembourg trips the
+   0.15 threshold on firm DC draw ÷ peak load at **15.91%**; Ireland is closer than it looks, at
+   **14.17%**, and still not flagged. (Both figures have moved four times: up when the peak-load
+   denominator was corrected — issue #30, B1 — apart when `peakFactor` itself was derived from
+   ENTSO-E's hourly load series instead of borrowed from an interconnection dataset — issue #39 —
+   further apart when that same series' measured trend was applied linearly from 2024 rather than
+   held flat, which represents only one of two opposing real effects (electrification raises the
+   baseline peak; a growing near-flat data centre share would lower it, but that effect is not
+   sourced) and was on its own enough to clear the model's only central-run flag — and back
+   together a fourth time when grid connection tightness was given a say in siting itself, not
+   just in what gets served once sited (issue #30, B5): countries with tight pipelines now attract
+   less new build from the start, and Luxembourg is one of the unconstrained countries that
+   absorbs the difference. The boom run still flags three countries throughout, EE/LV/LU,
+   unmoved by either of the last two corrections.) Adequacy
    fires only on base-year data —
    Poland in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903 — and never again; the 2045 maximum is
    0.750. Both the 0.15 threshold and the 0.85 firm-load share are the numbers that matter, and
@@ -95,7 +97,7 @@ Stating this up front so the review is not spent rediscovering it.
    right repair**, and on whether a static per-country connection ceiling over twenty years is
    defensible. See "Repaired defects" in `model-notes.md`.
 4. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
-   4.22% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
+   4.21% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
 5. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
    for being nuclear rather than fossil. Defensible as a reading of "renewables-coupled", but a
@@ -105,6 +107,17 @@ Stating this up front so the review is not spent rediscovering it.
    assumption rather than a finding. Note this is now the _only_ remaining caveat on the lever: it
    previously also multiplied European additions alone, which made it indistinguishable from Europe
    losing capture share. It acts on the global increment since issue #27.
+7. **Grid connection now shapes siting itself, not just what gets served once sited (issue #30,
+   B5).** `allocationWeight` multiplies in `pipelineTightness^0.5`, so a tight-pipeline country
+   attracts less new build from the outset rather than only failing to connect it later. The
+   exponent (0.5, `sitingConnectionExponent`, expert-guess) is load-bearing: applying
+   `pipelineTightness` unexponentiated here exactly cancels the _other_ place it already scales a
+   quantity, the connection ceiling, and collapses the EU-wide connection queue to zero regardless
+   of scenario — measured directly, not assumed. **We would value a view on whether 0.5 is a
+   defensible middle ground or an arbitrary one**, and on whether reusing one sourced number for
+   two different real-world decisions (whether to propose a project, and how much of it connects)
+   is the right modelling choice at all. See `docs/model-notes.md`, "Grid connection now has a say
+   in siting itself".
 
 ## What is deliberately out of scope
 

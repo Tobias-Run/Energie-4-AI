@@ -44,15 +44,17 @@ describe('story: Dublin freeze spreads', () => {
   it('claims Ireland is NOT flagged because its connection constraint binds first', () => {
     // Ireland has the tightest connection pipeline in the model (moratorium since 2021 plus
     // the CRU's December 2025 conditions), which holds its draw below the peak-share line.
-    // Luxembourg used to be the one country that still tripped it regardless -- the peakFactor
-    // trend applied in #39 pushes even Luxembourg under both thresholds, so the central run now
-    // flags nobody at all. Ireland's own margin (14.19% of peak, one line below Luxembourg's
-    // 14.51%) is the more interesting fact now: not flagged, but not comfortably so either.
+    // Luxembourg briefly stopped tripping it at all, once the peakFactor trend (#39) was applied
+    // alone -- a one-sided correction with no data-centre-flattening counterweight. Giving grid
+    // connection an ex-ante say in siting too (#30, B5) partly reverses that: some of what the
+    // trend had redirected toward Luxembourg came from countries whose tight pipelines now also
+    // deter new siting there before a project is even proposed, and Luxembourg absorbs more of
+    // it. The flag returns, just not at the pre-#39 level.
     expect(at(BASE).flags).not.toContain('IE');
-    expect(at(BASE).flags).toEqual([]);
+    expect(at(BASE).flags).toEqual(['LU']);
   });
 
-  it('claims the siting cap barely moves Ireland, and lowers Luxembourg regardless of a flag', () => {
+  it('claims the siting cap barely moves Ireland, and clears Luxembourg instead', () => {
     const market = at(BASE);
     const capped = at({ ...BASE, sitingPolicy: 'capped' });
     // Ireland is already refusing this load via its connection pipeline, so a second refusal
@@ -60,11 +62,8 @@ describe('story: Dublin freeze spreads', () => {
     expect(market.dc('IE')).toBeGreaterThan(7);
     expect(market.dc('IE')).toBeLessThan(11);
     expect(Math.abs(1 - capped.dc('IE') / market.dc('IE'))).toBeLessThan(0.1);
-    // Luxembourg is where the lever visibly bites, even though there is no longer a threshold
-    // for it to clear: capped siting still takes Luxembourg from ~24.7% to ~20.2% of its own
-    // demand, and from 14.51% to 11.58% of peak. Neither figure crosses a line either side of
-    // the cap; the cap is doing real work that the flag list alone would no longer show.
-    expect(market.flags).toEqual([]);
+    // Luxembourg is where the lever actually bites.
+    expect(market.flags).toEqual(['LU']);
     expect(capped.flags).toEqual([]);
     expect(capped.dc('LU')).toBeLessThan(market.dc('LU'));
     expect(capped.share('LU')).toBeLessThan(market.share('LU'));
