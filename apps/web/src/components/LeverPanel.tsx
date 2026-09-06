@@ -86,6 +86,28 @@ export function LeverPanel({ levers, onChange }: Props) {
         <label>
           <span className="lever-head">
             <span>
+              {t.levers.connectionGrowth} <span className="source-chip">expert-guess</span>
+            </span>
+            <strong>{(levers.connectionCapacityGrowthPerYear * 100).toFixed(1)}%/yr</strong>
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={0.05}
+            step={0.005}
+            value={levers.connectionCapacityGrowthPerYear}
+            onChange={(e) =>
+              onChange({ ...levers, connectionCapacityGrowthPerYear: Number(e.target.value) })
+            }
+          />
+        </label>
+        <div className="muted">{t.levers.connectionGrowthNote}</div>
+      </div>
+
+      <div className="lever">
+        <label>
+          <span className="lever-head">
+            <span>
               {t.levers.siting} <span className="source-chip">expert-guess</span>
             </span>
           </span>

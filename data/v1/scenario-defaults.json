@@ -40,7 +40,8 @@
     "sitingPolicy": "market",
     "flexibilityShare": 0.0,
     "priceSensitivity": 1.0,
-    "capturePost2030": null
+    "capturePost2030": null,
+    "connectionCapacityGrowthPerYear": 0.0
   },
   "provenance": {
     "captureShareOfGlobalAdditions.euPre2030": "iea2025energyai",
@@ -75,6 +76,7 @@
     "levers.flexibilityShare": "elsevier2025dcflexibility",
     "levers.capturePost2030": "ember2025grids",
     "levers.priceSensitivity": "expert-guess",
+    "levers.connectionCapacityGrowthPerYear": "expert-guess",
     "hubCapDcShareOfDemand": "expert-guess"
   }
 }

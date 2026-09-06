@@ -29,11 +29,18 @@ const BOOM: Levers = {
   flexibilityShare: 0,
   priceSensitivity: 1,
   capturePost2030: scenarioDefaults.levers.capturePost2030,
+  connectionCapacityGrowthPerYear: 0,
 };
 
-function dkAt2045(overrides: Partial<{ baseConnectableGwPerYear: number }>, levers: Levers = BOOM) {
+function dkAt2045(
+  overrides: Partial<{ baseConnectableGwPerYear: number; pipelineTightness: number }>,
+  levers: Levers = BOOM,
+) {
   const dk = countries.find((c) => c.iso === 'DK')!;
-  const original = { baseConnectableGwPerYear: dk.baseConnectableGwPerYear };
+  const original = {
+    baseConnectableGwPerYear: dk.baseConnectableGwPerYear,
+    pipelineTightness: dk.pipelineTightness,
+  };
   try {
     Object.assign(dk, overrides);
     const r = runSimulation({ levers, params: { scenarioDefaults, globalCompute } });
@@ -122,5 +129,58 @@ describe('connection constraint: the ex-ante siting deterrent (issue #30, B5)', 
     });
     const i = boom.years.indexOf(2045);
     expect(boom.aggregates[i]!.euQueueGw).toBeGreaterThan(0);
+  });
+});
+
+describe('connection constraint: the ceiling can grow over time (issue #30, B8)', () => {
+  it('the default (0) reproduces the old, permanently frozen ceiling', () => {
+    // Ireland's own trajectory is the motivating case: its ceiling is tight enough to bind
+    // (queueGw > 0) well before the growth lever is relevant, so a change to the default here
+    // would be visible in docs/model-notes.md's guarded figures. It is not, because the default
+    // is 0 -- growthFactor is exactly 1 in every year, identical to no lever existing at all.
+    const zero = dkAt2045({ baseConnectableGwPerYear: 0.05 }, BOOM);
+    const explicit = dkAt2045(
+      { baseConnectableGwPerYear: 0.05 },
+      { ...BOOM, connectionCapacityGrowthPerYear: 0 },
+    );
+    expect(explicit.dcEnergyTwh).toBe(zero.dcEnergyTwh);
+  });
+
+  it('a positive rate raises what a constrained country connects, and more so at a higher rate', () => {
+    const frozen = dkAt2045({ baseConnectableGwPerYear: 0.05 }, BOOM);
+    const slow = dkAt2045(
+      { baseConnectableGwPerYear: 0.05 },
+      { ...BOOM, connectionCapacityGrowthPerYear: 0.02 },
+    );
+    const fast = dkAt2045(
+      { baseConnectableGwPerYear: 0.05 },
+      { ...BOOM, connectionCapacityGrowthPerYear: 0.05 },
+    );
+    expect(slow.dcEnergyTwh).toBeGreaterThan(frozen.dcEnergyTwh);
+    expect(fast.dcEnergyTwh).toBeGreaterThan(slow.dcEnergyTwh);
+  });
+
+  it('never raises the EU-wide connection queue', () => {
+    // A widening ceiling can only relax the constraint, never tighten it -- unlike the
+    // single-country dcEnergyTwh figure above, which is a spillover-mediated redistribution
+    // and is not itself guaranteed to move in one direction, the EU-wide queue is the direct,
+    // unmediated measure of how much demand the ceiling fails to serve, and that cannot grow
+    // when the ceiling does. Run at the sourced boom scenario (issue #30, B5's own queue check),
+    // not a synthetic override, since the queue is already close to zero at the shipped data.
+    const rates = [0, 0.01, 0.02, 0.03, 0.05];
+    const queues = rates.map((rate) => {
+      const r = runSimulation({
+        levers: {
+          ...scenarioDefaults.levers,
+          computeGrowthMultiplier: 1.75,
+          connectionCapacityGrowthPerYear: rate,
+        },
+      });
+      return r.aggregates[r.years.indexOf(2045)]!.euQueueGw;
+    });
+    for (let i = 1; i < queues.length; i++) {
+      expect(queues[i]!).toBeLessThanOrEqual(queues[i - 1]!);
+    }
+    expect(queues[queues.length - 1]).toBe(0);
   });
 });

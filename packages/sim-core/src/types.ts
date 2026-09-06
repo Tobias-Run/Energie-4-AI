@@ -39,6 +39,26 @@ export interface Levers {
    * uncertain (issue #41).
    */
   capturePost2030: number | null;
+  /**
+   * Compounding annual growth applied to every country's `baseConnectableGwPerYear` ceiling,
+   * from the 2024 base year. 0 = today's baseline: the ceiling stays exactly what it is now,
+   * for the whole 20-year run.
+   *
+   * `baseConnectableGwPerYear` used to be a bare constant with no way to ask "what if a
+   * country's connection capacity actually expands" — the same defect class as
+   * `capturePost2030` before #41 (a policy quantity frozen as a natural constant), one level
+   * down: there it was how much of the global buildout Europe captures, here it is how much a
+   * country will connect (issue #30, B8, prompted by Ireland's modelled share not resembling
+   * CSO's rising one).
+   *
+   * Deliberately NOT sourced with a nonzero default. No publication gives a per-country
+   * connectable-capacity growth rate, so asserting one — even a small, plausible-looking one —
+   * would repeat exactly the mistake #30 B3 refused to make elsewhere in this model: trading a
+   * disclosed gap for fabricated precision. The default stays 0 so the central scenario's
+   * published figures are untouched; the lever exists so a user can explore "grid build-out
+   * keeps pace with demand" as an explicit, labelled assumption instead of an invisible one.
+   */
+  connectionCapacityGrowthPerYear: number;
 }
 
 export type SitingPolicy = 'market' | 'renewables' | 'capped';
