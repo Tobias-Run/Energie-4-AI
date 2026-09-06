@@ -219,9 +219,12 @@ oder _wo_ sie landet?
    **Genehmigungsreform beschleunigt, sie erweitert nicht.**
 4. **Ehrlicher Vorbehalt:** `baseConnectableGwPerYear` ist weiterhin `expert-guess` und seit
    der Korrektur der bindende Parameter — seit Issue #30 B5 wirkt es jetzt auch über die
-   Standortwahl selbst, nicht mehr nur über die Anschlusskapazität. Länderaussagen aus dieser
-   Fallstudie tragen diese Unsicherheit mit; die genaue Bandbreite unter Parametervariation ist
-   für diese Fassung nicht neu vermessen worden.
+   Standortwahl selbst, nicht mehr nur über die Anschlusskapazität. Seit Issue #30 B8 muss die
+   Obergrenze nicht mehr für den ganzen Lauf eingefroren bleiben: ein Regler
+   (`connectionCapacityGrowthPerYear`, Standard 0 %/Jahr) lässt sie ab 2024 wachsen; die Zahlen
+   in dieser Fallstudie nutzen den Standardwert und sind davon unverändert. Länderaussagen aus
+   dieser Fallstudie tragen diese Unsicherheit mit; die genaue Bandbreite unter
+   Parametervariation ist für diese Fassung nicht neu vermessen worden.
 
 ![Boom ohne Reform 2030](img/cs-B1-boom-noreform-2030.png)
 _B1: Boom ohne Reform, 2030, Stress-Index._

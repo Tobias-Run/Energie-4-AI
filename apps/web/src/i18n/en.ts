@@ -29,6 +29,9 @@ export const en = {
     efficiencyNote: 'Energy-per-compute improvement on top of the base case (default 0.0%/yr).',
     permitting: 'Permitting reform ("Grids Package")',
     permittingNote: 'Grid permitting ~9 years → ~5 years (default off = today’s baseline).',
+    connectionGrowth: 'Connection capacity growth',
+    connectionGrowthNote:
+      'Compounding annual growth on every country’s connection ceiling, from 2024 (default 0%/yr = frozen at today’s level, for the whole run). No publication gives a per-country growth rate for this, so the default asserts none — inventing one would trade a disclosed gap for a fabricated number. The dial exists because a permanently frozen ceiling is not defensible either: Ireland’s own share of national demand keeps climbing in observed data while the model’s, at the default, first rises then falls back below its 2024 level (issue #30, B8).',
     siting: 'Siting policy',
     sitingMarket: 'Market-driven',
     sitingMarketNote: 'Additions follow existing clusters and price only.',

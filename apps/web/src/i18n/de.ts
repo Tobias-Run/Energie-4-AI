@@ -34,6 +34,9 @@ export const de: typeof en = {
     permitting: 'Permitting-Reform („Grids Package")',
     permittingNote:
       'Netzgenehmigung ~9 Jahre → ~5 Jahre (Standard aus = heutiger Ausgangszustand).',
+    connectionGrowth: 'Wachstum der Anschlusskapazität',
+    connectionGrowthNote:
+      'Zinseszins-Wachstum auf die Anschlussobergrenze jedes Landes, ab 2024 (Standard 0 %/Jahr = für den gesamten Lauf auf dem heutigen Stand eingefroren). Keine Publikation nennt eine länderspezifische Wachstumsrate dafür, deshalb setzt der Standard keine an — eine zu erfinden würde eine offengelegte Lücke gegen eine erfundene Zahl eintauschen. Der Regler existiert, weil eine dauerhaft eingefrorene Obergrenze ebenso wenig zu rechtfertigen ist: Irlands eigener Anteil an der nationalen Nachfrage steigt in den beobachteten Daten weiter, während der des Modells beim Standardwert erst steigt und dann unter das Niveau von 2024 zurückfällt (Issue #30, B8).',
     siting: 'Standortpolitik',
     sitingMarket: 'Marktgetrieben',
     sitingMarketNote: 'Zubau folgt allein bestehenden Clustern und dem Strompreis.',

@@ -20,6 +20,7 @@ describe('scenario permalinks (issue #6)', () => {
         flexibilityShare: 0.35,
         priceSensitivity: 2.5,
         capturePost2030: 0.085,
+        connectionCapacityGrowthPerYear: 0.03,
       },
       year: 2041,
       metricId: 'dcShareOfPeak',
@@ -36,11 +37,12 @@ describe('scenario permalinks (issue #6)', () => {
   it('clamps hand-edited values to what the controls allow', () => {
     // the URL is user-editable, so it must not be able to push the model somewhere
     // the sliders never could
-    const s = decodeScenario('g=99&e=-5&f=9&p=-1&y=3000', central);
+    const s = decodeScenario('g=99&e=-5&f=9&p=-1&cg=99&y=3000', central);
     expect(s.levers.computeGrowthMultiplier).toBe(2);
     expect(s.levers.extraEfficiencyRate).toBe(0);
     expect(s.levers.flexibilityShare).toBe(0.5);
     expect(s.levers.priceSensitivity).toBe(0);
+    expect(s.levers.connectionCapacityGrowthPerYear).toBe(0.05);
     expect(s.year).toBe(2045);
   });
 
@@ -61,6 +63,11 @@ describe('scenario permalinks (issue #6)', () => {
     // null, not the bundle number: an old link asserts nothing about the capture share, so it
     // must keep following the data — and keep Monte Carlo perturbing it (issue #41).
     expect(s.levers.capturePost2030).toBeNull();
+    // same for a lever added after this one (issue #30, B8): an old link asserts nothing
+    // about it, so it must fall back to the frozen-ceiling default, not zero-by-coincidence.
+    expect(s.levers.connectionCapacityGrowthPerYear).toBe(
+      scenarioDefaults.levers.connectionCapacityGrowthPerYear,
+    );
   });
 
   it('treats an out-of-range capture share as the published bound, not as given', () => {

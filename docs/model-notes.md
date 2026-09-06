@@ -345,8 +345,11 @@ sources happens to agree.
 - **The country distribution is tested as a set, not as an order.** ENTSO-E ranks France ahead of
   the UK, Spain ahead of Italy, and Norway seventh; the model does none of those. The set of
   fourteen matches, which is what the allocation module is held to for now.
-- **Ireland is not checked against national statistics.** The single most concentrated case in the
-  model has no anchor of its own.
+- **Ireland's 2024 base year does not match national statistics, for a reason not yet identified**
+  (issue #30, B8 — narrowed from "the model asserts 21 years of standstill", which measurement
+  showed was not what the model does; see the repaired-defects section above for the corrected
+  trajectory and what was actually fixed). The single most concentrated case in the model has no
+  anchor of its own.
 - **EU-27 and Europe are two different scopes, and the anchor bundle now says so explicitly
   (issue #31, C5) — but re-scoping does not change any verdict.** "Europe" here means all 30
   countries; GB, NO and CH sit outside EU-27 and carry their own fixed capture shares
@@ -363,7 +366,9 @@ sources happens to agree.
 ## Data provenance
 
 Every parameter carries a `source_id` resolving to `docs/sources.bib` or the reserved value
-`expert-guess`, enforced by a unit test. Currently **79 of 123 tracked parameters are sourced (64%)**.
+`expert-guess`, enforced by a unit test. Currently **80 of 128 tracked parameters are sourced
+(63%)** — the count drifted stale since it was last written by hand; recomputed directly from
+`provenanceMaps` rather than carried over.
 
 That percentage went _down_ when uncertainty ranges were added, because 19 new parameters came under
 the same tracking rule and 11 of them are expert estimates. The denominator grew; nothing regressed.
@@ -902,6 +907,53 @@ concepts are separated, opaque as long as they share a number by coincidence.
 connection queue shown on screen — a gap on its own against §6 ("every on-screen number must be
 traceable to an assumptions drawer"). Both parameters are now shown together in the drawer, in
 both locales, with labels naming which one belongs to which quantity.
+
+### Ireland's connection ceiling was frozen for the whole run (issue #30, B8)
+
+**The filed claim needed correcting before it needed fixing.** B8 said the model "asserts 21 years
+of standstill" for Ireland's DC share of national demand while CSO's observed series keeps
+climbing. Measured directly: the model's share does not stand still. It **rises** from 19.70% in
+2024 to a peak of 20.13% in 2030, then **falls** for the next fifteen years to 19.55% in 2045 — net
+_below_ where it started, not flat. The rising phase tracks the demand curve outrunning the
+country's own baseline growth; the falling phase is `baseConnectableGwPerYear`'s ceiling starting
+to bind as EU-wide demand keeps compounding while the ceiling does not, so Ireland's own growth
+decelerates relative to its (also-growing) national baseline. A hump, not a plateau — worth stating
+precisely, in the same spirit as the B4 counter-calculation this file corrected rather than
+silently adopted.
+
+**What the ceiling explains, and what it does not.** The post-2030 decline is a direct, measured
+consequence of `baseConnectableGwPerYear` being a bare constant for the whole horizon — B8's real
+complaint, and correct. What it does _not_ explain is the gap already present in the 2024 base
+year (model 19.70% against a CSO figure the issue states as 22%): year 2024 is the initial
+condition, read directly from `dcTwh2024`, before the connection module runs at all. Attributing
+that gap to the connection ceiling, as the issue's "Cause" line did, does not hold up — whatever
+produces it is a base-year data or scope question, separate from the dynamics fixed here, and it
+stays open below rather than being folded into this fix.
+
+**The fix: `connectionCapacityGrowthPerYear`, a lever, not an invented growth rate.** The reasoning
+is #41's, one level down, as B8 itself named it: `capturePost2030` turned a frozen policy constant
+(how much of the global buildout Europe captures) into something the user can question instead of
+inherit silently; `baseConnectableGwPerYear` is the same defect at the country level (how much a
+country will connect). No publication gives a per-country connection-capacity growth rate, so
+fixing this the way #30 B3 refused to fix its own open half — by asserting an unsourced number to
+make a gap disappear — was not on the table. The lever compounds every country's ceiling from 2024
+at a rate the user sets (0–5%/yr in the UI; 0 by default), so "grid build-out keeps pace with
+demand" becomes an explicit, adjustable assumption instead of an invisible constant. The default
+stays 0, so every published figure in this file, `README.md`, `docs/review-package.md` and
+`docs/fallstudien.md` is unchanged — this is a disclosure and exploration fix, not a recalibration.
+
+### The 2024 Ireland gap against national statistics stays open
+
+Correcting B8's dynamics claim narrows, rather than closes, the honest-limits entry this replaces.
+The model's 2024 DC share for Ireland (19.70%) does not match the CSO figure the issue cites (22%),
+and nothing in this pass explains why: it is a base-year mismatch, not a trajectory one, so it
+cannot be the connection ceiling, the siting weights, or anything else that only acts from 2025
+onward. Plausible causes — a different denominator (CSO may report against metered consumption on
+a narrower base than this model's total demand), a different reference year within "2024", or a
+genuine `dcTwh2024` sourcing gap — are each a real possibility and none is confirmed. Left open
+rather than patched with whichever adjustment would close the gap, because closing it without
+knowing which of those it actually is would be exactly the fabricated precision #30 B3 warned
+against.
 
 ## Known simplifications (honest-limits, §7)
 

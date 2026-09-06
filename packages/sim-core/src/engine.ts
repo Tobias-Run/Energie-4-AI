@@ -219,15 +219,22 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         // to redistribute unserved demand into. It never represented speculative demand
         // shrinking the real queue, whatever the old name implied; it IS Europe's cross-country
         // redistribution headroom, and is named for that now.
-        const capabilityGw = c.baseConnectableGwPerYear * c.pipelineTightness;
+        // The ceiling used to be a bare constant for the whole run -- issue #30 B8's finding,
+        // that a static 20-year connection ceiling is not defensible when Ireland's own
+        // observed share keeps climbing while the model's holds still. `connectionCapacityGrowthPerYear`
+        // compounds it from the base year; the default is 0 (today's baseline, unchanged), so
+        // the central scenario's published figures do not move -- the lever exists so a user
+        // can make "grid build-out keeps pace" an explicit, adjustable assumption instead of a
+        // silent, invisible one, the same reasoning #41 applied to capture share one level up.
+        const growthFactor = Math.pow(1 + levers.connectionCapacityGrowthPerYear, year - BASE_YEAR);
+        const capabilityGw = c.baseConnectableGwPerYear * growthFactor * c.pipelineTightness;
         const inflowGw = Math.min(desiredGw.get(c.iso)! * d.spareCapacityFactor, capabilityGw);
         // Split the inflow by the flexible share and route each part at its own duration. The
         // ceiling is applied before the split, so accepting curtailment buys time-to-power and
         // nothing else — it does NOT raise how much a country can connect per year. ENTSO-E
         // argues for that second channel too (avoiding "premature or oversized network
-        // reinforcements"), but the ceiling is what #30 B8 is about (a static per-country
-        // constant, unchanged here), and it barely binds anyway: the EU-wide queue is 0.007 GW.
-        // Keeping the two apart means this lever
+        // reinforcements"), and it barely binds anyway at the default lever setting: the
+        // EU-wide queue is 0.007 GW. Keeping the two apart means this lever
         // changes one mechanism that can be checked rather than two that cannot (issue #42).
         const builtFlow =
           stepPipeline(

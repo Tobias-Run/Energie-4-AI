@@ -34,6 +34,8 @@ export function describeLevers(l: Levers, t?: Strings): string {
   if (l.flexibilityShare !== 0) parts.push(`flex ${(l.flexibilityShare * 100).toFixed(0)}%`);
   if (l.priceSensitivity !== 1) parts.push(`price ×${l.priceSensitivity}`);
   if (l.capturePost2030 !== null) parts.push(`EU capture ${(l.capturePost2030 * 100).toFixed(1)}%`);
+  if (l.connectionCapacityGrowthPerYear !== 0)
+    parts.push(`grid growth ${(l.connectionCapacityGrowthPerYear * 100).toFixed(1)}%/yr`);
   return parts.length > 0 ? parts.join(' · ') : (t?.compare.centralScenario ?? 'central scenario');
 }
 

@@ -31,6 +31,8 @@ export function encodeScenario(s: ScenarioState): string {
   if (s.levers.priceSensitivity !== d.priceSensitivity)
     p.set('p', String(s.levers.priceSensitivity));
   if (s.levers.capturePost2030 !== d.capturePost2030) p.set('c', String(s.levers.capturePost2030));
+  if (s.levers.connectionCapacityGrowthPerYear !== d.connectionCapacityGrowthPerYear)
+    p.set('cg', String(s.levers.connectionCapacityGrowthPerYear));
   p.set('y', String(s.year));
   p.set('m', s.metricId);
   if (s.monteCarlo) p.set('mc', '1');
@@ -72,6 +74,7 @@ export function decodeScenario(search: string, fallback: ScenarioState): Scenari
       // uncertainty range, not the slider's own invention, so a hand-edited link cannot claim a
       // share no source states.
       capturePost2030: optNum(p.get('c'), 0.045, 0.09),
+      connectionCapacityGrowthPerYear: num(p.get('cg'), d.connectionCapacityGrowthPerYear, 0, 0.05),
     },
     year: Math.round(num(p.get('y'), fallback.year, 2026, 2045)),
     metricId: p.get('m') ?? fallback.metricId,

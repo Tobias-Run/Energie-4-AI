@@ -93,9 +93,14 @@ Stating this up front so the review is not spent rediscovering it.
    demand. Denmark kept 8.63 of 13.40 TWh with its capability set to zero. The capability now
    caps the chain's inflow instead. Ireland consequently drops out of the flag list, permitting
    reform becomes measurable, and `baseConnectableGwPerYear` — still unsourced — becomes the
-   binding parameter. **We would particularly value a view on whether capping the inflow is the
-   right repair**, and on whether a static per-country connection ceiling over twenty years is
-   defensible. See "Repaired defects" in `model-notes.md`.
+   binding parameter. It no longer has to stay frozen for the whole run: a
+   `connectionCapacityGrowthPerYear` lever (default 0, so every published figure here is
+   unchanged) lets a user compound it from 2024, prompted by Ireland's own modelled share
+   not resembling the national statistics it should track (issue #30, B8). **We would
+   particularly value a view on whether capping the inflow is the right repair**, and on
+   whether the _default_ of a frozen ceiling — now a stated assumption rather than a silent
+   one — is itself defensible, absent any published per-country growth rate. See "Repaired
+   defects" in `model-notes.md`.
 4. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
    4.21% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
