@@ -68,8 +68,8 @@ Stating this up front so the review is not spent rediscovering it.
    move it by less than 0.9 TWh.
 2. **The peak-share criterion produces the headline result, and the adequacy criterion is close to
    inert — and the headline result has now reversed twice in short order.** Luxembourg trips the
-   0.15 threshold on firm DC draw ÷ peak load at **15.91%**; Ireland is closer than it looks, at
-   **14.17%**, and still not flagged. (Both figures have moved four times: up when the peak-load
+   0.15 threshold on firm DC draw ÷ peak load at **15.80%**; Ireland is closer than it looks, at
+   **13.92%**, and still not flagged. (Both figures have moved five times: up when the peak-load
    denominator was corrected — issue #30, B1 — apart when `peakFactor` itself was derived from
    ENTSO-E's hourly load series instead of borrowed from an interconnection dataset — issue #39 —
    further apart when that same series' measured trend was applied linearly from 2024 rather than

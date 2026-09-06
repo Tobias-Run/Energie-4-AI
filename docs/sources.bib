@@ -224,6 +224,14 @@
   note         = {REF\_NTC dataset: net transfer capacity (MW) per border and direction for 2024, 2030 and 2040, derived from ENTSO-E TYNDP material. Released under CC-BY-4.0. Covers the EU-27 plus NO and CH; Great Britain is not in the dataset, so GB borders in this model remain estimates.}
 }
 
+@misc{eurostat2026elecprices,
+  author       = {{Eurostat}},
+  title        = {Electricity prices for industrial consumers --- bi-annual data (from 2007 onwards)},
+  howpublished = {\url{https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_205/default/table}},
+  year         = {2026},
+  note         = {Dataset nrg\_pc\_205, consumption band IE (20\,000--69\,999 MWh/yr), excluding taxes and levies, EUR/kWh, period 2025-S2 (fetched via the dissemination API). Chosen as the largest band with full reporting coverage across the model's EU/EEA countries; the largest band (IG, \(\geq\)150\,000 MWh) is not published for several small countries in this model, evidently confidentiality-suppressed. Covers 28 of the model's 30 countries --- the United Kingdom and Switzerland are outside Eurostat's mandatory reporting scope and are not in this dataset at all, so `priceIndex` for GB and CH remains `expert-guess`.}
+}
+
 @techreport{ipcc2014ar5annex3,
   author      = {{IPCC}},
   title       = {Climate Change 2014: Mitigation of Climate Change --- Annex {III}: Technology-specific Cost and Performance Parameters},

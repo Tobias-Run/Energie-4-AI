@@ -51,7 +51,7 @@ export const storiesDe: typeof storiesEn = {
     s1t: 'Der Preis spielt kaum eine Rolle',
     s1: 'Stellen Sie die Preissensitivität auf ×0. Die Standortwahl folgt jetzt nur noch bestehenden Clustern — Deutschland nimmt den größten Anteil, und Irland wächst weiter, weil dort die Kapazität bereits steht. Reine Agglomeration.',
     s2t: 'Der Preis bestimmt die Karte',
-    s2: 'Drehen Sie die Preissensitivität nun auf ×3. Schweden überholt Deutschland als Europas größtes Rechenzentrumssystem, Finnland steigt auf, und die Stress-Flags verschwinden — günstiger nordischer Strom sitzt in Systemen mit Platz für die Last.',
+    s2: 'Drehen Sie die Preissensitivität nun auf ×3. Finnland überholt Deutschland als Europas größtes Rechenzentrumssystem, und auch Schweden steigt auf — günstiger nordischer Strom zieht die Last nach Norden. Der Stress-Flag verschwindet aber nicht, er wandert: Luxemburg fällt von der Liste, und Finnland löst einen eigenen Flag aus. Günstiger Strom hat den Engpass nicht beseitigt, nur verlagert.',
     s3t: 'Sauber ist nicht dasselbe wie günstig',
     s3: 'Schalten Sie die Standortwahl stattdessen auf „An Erneuerbare gekoppelt". Schweden gewinnt weiterhin, aber Frankreich verliert Anteile, obwohl es zu den emissionsärmsten Systemen Europas gehört — maßgeblich ist der Erneuerbaren-Anteil der Erzeugung, und französische Kernkraft zählt dafür nicht.',
     s4t: 'Das Netz muss es tragen',

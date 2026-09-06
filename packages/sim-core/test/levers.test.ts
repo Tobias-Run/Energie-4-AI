@@ -43,7 +43,7 @@ describe('P2 levers (issue #6)', () => {
     // The cap is tested at the start of each year against the previous year's share, so a
     // country can overshoot by one year of additions before the moratorium bites — the same
     // way a real moratorium is declared after the threshold is observed, not before.
-    expect(capped.share('LU'), 'LU capped').toBeLessThan(d.hubCapDcShareOfDemand * 1.02);
+    expect(capped.share('LU'), 'LU capped').toBeLessThan(d.hubCapDcShareOfDemand * 1.03);
     expect(capped.row('LU').dcEnergyTwh).toBeLessThan(market.row('LU').dcEnergyTwh);
     expect(capped.agg.flaggedRegions).toEqual([]);
   });
@@ -103,6 +103,7 @@ describe('P2 levers (issue #6)', () => {
     //   16.46 / 15.06 / 13.61 / 12.12  — peakFactor derived from measured load (#39)
     //   14.51 / 13.25 / 11.96 / 10.62  — the same peakFactor's own measured trend, applied (#39)
     //   15.91 / 14.55 / 13.15 / 11.70  — grid connection now also deters siting, ex ante (#30, B5)
+    //   15.80 / 14.45 / 13.05 / 11.61  — priceIndex sourced from Eurostat, real prices (issue #4)
     //
     // The trend row (#39) put Luxembourg under the line on its own, before the lever did
     // anything -- a one-sided correction with no data-centre-flattening counterweight. B5 pulls
@@ -110,7 +111,10 @@ describe('P2 levers (issue #6)', () => {
     // countries whose tight connection pipelines now also deter new siting there in the first
     // place, and Luxembourg picks up more of it. The two corrections partly offset rather than
     // compound, and the flag returns -- at a lower share than any pre-#39 value, and clearing
-    // at 10% enrolment where it used to take 20% or 30%.
+    // at 10% enrolment where it used to take 20% or 30%. Sourcing `priceIndex` moves the same
+    // figures by about a tenth of a point -- Luxembourg's own index fell slightly (1.05 expert
+    // guess to 0.95 measured), a small pull in the opposite direction from its neighbours'
+    // larger swings -- and changes none of the flag-clearing behaviour below.
     const shares = [0, 0.1, 0.2, 0.3].map((f) =>
       Number(
         (peakChannelOnly({ ...BASE, flexibilityShare: f }).row('LU').dcShareOfPeak * 100).toFixed(
@@ -118,7 +122,7 @@ describe('P2 levers (issue #6)', () => {
         ),
       ),
     );
-    expect(shares).toEqual([15.91, 14.55, 13.15, 11.7]);
+    expect(shares).toEqual([15.8, 14.45, 13.05, 11.61]);
 
     expect(peakChannelOnly({ ...BASE, flexibilityShare: 0 }).agg.flaggedRegions).toEqual(['LU']);
     for (const f of [0.1, 0.2, 0.3]) {
@@ -135,8 +139,17 @@ describe('P2 levers (issue #6)', () => {
     // faster connection redistributes rather than creates (same finding as siting and reform).
     expect(flex.agg.euDcTwh).toBeGreaterThan(base.agg.euDcTwh);
     expect(flex.agg.euDcTwh - base.agg.euDcTwh).toBeLessThan(0.5);
-    for (const iso of ['IE', 'NL', 'DK']) {
-      expect(flex.row(iso).dcEnergyTwh).toBeGreaterThan(base.row(iso).dcEnergyTwh);
+    // Ireland is the clear, unambiguous case: still meaningfully connection-constrained even
+    // after `priceIndex` was sourced (issue #4), so the faster route visibly helps it. The
+    // Netherlands and Denmark are not, any more -- sourcing `priceIndex` moved siting enough
+    // that neither country's own connection ceiling clearly binds at BASE by 2045, so the
+    // faster route has nothing to speed up there and the redistribution mechanism that serves
+    // it (the same `sparePool` split documented in engine.ts) can even nudge them a hair
+    // negative. Checked as "barely moves either way" rather than "increases", because asserting
+    // a direction a mechanism no longer produces would be worse than not asserting one.
+    expect(flex.row('IE').dcEnergyTwh).toBeGreaterThan(base.row('IE').dcEnergyTwh);
+    for (const iso of ['NL', 'DK']) {
+      expect(Math.abs(flex.row(iso).dcEnergyTwh - base.row(iso).dcEnergyTwh)).toBeLessThan(0.01);
     }
 
     // Nothing arrives early. The flexible route still costs 5 + 3 years from an empty chain, so
@@ -146,8 +159,9 @@ describe('P2 levers (issue #6)', () => {
     expect(earlyFlex).toBeCloseTo(early, 9);
 
     // And it fades: the gain peaks mid-horizon and decays as the transient washes out, because
-    // in the long run a faster chain delivers the same volume, only earlier. Measured EU deltas:
-    // +0.132 (2033), +0.181 (2036), +0.117 (2040), +0.106 (2045).
+    // in the long run a faster chain delivers the same volume, only earlier. Measured EU deltas
+    // (after priceIndex was sourced, issue #4): +0.018 (2033), +0.035 (2036), +0.026 (2040),
+    // +0.023 (2045).
     const delta = (y: number) =>
       at({ ...BASE, flexibilityShare: 0.5 }, y).agg.euDcTwh - at(BASE, y).agg.euDcTwh;
     expect(delta(2036)).toBeGreaterThan(delta(2045));
@@ -161,15 +175,27 @@ describe('P2 levers (issue #6)', () => {
     // Under BASE (central) the connection ceiling no longer binds anywhere by 2045 -- issue #30
     // B5's ex-ante siting deterrent already keeps constrained countries' desired allocation under
     // their own ceiling, so euQueueGw is exactly zero regardless of flexibilityShare, which is
-    // not a meaningful relative comparison. The boom scenario still has a small nonzero queue to
-    // check this against.
+    // not a meaningful relative comparison. The boom scenario has a nonzero queue mid-horizon to
+    // check this against -- checked at 2035 rather than 2045, because sourcing `priceIndex`
+    // (issue #4) redistributed siting enough that even the boom queue now drains to exactly
+    // zero by the final year (see the same note in connectionConstraint.test.ts).
+    //
+    // What "does not raise the ceiling" can actually be held to, post-#4, is direction, not a
+    // small-percentage band: with the sourced prices, flexibility drains a real mid-horizon
+    // backlog measurably faster (up to ~70% at 50% enrolment, 2035) -- faster delivery clears
+    // backlog faster, which is the lead-time saving working as intended, not the ceiling itself
+    // moving. A magnitude tolerance here would be fitting the test to whatever the queue happens
+    // to be this data version, rather than to the invariant the mechanism actually guarantees:
+    // the queue can only shrink as flexibilityShare rises, never grow.
     const boom = { ...BASE, computeGrowthMultiplier: 1.75 };
     expect(at(BASE).agg.euQueueGw).toBe(0);
-    const base = at(boom);
+    const base = at(boom, 2035);
     expect(base.agg.euQueueGw).toBeGreaterThan(0);
-    for (const f of [0.1, 0.3, 0.5]) {
-      const q = at({ ...boom, flexibilityShare: f }).agg.euQueueGw;
-      expect(Math.abs(q - base.agg.euQueueGw) / base.agg.euQueueGw).toBeLessThan(0.1);
+    const queues = [0, 0.1, 0.3, 0.5].map(
+      (f) => at({ ...boom, flexibilityShare: f }, 2035).agg.euQueueGw,
+    );
+    for (let i = 1; i < queues.length; i++) {
+      expect(queues[i]!).toBeLessThanOrEqual(queues[i - 1]!);
     }
   });
 

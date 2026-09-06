@@ -123,11 +123,15 @@ describe('connection constraint: the ex-ante siting deterrent (issue #30, B5)', 
     // cancel the capability ceiling everywhere (see the note on allocationWeight): applied at
     // full strength, both terms scale linearly with the same pipelineTightness and their ratio
     // -- whether the ceiling binds at all -- stops depending on it. The boom run, run with the
-    // sourced country data rather than a synthetic override, still produces a nonzero queue.
+    // sourced country data rather than a synthetic override, produces a nonzero queue through
+    // most of the horizon -- 2035 is checked here rather than the final year because sourcing
+    // `priceIndex` (issue #4) redistributed siting enough that the 2045 queue now drains to
+    // exactly zero, which is itself a real, measured consequence of that fix, not evidence the
+    // ex-ante deterrent stopped mattering.
     const boom = runSimulation({
       levers: { ...scenarioDefaults.levers, computeGrowthMultiplier: 1.75 },
     });
-    const i = boom.years.indexOf(2045);
+    const i = boom.years.indexOf(2035);
     expect(boom.aggregates[i]!.euQueueGw).toBeGreaterThan(0);
   });
 });

@@ -86,11 +86,21 @@ describe('documentation matches the model', () => {
       // The single figure most likely to be left behind: it is prose in three places and a
       // screenshot caption, and it changes whenever the flag arithmetic changes.
       // Lithuania's fifth crossing of the 15% line. LV,LU → LT,EE,LV,LU (B1) → EE,LV,LU (A4)
-      // → LT,EE,LV,LU (#39 measured peak factors) → EE,LV,LU (#39 trend applied, this PR):
-      // the rising peakFactor trend pushes Lithuania back under the line in the boom run too.
-      expect(facts.flags2045Boom).toBe('EE, LV, LU');
+      // → LT,EE,LV,LU (#39 measured peak factors) → EE,LV,LU (#39 trend applied) → FI,LV,LU,MT
+      // (priceIndex sourced from Eurostat, issue #4): Finland's real cheap power (0.42x the EU
+      // average, previously guessed at 0.70x) pulls enough new siting toward it at boom-scenario
+      // growth to trip its own flag; Estonia drops out as the same reallocation pulls demand
+      // toward its now-relatively-cheaper Nordic neighbour instead.
+      expect(facts.flags2045Boom).toBe('FI, LV, LU, MT');
       for (const iso of facts.flags2045Boom.split(', ')) {
-        const name = { LT: 'Litauen', EE: 'Estland', LV: 'Lettland', LU: 'Luxemburg' }[iso]!;
+        const name = {
+          FI: 'Finnland',
+          LT: 'Litauen',
+          EE: 'Estland',
+          LV: 'Lettland',
+          LU: 'Luxemburg',
+          MT: 'Malta',
+        }[iso]!;
         expect(fallstudien, `fallstudien.md should name ${name}`).toContain(name);
       }
     });

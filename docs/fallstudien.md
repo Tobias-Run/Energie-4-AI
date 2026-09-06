@@ -1,6 +1,7 @@
 # Fallstudien mit dem Energie-4-AI-Simulator (P2)
 
-**Stand:** 2026-09-03 · Datenbundle v2.4.0 · Erzeugt mit dem P2-Interface (Browser-Automation
+**Stand:** 2026-09-03 · Datenbundle v2.4.0, mit Nachträgen für v2.5.0 (Korrektur 7, siehe unten) ·
+Erzeugt mit dem P2-Interface (Browser-Automation
 via Playwright, Chromium headless). Alle Zahlen wurden **aus der Benutzeroberfläche
 abgelesen** (Kopfzeile, Karte, Tabellenansicht), nicht aus dem Modellcode extrahiert — sie
 sind über die Permalinks unter jeder Fallstudie exakt reproduzierbar.
@@ -110,6 +111,24 @@ begrenzt bei 1 — Spitze kann per Definition nicht unter Mittel liegen).
 > abgestimmt; dass die Flag-Liste jetzt zweimal gekippt ist, während sich die zugrunde liegenden
 > Mengen kaum bewegt haben, ist selbst der Befund: eine Schwellenaussage über kleine Zahlen auf
 > beiden Seiten einer Linie, keine robuste Beschreibung davon, wo sich Netzstress konzentriert.
+
+> **Nachtrag (Korrektur 7, Issue #4):** `priceIndex` — der relative Strompreis, der die
+> Standortwahl mitbestimmt — war für alle 30 Länder eine Schätzung, ohne Quelle. Jetzt aus
+> Eurostats Industriestrompreis-Datensatz (`nrg_pc_205`, Verbrauchsband 20.000–69.999 MWh/Jahr,
+> ohne Steuern, 2025-S2) für 28 von 30 Ländern hergeleitet, jeweils normiert auf den EU-27-
+> Durchschnitt; Großbritannien und die Schweiz bleiben `expert-guess`, außerhalb von Eurostats
+> Berichtspflicht. Einige Schätzungen lagen deutlich daneben: Irland galt als 1,10-fach so teuer
+> wie der EU-Schnitt, ist tatsächlich mit 1,62-fach das **teuerste** Land im Datensatz; Finnland
+> galt als 0,70-fach, ist mit 0,42-fach das **günstigste** — günstiger noch als Norwegen.
+>
+> Das Zentralszenario-Flag bleibt unverändert bei Luxemburg (jetzt **15,8 %** statt 15,9 %,
+> Irland bei **13,9 %** statt 14,2 %). Der Boom-Fall ändert sich deutlicher: Die Flag-Liste ist
+> jetzt **Finnland, Lettland, Luxemburg, Malta** statt `EE, LV, LU` — Finnlands echter Billigstrom
+> zieht im Boom-Szenario genug neue Ansiedlung an, um dort selbst ein Spitzenlast-Flag
+> auszulösen (Luxemburgs Boom-Anteil: **23,6 %**). Jede Zahl in den folgenden Fallstudien, die
+> diesen Stand noch nicht kennt, ist mit dieser Korrektur zu lesen, nicht als aktueller Wert;
+> die volle Herleitung und alle bewegten Zahlen stehen in `model-notes.md`, Abschnitt
+> „`priceIndex` war eine Schätzung für alle 30 Länder; jetzt gemessen für 28" .
 
 ---
 
