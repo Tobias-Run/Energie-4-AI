@@ -5,7 +5,7 @@ Audience: external energy-system reviewers (quality gate, mission document §7, 
 **Status:** post-P2. This file was previously called `model-notes-p0.md` and described the P0
 prototype; by the time the P2 work landed it misdescribed the model in four material ways, so it
 has been rewritten against the running code rather than patched. Every figure below is read from a
-default run at data bundle **v2.4.0**. This file drifted once before and an external review caught
+default run at data bundle **v2.5.0**. This file drifted once before and an external review caught
 it in four places at once, so the figures marked below are now produced by `modelFacts()` in
 sim-core and checked against this file by `test/docsConsistency.test.ts` — a number here that
 disagrees with the code fails the build.
@@ -94,9 +94,11 @@ model's only 2045 flag entirely.
 It did not stay cleared. Giving grid connection an ex-ante say in siting (issue #30, B5, below)
 redirects some of what tight-pipeline countries — Germany, France, Italy, the Netherlands,
 Denmark, Ireland — no longer attract in the first place toward the countries that were never
-constrained, Luxembourg included. Combined, Luxembourg sits at **15.91%** of peak, back over the
-15% threshold; Ireland is at **14.17%**, closer than it looks but still not flagged, for the same
-reason as before — its own connection ceiling holds it there (see "Repaired defects").
+constrained, Luxembourg included. Combined, Luxembourg sits at **15.80%** of peak, back over the
+15% threshold; Ireland is at **13.92%**, closer than it looks but still not flagged, for the same
+reason as before — its own connection ceiling holds it there (see "Repaired defects"). Both figures
+moved down slightly again once `priceIndex` was sourced from real data (issue #4, below) — a
+smaller shift than either correction above, in the same direction as B5's.
 
 Both corrections are individually well-founded and their combination was not tuned to land
 anywhere in particular — it was measured after each was implemented on its own merits. The
@@ -181,15 +183,22 @@ honest absence beats invented precision.
 Two results from that machinery a reviewer should see early:
 
 - **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in **60.5%** of runs,
-  Ireland in **18.0%**, Latvia in 6.5%, Estonia in 4.5%, Malta in 2.5% and Lithuania in 0.5%. A
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in **57.5%** of runs,
+  Finland in **23.0%**, Ireland in 13.0%, Malta in 8.0%, Latvia in 6.5% and Estonia in 2.5%. A
   country the deterministic run clears — every one of the other five here — can still be a
-  meaningful share of an uncertainty draw away from tripping the line, Latvia in one run of
-  fifteen. Ireland's trajectory is the sharper story across the three corrections that have
-  touched this figure: no sampled run at all, before peak factors were measured (#39); 2.0% once
-  they were; 16.5% once their own trend was applied on top (#39 again); and **18.0%** once grid
-  connection gained a say in siting itself (#30, B5) — a steady climb through corrections that
-  had nothing in common except being individually well-founded.
+  meaningful share of an uncertainty draw away from tripping the line. Ireland's trajectory is
+  the sharper story across the corrections that have touched this figure: no sampled run at all,
+  before peak factors were measured (#39); 2.0% once they were; 16.5% once their own trend was
+  applied on top (#39 again); 18.0% once grid connection gained a say in siting itself (#30, B5);
+  and **13.0%** once `priceIndex` was sourced from real data (issue #4) rather than guessed —
+  Ireland's real industrial electricity price turned out to be the highest of any country in this
+  dataset (1.62× the EU average, against an expert guess of 1.10×), which makes the country less
+  attractive to new siting than the guess had it, not more. Finland is the more striking change
+  from that same fix: absent from every sampled run through every earlier correction, now the
+  second most frequently flagged country in Europe, because its real price (0.42×, the cheapest
+  in the dataset, cheaper even than Norway's 0.49×) pulls enough uncertainty-range demand toward
+  it to occasionally overload its own peak. Neither figure was chosen to produce this outcome; both
+  are what a real, sourced price series does to a siting model that used to run on guesses.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -212,8 +221,8 @@ Anchors now carry a **tier**, and only the independent tier decides the verdict.
 | Anchor                      | Source  | Target  | Model  | Deviation |
 | --------------------------- | ------- | ------- | ------ | --------- |
 | Global DC demand 2030       | IEA     | 945 TWh | 945.00 | 0.0%      |
-| EU-27 DC increase 2024→2030 | IEA     | +45 TWh | +44.75 | −0.6%     |
-| EU-27 DC growth 2025→2030   | ENTSO-E | ≥ +50%  | +53.8% | —         |
+| EU-27 DC increase 2024→2030 | IEA     | +45 TWh | +44.92 | −0.2%     |
+| EU-27 DC growth 2025→2030   | ENTSO-E | ≥ +50%  | +54.0% | —         |
 
 `k` in the logistic is solved so the global curve passes through 945 at 2030, and the European
 capture share was set to the +45 TWh anchor: 0.085 × (945 − 415) = 45.05. These are regression
@@ -225,12 +234,12 @@ protection. They establish nothing about the model and no longer count toward th
 | ------------------------------------ | ------- | --------- | ------ | ---------- | ------ |
 | Europe DC demand 2024 (base year)    | ENTSO-E | 87 TWh    | 82.13  | −5.6%      | met    |
 | DC share of EU demand 2024 — EUDCA   | EUDCA   | 2.0%      | 2.61%  | **+30.5%** | missed |
-| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 134.99 | +0.7%      | met    |
+| Europe DC demand 2030                | ENTSO-E | ≥ 134 TWh | 135.06 | +0.8%      | met    |
 | Five largest DC countries 2024       | ENTSO-E | set       | match  | —          | met    |
 | Countries ENTSO-E names individually | ENTSO-E | set of 14 | match  | —          | met    |
-| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.21%  | −6.4%      | met    |
-| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.36%  | −6.0%      | met    |
-| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.46 | **−6.8%**  | missed |
+| DC share of EU-27 demand 2030        | Ember   | 4.5%      | 4.22%  | −6.2%      | met    |
+| DC share of EU-27 demand 2035        | Ember   | 5.7%      | 5.36%  | −5.9%      | met    |
+| **Europe DC demand 2035**            | ENTSO-E | ≥ 199 TWh | 185.51 | **−6.8%**  | missed |
 
 **What the two misses mean.**
 
@@ -261,9 +270,9 @@ The published estimates for Europe's 2030 DC demand do not agree with each other
 
 | Reading                 | Value    | Model  | Deviation |
 | ----------------------- | -------- | ------ | --------- |
-| IEA _Energy and AI_     | 109 TWh  | 134.58 | +23.5%    |
-| ENTSO-E (authoritative) | ≥134 TWh | 134.58 | +0.4%     |
-| Ember/ICIS              | 168 TWh  | 134.58 | −19.9%    |
+| IEA _Energy and AI_     | 109 TWh  | 135.06 | +23.9%    |
+| ENTSO-E (authoritative) | ≥134 TWh | 135.06 | +0.8%     |
+| Ember/ICIS              | 168 TWh  | 135.06 | −19.6%    |
 
 **The published range is 109–168 TWh — a 54% spread, wider than any lever in this model.** No value
 satisfies both ends within ±10%, so no model can. **ENTSO-E is the designated authority** (European
@@ -366,9 +375,9 @@ sources happens to agree.
 ## Data provenance
 
 Every parameter carries a `source_id` resolving to `docs/sources.bib` or the reserved value
-`expert-guess`, enforced by a unit test. Currently **80 of 128 tracked parameters are sourced
-(63%)** — the count drifted stale since it was last written by hand; recomputed directly from
-`provenanceMaps` rather than carried over.
+`expert-guess`, enforced by a unit test. Currently **108 of 156 tracked parameters are sourced
+(69%)**, computed directly from `provenanceMaps` rather than carried over by hand. The jump from
+80/128 is almost entirely the 28 new `countries.<ISO>.priceIndex` entries (issue #4, below).
 
 That percentage went _down_ when uncertainty ranges were added, because 19 new parameters came under
 the same tracking rule and 11 of them are expert estimates. The denominator grew; nothing regressed.
@@ -415,8 +424,10 @@ rather than of raw ENTSO-E data, Ember's choices are the ones it actually inheri
 mapping is recorded as the comparison that was checked, in `mixCategoryMapping` in
 `countries.json`, rather than adopted. No mix value changed.
 
-Still `expert-guess` and worth the hardest scrutiny: `ntcUtilization`,
-`baseConnectableGwPerYear`, `priceIndex`, `gasCapTwh2024`, all growth-rate fields, both flag
+`priceIndex` is sourced for 28 of 30 countries now (issue #4, below) — GB and CH remain
+`expert-guess`, outside Eurostat's reporting scope. Still `expert-guess` and worth the hardest
+scrutiny: `ntcUtilization`, `baseConnectableGwPerYear`, `gasCapTwh2024`,
+`connectionCapacityGrowthPerYear` (new, issue #30 B8), all growth-rate fields, both flag
 thresholds, `spareCapacityFactor`, `spillShare`, `allocationGravityExponent`,
 `sitingConnectionExponent`.
 
@@ -583,7 +594,8 @@ Cumulative delivery of a 1 GW announcement, nominal 9 + 3 years:
 This is also why permitting reform read as a weak lever. Against a first-order lag, moving 9 years
 to 5 smears across the whole response function; against this chain it moves an edge. At year 8 the
 baseline has delivered 11.1% and the reform 47.5%. Ireland's 2045 volume responds to the lever for
-the first time: 8.56 TWh baseline against 8.96 with reform.
+the first time: 8.56 TWh baseline against 8.96 with reform (as measured then; both figures moved
+again once `priceIndex` was sourced from real data — see "Repaired defects" — to 8.37 and 8.76).
 
 The boom flag list moves again as a result — `LT, EE, LV, LU` back to `EE, LV, LU`, because
 Lithuania sat at 15.06%, six hundredths of a point over the line. The renewables-siting case still
@@ -661,12 +673,15 @@ backlog sits entirely in the firm chain — flexible agreements are an emerging 
 
 | flexibilityShare | 0      | 0.1    | 0.2    | 0.3    | 0.5    |
 | ---------------- | ------ | ------ | ------ | ------ | ------ |
-| EU-27 DC (TWh)   | 217.95 | 217.97 | 217.99 | 218.02 | 218.06 |
-| Ireland (TWh)    | 8.56   | 8.60   | 8.64   | 8.68   | 8.75   |
-| Luxembourg peak% | 16.46  | 15.06  | 13.61  | 12.12  | 8.96   |
+| EU-27 DC (TWh)   | 219.25 | 219.25 | 219.26 | 219.26 | 219.27 |
+| Ireland (TWh)    | 8.37   | 8.40   | 8.43   | 8.46   | 8.51   |
+| Luxembourg peak% | 15.80  | 14.45  | 13.05  | 11.61  | 8.57   |
+
+(Re-measured after `priceIndex` was sourced from real data, issue #4 — the shape is unchanged,
+the absolute figures moved with everything else siting touches.)
 
 **The volume effect is a ramp effect, and it fades.** EU deltas against the same run without the
-channel: **0.000 through 2030, +0.132 in 2033, +0.181 in 2036, +0.117 in 2040, +0.106 in 2045.**
+channel: **0.000 through 2030, +0.018 in 2033, +0.035 in 2036, +0.026 in 2040, +0.023 in 2045.**
 Zero for the first eight years because the flexible route still costs 5 + 3 years from an empty
 chain; a peak mid-horizon; then decay, because in the long run a faster chain delivers the same
 volume, only earlier. A lever that looks like it creates capacity is actually shifting when
@@ -954,6 +969,57 @@ genuine `dcTwh2024` sourcing gap — are each a real possibility and none is con
 rather than patched with whichever adjustment would close the gap, because closing it without
 knowing which of those it actually is would be exactly the fabricated precision #30 B3 warned
 against.
+
+### `priceIndex` was a guess for all 30 countries; now it is measured for 28 (issue #4)
+
+`priceIndex` feeds `allocationWeight()`'s price term directly — `(1/priceIndex)^(priceElasticity ×
+priceSensitivity)` — so it is not a cosmetic label, it is one of the three things (alongside
+existing-stock gravity and the siting-policy tilt) that decides where new demand lands. It carried
+no source at all until now.
+
+**What was sourced, and what was deliberately not.** Eurostat's industrial electricity price
+dataset (`nrg_pc_205`) publishes bi-annual prices by consumption band. The largest band (≥150,000
+MWh/yr, closest to a hyperscale data centre's own draw) is not published for several of this
+model's smaller countries — evidently confidentiality-suppressed, too few reporting entities — so
+the next-largest band with full coverage was used instead: 20,000–69,999 MWh/yr, tax-excluded,
+2025-S2. Each country's price was divided by the Eurostat EU-27 average for the same band and
+period to give a relative index, the same convention the old expert-guess values already used.
+This is a **documented model convention**, the same kind `pipelineTightnessMapping` already is: the
+evidence (Eurostat's published prices) is sourced, the choice of band and the EU-27-average
+normalisation are conventions layered on top, disclosed here rather than asserted as uniquely
+correct. Great Britain and Switzerland are outside Eurostat's mandatory reporting scope and are
+not in this dataset at all — both stay `expert-guess`.
+
+**What moved, and by how much.** Several countries' real prices differ sharply from the guesses
+they replace. Ireland's expert guess (1.10×) undersold what turns out to be the **highest**
+industrial electricity price in the dataset (1.62×) — Ireland is more expensive than the model
+assumed, not less, which makes it _less_ attractive to new siting than before. Finland's guess
+(0.70×) similarly undersold how cheap it actually is (0.42×, the cheapest in the dataset, cheaper
+than Norway's 0.49×). Fifteen of the twenty-eight sourced countries moved by more than 0.1 index
+points in either direction; six moved by more than 0.2.
+
+**Measured consequences, not assumed ones:**
+
+- The central run's only flag is unaffected — Luxembourg, at **15.80%** of peak (was 15.91%) —
+  and Ireland, still unflagged, moves to **13.92%** (was 14.17%).
+- The boom scenario's flag list changes materially: **`FI, LV, LU, MT`**, replacing `EE, LV, LU`.
+  Finland's real cheap power pulls enough new siting toward it, at ×1.75 compute growth, to trip
+  its own peak-share flag — the same mechanism the "Nordic gold rush" story scenario now
+  demonstrates explicitly (see `apps/web/src/i18n/stories-en.ts`): pushing price sensitivity to
+  the extreme does not clear stress, it relocates it, and now it relocates to the country the
+  sourced data says is genuinely cheapest rather than the one a guess assumed was.
+- Monte Carlo flag frequencies shift the same way: Finland enters at **23.0%** of sampled runs —
+  second only to Luxembourg's 57.5% — while Ireland's frequency falls from 18.0% to **13.0%**,
+  consistent with it being priced out rather than into new siting. Details and the full sequence
+  of corrections to this figure are in the Monte Carlo section above.
+- Ireland's own B8 trajectory (above) sharpens: the 2030 peak is unchanged at 20.13% of national
+  demand (nothing before 2030 depends on `priceIndex`), but the post-2030 decline is steeper now
+  that Ireland is correctly priced as expensive — **19.23%** by 2045, not 19.55%.
+
+**What did not change:** the calibration verdict (still 2 of 8 independent anchors missed, the
+same two), and every construction-tier and contested-tier anchor that does not depend on
+intra-EU-27 redistribution (installed IT power, the base-year EUDCA comparison). The two
+EU-27-scoped share anchors moved by 0.1–0.2 percentage points of deviation — still both met.
 
 ## Known simplifications (honest-limits, §7)
 

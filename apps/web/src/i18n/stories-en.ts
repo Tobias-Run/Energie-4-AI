@@ -48,7 +48,7 @@ export const storiesEn = {
     s1t: 'Price barely matters',
     s1: 'Set price sensitivity to ×0. Siting now follows existing clusters and nothing else — Germany takes the largest share and Ireland keeps growing, because that is where the capacity already is. Agglomeration alone.',
     s2t: 'Price sets the map',
-    s2: 'Now push price sensitivity to ×3. Sweden overtakes Germany as Europe’s largest data center system, Finland climbs, and the stress flags clear — cheap Nordic power sits in systems with room to absorb the load.',
+    s2: 'Now push price sensitivity to ×3. Finland overtakes Germany as Europe’s largest data center system, and Sweden climbs too — cheap Nordic power pulls load north. But the stress flag does not clear, it moves: Luxembourg drops off the list, and Finland trips a flag of its own. Cheap power did not remove the constraint, it relocated it.',
     s3t: 'Clean is not the same as cheap',
     s3: 'Switch siting to renewables-coupled instead. Sweden still gains, but France loses ground despite being one of Europe’s lowest-carbon systems — the tilt reads the renewables share of generation, and French nuclear does not count toward it.',
     s4t: 'The grid has to carry it',

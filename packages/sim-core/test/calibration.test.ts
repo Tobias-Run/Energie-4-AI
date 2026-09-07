@@ -83,10 +83,10 @@ describe('calibration gate V1', () => {
     });
 
     it('clears the ENTSO-E 2030 level — which is a floor, not a target', () => {
-      // ENTSO-E Figure 1 labels 134 TWh "2030 (min)". The model clears it by 0.7%, so this is
+      // ENTSO-E Figure 1 labels 134 TWh "2030 (min)". The model clears it by 0.8%, so this is
       // agreement with the lower bound of the published range and nothing more.
       expect(get('europeDc2030TwhMin').met).toBe(true);
-      expect(dev('europeDc2030TwhMin')).toBe(0.7);
+      expect(dev('europeDc2030TwhMin')).toBe(0.8);
     });
 
     it('puts the same fourteen countries in the lead as ENTSO-E', () => {
@@ -98,8 +98,8 @@ describe('calibration gate V1', () => {
     });
 
     it('reproduces the Ember share of EU-27 demand within 10%', () => {
-      expect(dev('euDcShareOfDemand2030')).toBe(-6.4);
-      expect(dev('euDcShareOfDemand2035')).toBe(-6.0);
+      expect(dev('euDcShareOfDemand2030')).toBe(-6.2);
+      expect(dev('euDcShareOfDemand2035')).toBe(-5.9);
     });
   });
 
@@ -126,7 +126,7 @@ describe('calibration gate V1', () => {
       // The model follows ENTSO-E, so it cannot also satisfy these. Both deviations are
       // recorded rather than absorbed by a tolerance: that spread IS the finding.
       expect(dev('europeDc2030TwhEmber')).toBe(-19.6);
-      expect(dev('europeDc2030TwhIea')).toBe(23.8);
+      expect(dev('europeDc2030TwhIea')).toBe(23.9);
       expect(report.anchors.filter((a) => a.tier === 'contested').every((a) => !a.met)).toBe(true);
     });
 

@@ -106,11 +106,17 @@ describe('story: Nordic gold rush', () => {
     expect(at({ ...BASE, priceSensitivity: 0 }).largest()).toBe('DE');
   });
 
-  it('claims Sweden overtakes Germany when price dominates, and the flags clear', () => {
+  it('claims Finland overtakes Germany when price dominates, and the flag relocates rather than clears', () => {
+    // Sourcing priceIndex from real Eurostat data (issue #4) put Finland, not Sweden, at the
+    // cheap end of the Nordic band -- 0.42 measured against 0.65 expert-guess before. The
+    // story's point survives the swap, and sharpens: cheap power does not remove the stress
+    // flag, it relocates it. Luxembourg's flag (present at every other price setting in this
+    // file) clears; Finland trips its own instead, because concentrating this much load onto
+    // one system is itself a constraint regardless of which system it is.
     const strong = at({ ...BASE, priceSensitivity: 3 });
-    expect(strong.largest()).toBe('SE');
-    expect(strong.dc('SE')).toBeGreaterThan(strong.dc('DE'));
-    expect(strong.flags).toEqual([]);
+    expect(strong.largest()).toBe('FI');
+    expect(strong.dc('FI')).toBeGreaterThan(strong.dc('DE'));
+    expect(strong.flags).toEqual(['FI']);
   });
 
   it('claims renewables-coupled siting costs France ground despite its low-carbon mix', () => {
