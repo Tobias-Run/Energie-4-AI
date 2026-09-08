@@ -90,7 +90,16 @@ describe('Monte Carlo mode (issue #5)', () => {
     // emission factors are downstream of demand, so they move emissions but never demand
     expect(byPath['scenarioDefaults.gasEmissionFactorMtPerTwh']).toBeCloseTo(0, 9);
     // the flag threshold is a reporting cut-off, not a driver of the demand path
-    expect(byPath['scenarioDefaults.stressFlagThreshold']).toBeCloseTo(0, 9);
+    expect(byPath['scenarioDefaults.dcPeakShareFlagThreshold']).toBeCloseTo(0, 9);
+  });
+
+  it('no longer samples stressFlagThreshold at all (issue #30, B2)', () => {
+    // Removed from the corridor entirely, not just from the flag logic -- it had nothing left
+    // to threshold once it stopped deciding flags, so leaving it sampled would have kept a
+    // corridor dimension alive with no effect anywhere in the model to attach it to.
+    const r = runMonteCarlo({ levers: LEVERS, runs: 10, seed: 4 });
+    expect(r.tornado.some((t) => t.path === 'scenarioDefaults.stressFlagThreshold')).toBe(false);
+    expect('scenarioDefaults.stressFlagThreshold' in uncertaintyRanges).toBe(false);
   });
 
   it('reports flag frequencies as shares in [0,1]', () => {

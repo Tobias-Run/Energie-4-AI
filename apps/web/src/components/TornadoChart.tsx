@@ -30,7 +30,6 @@ const LABELS: Record<string, string> = {
   'scenarioDefaults.spillShare': 'Siting spillover share',
   'scenarioDefaults.allocationGravityExponent': 'Agglomeration strength',
   'scenarioDefaults.ntcUtilization': 'NTC utilization',
-  'scenarioDefaults.stressFlagThreshold': 'Adequacy flag threshold',
   'scenarioDefaults.dcPeakShareFlagThreshold': 'Peak-share flag threshold',
   'scenarioDefaults.gasEmissionFactorMtPerTwh': 'Gas emission factor',
   'scenarioDefaults.otherFirmEmissionFactorMtPerTwh': 'Legacy firm emission factor',

@@ -61,10 +61,10 @@ export const en = {
       'Annual data center electricity consumption. New capacity is allocated by existing-stock gravity and relative electricity price, constrained by grid-connection pipelines.',
     stressIndex: 'Grid stress index',
     stressIndexNote:
-      'Annual demand divided by total available resources (renewables + nuclear + legacy firm + gas capacity + NTC import capability). Import capability is direction-aware and grows along sourced 2024/2030/2040 anchors. A coarse adequacy proxy — no load flow, no intra-hour dispatch.',
+      'Annual demand divided by total available resources (renewables + nuclear + legacy firm + gas capacity + NTC import capability). Shown for reference only — it no longer decides a stress flag (issue #30, B2): resources grow faster than demand almost everywhere almost immediately, so this ratio only ever reflects the base year and stopped being able to flag anything by 2027. A coarse adequacy proxy regardless — no load flow, no intra-hour dispatch.',
     dcShareOfPeak: 'DC share of peak load',
     dcShareOfPeakNote:
-      'Firm (inference) data center draw as a share of national peak load. This is the criterion that actually trips the late-horizon stress flags — in the central run nobody crosses it, but Luxembourg (14.5%) and Ireland (14.2%) sit closest to the line while their adequacy ratios stay comfortable. Under stronger growth assumptions this is where the flags appear. The flexibility lever acts directly on it.',
+      'Firm (inference) data center draw as a share of national peak load — the only criterion that decides a stress flag. In the central run Luxembourg crosses it (15.8%); Ireland sits closer than it looks (13.9%) but stays under. Under stronger growth assumptions more countries cross it. The flexibility lever acts directly on it.',
     renewablesShare: 'Renewables share of generation',
     renewablesShareNote:
       'Renewables (incl. hydro and bioenergy) divided by total domestic generation. Production-based accounting: imports are not attributed to any mix category (NTC model, no flow tracing) — check the net-import share alongside.',
@@ -81,7 +81,7 @@ export const en = {
   map: {
     label: 'Europe map, {metric} in {year}',
     stressFlag: 'stress flag',
-    stressFlagTooltip: 'stress flag (DC share of peak or adequacy threshold)',
+    stressFlagTooltip: 'stress flag (DC share of peak load exceeds threshold)',
     notShown: '{list} simulated but not shown at this map resolution — see table view.',
     clusters: 'Data center clusters',
     clusterLocations: 'Data center cluster locations',

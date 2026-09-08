@@ -183,22 +183,26 @@ honest absence beats invented precision.
 Two results from that machinery a reviewer should see early:
 
 - **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in **57.5%** of runs,
-  Finland in **23.0%**, Ireland in 13.0%, Malta in 8.0%, Latvia in 6.5% and Estonia in 2.5%. A
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in **60.0%** of runs,
+  Finland in **23.5%**, Ireland in 12.0%, Malta in 11.5%, Latvia in 6.5% and Estonia in 4.0%. A
   country the deterministic run clears — every one of the other five here — can still be a
   meaningful share of an uncertainty draw away from tripping the line. Ireland's trajectory is
   the sharper story across the corrections that have touched this figure: no sampled run at all,
   before peak factors were measured (#39); 2.0% once they were; 16.5% once their own trend was
   applied on top (#39 again); 18.0% once grid connection gained a say in siting itself (#30, B5);
-  and **13.0%** once `priceIndex` was sourced from real data (issue #4) rather than guessed —
-  Ireland's real industrial electricity price turned out to be the highest of any country in this
-  dataset (1.62× the EU average, against an expert guess of 1.10×), which makes the country less
-  attractive to new siting than the guess had it, not more. Finland is the more striking change
-  from that same fix: absent from every sampled run through every earlier correction, now the
-  second most frequently flagged country in Europe, because its real price (0.42×, the cheapest
-  in the dataset, cheaper even than Norway's 0.49×) pulls enough uncertainty-range demand toward
-  it to occasionally overload its own peak. Neither figure was chosen to produce this outcome; both
-  are what a real, sourced price series does to a siting model that used to run on guesses.
+  13.0% once `priceIndex` was sourced from real data (issue #4) — Ireland's real industrial
+  electricity price turned out to be the highest of any country in this dataset (1.62× the EU
+  average, against an expert guess of 1.10×), which makes the country less attractive to new
+  siting than the guess had it, not more — and **12.0%** once `stressFlagThreshold` stopped
+  being sampled at all (issue #30, B2, below): removing one dimension from the draw shifts every
+  later parameter's random sequence, moving every frequency in this list by a point or two even
+  though the removed parameter itself never decided a single flag at 2045. Finland is the more
+  striking change from the `priceIndex` fix specifically: absent from every sampled run through
+  every earlier correction, now the second most frequently flagged country in Europe, because its
+  real price (0.42×, the cheapest in the dataset, cheaper even than Norway's 0.49×) pulls enough
+  uncertainty-range demand toward it to occasionally overload its own peak. None of these figures
+  was chosen to produce this outcome; they are what a real, sourced price series — and a corridor
+  that stopped sampling a defunct threshold — does to a siting model that used to run on guesses.
 - **Every grid parameter scores zero on EU-wide DC demand.** At EU level the connection pipeline
   redistributes load rather than removing it. This is why the tornado target is selectable, and it
   is the same finding the permitting-reform and siting scenarios produce independently.
@@ -375,9 +379,10 @@ sources happens to agree.
 ## Data provenance
 
 Every parameter carries a `source_id` resolving to `docs/sources.bib` or the reserved value
-`expert-guess`, enforced by a unit test. Currently **108 of 156 tracked parameters are sourced
-(69%)**, computed directly from `provenanceMaps` rather than carried over by hand. The jump from
-80/128 is almost entirely the 28 new `countries.<ISO>.priceIndex` entries (issue #4, below).
+`expert-guess`, enforced by a unit test. Currently **108 of 154 tracked parameters are sourced
+(70%)**, computed directly from `provenanceMaps` rather than carried over by hand. The jump from
+80/128 is almost entirely the 28 new `countries.<ISO>.priceIndex` entries (issue #4, below); the
+drop from 156 to 154 is `stressFlagThreshold` leaving the model entirely (issue #30, B2, below).
 
 That percentage went _down_ when uncertainty ranges were added, because 19 new parameters came under
 the same tracking rule and 11 of them are expert estimates. The denominator grew; nothing regressed.
@@ -425,11 +430,12 @@ mapping is recorded as the comparison that was checked, in `mixCategoryMapping` 
 `countries.json`, rather than adopted. No mix value changed.
 
 `priceIndex` is sourced for 28 of 30 countries now (issue #4, below) — GB and CH remain
-`expert-guess`, outside Eurostat's reporting scope. Still `expert-guess` and worth the hardest
-scrutiny: `ntcUtilization`, `baseConnectableGwPerYear`, `gasCapTwh2024`,
-`connectionCapacityGrowthPerYear` (new, issue #30 B8), all growth-rate fields, both flag
-thresholds, `spareCapacityFactor`, `spillShare`, `allocationGravityExponent`,
-`sitingConnectionExponent`.
+`expert-guess`, outside Eurostat's reporting scope. `stressFlagThreshold` no longer exists at all
+(issue #30, B2, below) — dropped, not just deprioritised. Still `expert-guess` and worth the
+hardest scrutiny: `ntcUtilization`, `baseConnectableGwPerYear`, `gasCapTwh2024`,
+`connectionCapacityGrowthPerYear` (new, issue #30 B8), all growth-rate fields,
+`dcPeakShareFlagThreshold` (now the only flag threshold), `spareCapacityFactor`, `spillShare`,
+`allocationGravityExponent`, `sitingConnectionExponent`.
 
 ## Repaired defects
 
@@ -1008,10 +1014,11 @@ points in either direction; six moved by more than 0.2.
   demonstrates explicitly (see `apps/web/src/i18n/stories-en.ts`): pushing price sensitivity to
   the extreme does not clear stress, it relocates it, and now it relocates to the country the
   sourced data says is genuinely cheapest rather than the one a guess assumed was.
-- Monte Carlo flag frequencies shift the same way: Finland enters at **23.0%** of sampled runs —
-  second only to Luxembourg's 57.5% — while Ireland's frequency falls from 18.0% to **13.0%**,
-  consistent with it being priced out rather than into new siting. Details and the full sequence
-  of corrections to this figure are in the Monte Carlo section above.
+- Monte Carlo flag frequencies shift the same way: Finland enters at what was then 23.0% of
+  sampled runs, consistent with it being priced into new siting rather than out of it; Ireland's
+  frequency fell from 18.0% to what was then 13.0%. (Both moved again, by a point or two, once
+  issue #30 B2 stopped sampling `stressFlagThreshold` at all — see the Monte Carlo section above
+  for the current figures and why removing an unrelated dimension shifts every other one's draw.)
 - Ireland's own B8 trajectory (above) sharpens: the 2030 peak is unchanged at 20.13% of national
   demand (nothing before 2030 depends on `priceIndex`), but the post-2030 decline is steeper now
   that Ireland is correctly priced as expensive — **19.23%** by 2045, not 19.55%.
@@ -1020,6 +1027,86 @@ points in either direction; six moved by more than 0.2.
 same two), and every construction-tier and contested-tier anchor that does not depend on
 intra-EU-27 redistribution (installed IT power, the base-year EUDCA comparison). The two
 EU-27-scoped share anchors moved by 0.1–0.2 percentage points of deviation — still both met.
+
+### The adequacy criterion is dropped from the flag logic, not sharpened (issue #30, B2)
+
+`stressIndex = totalDemandTwh / (renewablesTwh + nuclearTwh + otherFirmTwh + gasCapTwh +
+importCapTwh)` — an **annual energy** balance: does a country's generation plus import capacity,
+summed over the whole year, cover its whole year's demand. A country used to be flagged if this
+exceeded 0.9, on top of the (unrelated) `dcPeakShareFlagThreshold` criterion.
+
+**Why it was dead, not just weak.** `gasCapTwh` is a frozen base-year constant for the whole
+20-year run — the same shape B8 fixed for `baseConnectableGwPerYear`, not yet touched here.
+Everything else in the denominator grows, generally faster than demand: renewables and nuclear
+follow each country's own growth-rate parameters, and `importCapTwh` follows NTC anchors that
+expand the network over the run. So `stressIndex` falls for nearly every country in nearly every
+year. Measured directly: Poland is the only country that ever crosses 0.9 — in 2024, 2025 and
+2026 (0.919 / 0.910 / 0.903) — and never again; its 2045 maximum is 0.750. No other country
+approaches the line in any year. A twenty-year tool with an adequacy watch that can only ever
+fire in its first three years isn't watching the twenty years.
+
+The concrete cost of this: the external review called `ntcUtilization` "the single most
+consequential unsourced number in the model" — it sets `importCapTwh`, which feeds directly into
+`stressIndex`. Sweeping it across its full uncertainty range (0.2–0.45) moved `flaggedRegions` by
+**exactly 0.000**, because the criterion it fed could not cross the threshold either way after
+2026, regardless of the value. A number that reads as central to "how much a country can import"
+had zero effect on anything the model actually flagged.
+
+**What changed:** `flagged` now depends only on `dcShareOfPeak > dcPeakShareFlagThreshold` — the
+criterion that has actually been doing work through B1, B5, B8 and #4. `stressIndex` is still
+computed and shown (data table, CSV export) — nothing is hidden — it just no longer decides a
+flag. `stressFlagThreshold` itself is removed from the model entirely (`ScenarioDefaults`, the
+uncertainty corridor, Monte Carlo sampling, the tornado chart), not left as an inert leftover:
+once it can't threshold anything, keeping it sampled would spend a whole corridor dimension —
+and a `'threshold'`-kind label implying a real definitional choice — on a parameter with nothing
+left to decide.
+
+**Nothing in the default run's headline output moved.** `stressIndex` never bound the flag list
+past 2026 either way, so the calibration verdict, every anchor deviation, both peak shares and
+both flag lists (central and boom) are unchanged. Monte Carlo flag frequencies moved by a point
+or two — not because the criterion mattered, but because removing one sampled dimension shifts
+every later parameter's draw in the deterministic RNG sequence (see the Monte Carlo section
+above for the current figures).
+
+#### What a real fix would take (v2 sketch)
+
+The honest alternative to dropping the criterion is sharpening it into what it should have been:
+a **capacity** adequacy check, not an energy one. The distinction is the textbook one in power
+systems — Texas, February 2021, had ample energy across the year and a capacity shortfall at one
+cold-snap hour. Annual TWh in vs. TWh out cannot see that; peak GW demand vs. _firm_ GW available
+can. This model already computes `peakLoadGw` for the DC-share criterion — the missing piece is
+the resource side.
+
+What it would need, concretely:
+
+1. **A capacity credit per generation technology** — the fraction of nameplate capacity counted
+   as reliably available at the system's peak hour. Nuclear and dispatchable gas credit near
+   100%; wind and solar credit a small fraction (single digits to low tens of percent,
+   technology- and region-dependent) at a winter evening peak, which is when European systems
+   typically stress. ENTSO-E's own resource adequacy assessments (the annual European Resource
+   Adequacy Assessment, ERAA) publish exactly these figures per bidding zone and would be the
+   right primary source — not yet checked for availability or licensing in this pass.
+2. **Nameplate capacity in GW per technology per country**, not the annual TWh figures this model
+   currently holds (`renewablesTwh2024` etc. are energy, not capacity — converting one to the
+   other needs a capacity-factor assumption per technology, introducing exactly the kind of
+   new unsourced parameter this project has been reluctant to add without a real source).
+3. **A firm import capability in GW**, replacing the current `importCapTwh` (an annual energy
+   cap) with something that represents how much of the NTC can be relied on to import at the
+   system's peak hour specifically — likely close to `ntcUtilization × NTC`, but that reopens
+   the exact parameter the current criterion made irrelevant, this time for real.
+4. **A defensible peak-hour definition.** This model has no time-of-day or day-of-year
+   resolution at all (see honest-limits below) — "the peak hour" would need to be approximated
+   from the same `peakFactor` machinery B1/B39 already built, applied to the _system_, not
+   just to converting DC energy into a peak contribution.
+
+**Why this is v2, not a same-session fix:** items 1–3 each need a new sourced dataset this model
+doesn't currently hold, and item 4 pushes toward the intra-hour, technology-specific dispatch
+detail the project's own honest-limits banner already discloses as out of scope ("no load flow,
+no intra-hour dispatch"). Building it properly would be adding a capability the spec deliberately
+excluded, not repairing one it already claims. Worth doing — a real capacity-adequacy criterion
+would be a materially more honest "grid stress" story than either the dead energy criterion or
+the DC-share criterion alone — but it is a modelling project with its own sourcing burden, not a
+threshold tweak.
 
 ## Known simplifications (honest-limits, §7)
 

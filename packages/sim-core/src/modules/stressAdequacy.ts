@@ -43,6 +43,23 @@ export interface AdequacyResult {
  * Annual energy balance plus peak-stress proxy (mission document §5.4).
  * Renewables, nuclear, and legacy firm generation are must-run; gas dispatches as the
  * residual; the stress index measures demand against all available resources incl. imports.
+ *
+ * `stressIndex` no longer drives `flagged` (issue #30, B2). It is an *annual energy* balance,
+ * not a *peak capacity* one -- the distinction that separates "enough electricity across the
+ * year" from "enough available power at the hour it's needed" (the textbook case is Texas
+ * 2021: ample annual energy, a capacity shortfall at one cold-snap hour). Resources
+ * (renewables, nuclear, imports) grow faster than demand in this model almost everywhere
+ * almost immediately, so the ratio only ever reflects the base year: Poland is the only
+ * country that ever crosses 0.9, only in 2024-2026, and never again through 2045. Measured
+ * directly: `ntcUtilization` -- which sets `importCapTwh` and therefore this ratio -- swings
+ * `flaggedRegions` by exactly 0.000 across its full uncertainty range, because the criterion
+ * it feeds cannot cross the threshold in either direction after 2026 regardless. Building a
+ * real capacity-adequacy check (peak demand against *firm* capacity, with per-technology
+ * capacity credits) would fix this properly, but edges into the intra-hour, technology-specific
+ * dispatch detail the project's own honest-limits already disclose as out of scope -- see
+ * docs/model-notes.md for the sketch, kept for v2. `stressIndex` stays computed and visible
+ * (the data table, CSV export) so nothing is hidden; it just stops silently implying a
+ * twenty-year adequacy watch the model cannot actually run.
  */
 export function assessAdequacy(
   c: CountryParams,
@@ -81,8 +98,9 @@ export function assessAdequacy(
   const peakLoadGw = baselinePeakGw + dcFirmGw;
   const dcShareOfPeak = peakLoadGw > 0 ? dcFirmGw / peakLoadGw : 0;
 
-  const flagged =
-    stressIndex > defaults.stressFlagThreshold || dcShareOfPeak > defaults.dcPeakShareFlagThreshold;
+  // stressIndex dropped from this condition (issue #30, B2) -- see the note on stressIndex
+  // above. dcPeakShareFlagThreshold is the only criterion doing real work across the horizon.
+  const flagged = dcShareOfPeak > defaults.dcPeakShareFlagThreshold;
 
   const emissionsMt =
     gasGenTwh * defaults.gasEmissionFactorMtPerTwh +

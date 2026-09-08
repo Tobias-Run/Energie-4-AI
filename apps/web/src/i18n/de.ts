@@ -66,10 +66,10 @@ export const de: typeof en = {
       'Jährlicher Stromverbrauch der Rechenzentren. Neue Kapazität wird über die Gravitation des Bestands und den relativen Strompreis verteilt, begrenzt durch die Netzanschluss-Pipelines.',
     stressIndex: 'Netz-Stressindex',
     stressIndexNote:
-      'Jahresnachfrage geteilt durch alle verfügbaren Ressourcen (Erneuerbare + Kernkraft + Bestands-Firmerzeugung + Gaskapazität + NTC-Importfähigkeit). Die Importfähigkeit ist richtungsabhängig und wächst entlang belegter Stützjahre 2024/2030/2040. Ein grober Adäquanz-Näherungswert — kein Lastfluss, keine untertägige Auflösung.',
+      'Jahresnachfrage geteilt durch alle verfügbaren Ressourcen (Erneuerbare + Kernkraft + Bestands-Firmerzeugung + Gaskapazität + NTC-Importfähigkeit). Nur zur Einordnung — löst kein Stress-Flag mehr aus (Issue #30, B2): Ressourcen wachsen fast überall fast sofort schneller als die Nachfrage, deshalb spiegelt dieses Verhältnis nur noch das Basisjahr und konnte ab 2027 nichts mehr flaggen. Ein grober Adäquanz-Näherungswert bleibt es trotzdem — kein Lastfluss, keine untertägige Auflösung.',
     dcShareOfPeak: 'RZ-Anteil an der Spitzenlast',
     dcShareOfPeakNote:
-      'Firme (Inferenz-)Rechenzentrumslast als Anteil der nationalen Spitzenlast. Dies ist das Kriterium, das die Stress-Flags am Ende des Horizonts tatsächlich auslöst — im Zentralszenario überschreitet es niemand, aber Luxemburg (14,5 %) und Irland (14,2 %) liegen am nächsten an der Schwelle, während ihre Adäquanzquoten unauffällig bleiben. Unter stärkeren Wachstumsannahmen ist dies, wo die Flags erscheinen. Der Flexibilitätshebel wirkt direkt darauf.',
+      'Firme (Inferenz-)Rechenzentrumslast als Anteil der nationalen Spitzenlast — das einzige Kriterium, das ein Stress-Flag auslöst. Im Zentralszenario überschreitet Luxemburg es (15,8 %); Irland liegt näher an der Schwelle als es aussieht (13,9 %), bleibt aber darunter. Unter stärkeren Wachstumsannahmen überschreiten mehr Länder die Schwelle. Der Flexibilitätshebel wirkt direkt darauf.',
     renewablesShare: 'Anteil Erneuerbarer an der Erzeugung',
     renewablesShareNote:
       'Erneuerbare (inkl. Wasserkraft und Bioenergie) geteilt durch die gesamte heimische Erzeugung. Erzeugungsseitige Rechnung: Importe werden keiner Mix-Kategorie zugeordnet (NTC-Modell ohne Flussverfolgung) — ziehen Sie den Netto-Importanteil daneben heran.',
@@ -86,7 +86,7 @@ export const de: typeof en = {
   map: {
     label: 'Europakarte, {metric} in {year}',
     stressFlag: 'Stress-Flag',
-    stressFlagTooltip: 'Stress-Flag (RZ-Anteil an der Spitzenlast oder Adäquanzschwelle)',
+    stressFlagTooltip: 'Stress-Flag (RZ-Anteil an der Spitzenlast über Schwelle)',
     notShown:
       '{list} simuliert, aber in dieser Kartenauflösung nicht dargestellt — siehe Tabellenansicht.',
     clusters: 'Rechenzentrums-Cluster',
