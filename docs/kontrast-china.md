@@ -140,6 +140,48 @@ anderen Seite — Europas Engpass sind die letzten Kilometer und die Genehmigung
 Kilometer dazwischen. Europa hat keine UHV-Leitungen, weil es Chinas Entfernungsproblem nicht hat.
 Es hat ein Anschlussproblem, und dafür hilft keine Spannungsebene.
 
+## Eine echte Vergleichszahl — aber für die falsche Größenordnung
+
+Issue #33 verlangt konkret: eine Zahl für die typische Anschlusszeit einer **großen** Last in
+China, um sie gegen Europas neunjährige Genehmigungsdauer zu halten. Bislang lieferte keine
+Quelle das. Diese Runde ändert daran nichts Grundsätzliches — aber sie liefert eine echte,
+direkt aus der Primärquelle gelesene Zahl, nur für eine andere Größenordnung, und legt offen,
+warum die eigentlich gesuchte Zahl weiterhin fehlt.
+
+**Was gefunden wurde:** Die Weltbank hat bis zu ihrer Einstellung 2021 im _Doing-Business_-Programm
+den Indikator „Getting Electricity" geführt — Verfahren, Zeit und Kosten für den
+Netzanschluss eines standardisierten Neubaus, weltweit einheitlich definiert. Direkt aus den
+offiziellen Länderprofilen (Doing Business 2020, letzte vollständige Runde, Datenstand Mai 2019)
+gelesen:
+
+|                               | China  | Deutschland |
+| ----------------------------- | ------ | ----------- |
+| Rang „Getting Electricity"    | 12     | 5           |
+| Verfahren (Anzahl)            | 2      | 3           |
+| **Zeit (Tage)**               | **32** | **28**      |
+| Kosten (% Pro-Kopf-Einkommen) | 0,0    | 37,0        |
+
+China ist hier **langsamer** als Deutschland, nicht schneller — ein Befund, der jede Erwartung
+einer pauschalen „China ist schneller"-Erzählung korrigiert, bevor sie entsteht.
+
+**Warum das trotzdem nicht die gesuchte Zahl ist.** Der Indikator misst den Anschluss eines
+zweistöckigen Lagerhauses mit **140 kVA** Anschlussleistung — Größenordnung 0,14 MW. Ein
+Rechenzentrum, wie es in diesem Modell gerechnet wird, liegt bei zig bis mehreren Hundert MW:
+drei bis vier Zehnerpotenzen darüber. Und Europas Neun-Jahres-Zahl (`ec2025gridspackage`, dieses
+Modells Quelle für `permittingYearsBaseline`) misst nicht den Anschluss eines Verbrauchers an ein
+bestehendes Netz, sondern die Genehmigung **neuer Netzinfrastruktur** — Leitungsbau,
+Umspannwerke, TEN-E-Verfahren. Das sind zwei verschiedene Verwaltungsvorgänge, keine zwei Punkte
+auf derselben Skala. Die 32-Tage-Zahl beantwortet ehrlich eine kleinere, andere Frage — wie
+schnell ein Normalbetrieb ans bestehende Netz kommt — nicht die Frage, die Issue #33 stellt.
+
+**Die gesuchte Zahl bleibt offen, jetzt mit einer erneuten, erfolglosen Suche als Beleg dafür,
+dass sie schwer zu finden ist, nicht nur ungesucht.** Diese Runde durchsuchte gezielt nach
+Großlast-Anschlusszeiten (auch mit chinesischen Suchbegriffen: 直供电, 高压接入, 一般工商业
+接入时限) sowie nach IEA-Berichten zur chinesischen Netzflexibilität — keine Quelle nennt eine
+Anschlussdauer für Lasten in Rechenzentrums-Größenordnung. Der im Aktionsplan-Abschnitt oben
+bereits notierte Befund steht damit unverändert: **die Anwendungsfelder sind benannt, der Ertrag
+nicht beziffert**, und das gilt jetzt auch für die Anschlusszeit selbst.
+
 ## Die Roboterflotte
 
 Der Anlass für dieses Dokument war ein Bericht über den Betrieb, nicht über den Ausbau: State Grid
@@ -224,7 +266,10 @@ Anleihen) und Monitoringpflicht sind.
 Möglich, wenn jemand die Primärquellen beibringt:
 
 - eine gesourcte Zeile in den Grenzen des Modells, die Europas Neun-Jahres-Genehmigung
-  international einordnet
+  international einordnet — teilweise erledigt (siehe „Eine echte Vergleichszahl" oben): für
+  den Netzanschluss eines Normalverbrauchers existiert jetzt eine belastbare Zahl (China 32,
+  Deutschland 28 Tage, Weltbank Doing Business 2020), aber nicht für eine Großlast in
+  Rechenzentrums-Größenordnung — dafür blieb auch eine erneute, gezielte Suche erfolglos.
 - langfristig eine vierte Benchmark-Reihe auf der **Angebots**seite, mit eigenem Datenbündel und
   eigenen Ankern (offen als Issue #33)
 
@@ -311,6 +356,12 @@ Belege für die Zahlen oben:
   <https://data.worldbank.org/indicator/PA.NUS.PPP?locations=CN> und die Einordnung durch das
   chinesische Statistikamt (rund 62 % des Marktkurses 2021) —
   <https://www.stats.gov.cn/english/PressRelease/202406/t20240603_1954216.html>
+- Weltbank, _Doing Business 2020_, Indikator „Getting Electricity" (Verfahren, Zeit, Kosten für
+  den Netzanschluss eines standardisierten 140-kVA-Neubaus, Datenstand Mai 2019, letzte
+  vollständige Runde vor Einstellung des Programms 2021) — Länderprofile direkt gelesen:
+  China (32 Tage) <https://www.doingbusiness.org/content/dam/doingBusiness/country/c/china/CHN.pdf>
+  und Deutschland (28 Tage)
+  <https://archive.doingbusiness.org/content/dam/doingBusiness/country/g/germany/DEU-LITE.pdf>
 
 Das European Grids Package selbst ist als `ec2025gridspackage` in [`sources.bib`](sources.bib)
 geführt und parametrisiert den Genehmigungsregler; es ist die einzige hier berührte Quelle, die
