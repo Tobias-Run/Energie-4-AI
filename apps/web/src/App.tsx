@@ -179,7 +179,7 @@ export function App() {
         <div className="layout">
           <main className="panel" id="main">
             <div className="controls-row">
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <label className="metric-label">
                 <span className="muted">{t.app.mapMetric}</span>
                 <select value={metric.id} onChange={(e) => setMetricId(e.target.value)}>
                   {METRICS.map((m) => (

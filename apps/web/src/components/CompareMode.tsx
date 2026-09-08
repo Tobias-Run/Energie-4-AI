@@ -200,37 +200,39 @@ export function CompareMode({ pinned, current, fromYear, currentYear, onPin, onR
         ))}
       </svg>
 
-      <table className="data-table" style={{ marginTop: 6 }}>
-        <thead>
-          <tr>
-            <th>{t.compare.colScenario}</th>
-            <th>{t.compare.colLevers}</th>
-            <th>{fmt(t.compare.colDemand, { year: currentYear })}</th>
-            <th>{t.compare.colSaturated}</th>
-            <th>{t.compare.colFlags}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {series.map((s) => {
-            const idx = yearIdx >= 0 ? yearIdx : s.aggregates.length - 1;
-            const a = s.aggregates[idx]!;
-            const top = s.mostSaturated(idx);
-            return (
-              <tr key={s.id}>
-                <td>{s.label}</td>
-                <td className="muted">{describeLevers(s.levers, t)}</td>
-                <td>
-                  {a.euDcTwh.toFixed(0)} TWh ({(a.euDcShareOfDemand * 100).toFixed(1)}%)
-                </td>
-                <td>
-                  {top.iso} {(top.share * 100).toFixed(0)}%
-                </td>
-                <td>{a.flaggedRegions.join(', ') || '—'}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-scroll">
+        <table className="data-table" style={{ marginTop: 6 }}>
+          <thead>
+            <tr>
+              <th>{t.compare.colScenario}</th>
+              <th>{t.compare.colLevers}</th>
+              <th>{fmt(t.compare.colDemand, { year: currentYear })}</th>
+              <th>{t.compare.colSaturated}</th>
+              <th>{t.compare.colFlags}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {series.map((s) => {
+              const idx = yearIdx >= 0 ? yearIdx : s.aggregates.length - 1;
+              const a = s.aggregates[idx]!;
+              const top = s.mostSaturated(idx);
+              return (
+                <tr key={s.id}>
+                  <td>{s.label}</td>
+                  <td className="muted">{describeLevers(s.levers, t)}</td>
+                  <td>
+                    {a.euDcTwh.toFixed(0)} TWh ({(a.euDcShareOfDemand * 100).toFixed(1)}%)
+                  </td>
+                  <td>
+                    {top.iso} {(top.share * 100).toFixed(0)}%
+                  </td>
+                  <td>{a.flaggedRegions.join(', ') || '—'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       {series.length > 1 &&
         Math.max(...series.map((s) => s.values[s.values.length - 1]!)) /
           Math.min(...series.map((s) => s.values[s.values.length - 1]!)) <

@@ -104,7 +104,11 @@ body {
 
 @media (max-width: 900px) {
   .layout {
-    grid-template-columns: 1fr;
+    /* Plain `1fr` lets a grid track grow to fit its widest child's intrinsic minimum
+       content size (issue #8, 1.4.10 reflow) -- a <select> with a long option can force
+       the whole single-column layout wider than the viewport at 320px. `minmax(0, 1fr)`
+       is the fix Grid itself documents for this: it lets the track shrink below content. */
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -144,6 +148,20 @@ button {
   border: 1px solid var(--baseline);
   border-radius: 6px;
   padding: 4px 10px;
+  /* A flex/grid item's default min-width is `auto`, which for a <select> can mean "wide
+     enough for its longest option" -- that alone was enough to push the whole single-column
+     mobile layout past 320px (issue #8, 1.4.10 reflow), since nothing upstream was allowed
+     to shrink it. Both together let it wrap/shrink instead of forcing an ancestor wider. */
+  min-width: 0;
+  max-width: 100%;
+}
+
+.metric-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 button {
@@ -259,6 +277,13 @@ details.drawer summary {
   padding: 3px 0;
   font-size: 0.8rem;
   border-bottom: 1px dashed var(--gridline);
+}
+
+/* A data table is exactly the "two-dimensional layout" content 1.4.10 (Reflow) allows to
+   scroll instead of reflowing -- but the scroll has to be contained to the table itself, not
+   the whole page, or the container becomes the thing forcing a &gt;320px viewport (issue #8). */
+.table-scroll {
+  overflow-x: auto;
 }
 
 table.data-table {

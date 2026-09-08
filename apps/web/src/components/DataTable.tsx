@@ -16,7 +16,7 @@ export function DataTable({ rows, names, metric, year }: Props) {
   return (
     <details className="drawer">
       <summary>{fmt(t.table.summary, { year })}</summary>
-      <div style={{ maxHeight: 320, overflowY: 'auto', marginTop: 6 }}>
+      <div className="table-scroll" style={{ maxHeight: 320, overflowY: 'auto', marginTop: 6 }}>
         <table className="data-table">
           <thead>
             <tr>
