@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "description": "Per-parameter uncertainty ranges for the Monte Carlo mode and the scenario corridors (mission document §5.5, issue #5). Each entry is a triangular distribution given as low / central / high, where `central` must equal the value in the underlying bundle. Paths address the parameter in its bundle: `scenarioDefaults.*` and `globalCompute.*`. Two kinds of entry live here and should not be confused: ranges taken from a publication's own scenario spread or reported range (source_id names it), and ranges on model-internal calibration parameters that have no published equivalent (marked expert-guess) — for those the range IS the honest statement, and the central value alone would be false precision. `stressFlagThreshold` is included deliberately: it is a definitional choice, not a physical quantity, and the corridor should show how much a flag depends on where the line is drawn.",
+  "version": "1.2.0",
+  "description": "Per-parameter uncertainty ranges for the Monte Carlo mode and the scenario corridors (mission document §5.5, issue #5). Each entry is a triangular distribution given as low / central / high, where `central` must equal the value in the underlying bundle. Paths address the parameter in its bundle: `scenarioDefaults.*` and `globalCompute.*`. Two kinds of entry live here and should not be confused: ranges taken from a publication's own scenario spread or reported range (source_id names it), and ranges on model-internal calibration parameters that have no published equivalent (marked expert-guess) — for those the range IS the honest statement, and the central value alone would be false precision. `dcPeakShareFlagThreshold` carries `kind: 'threshold'`: it is a definitional choice, not a physical quantity, and the corridor should show how much a flag depends on where the line is drawn. `stressFlagThreshold` was the other `'threshold'` entry until issue #30 B2 removed it from the flag logic entirely (it never drove a flag past year three of any run) — dropped from here with it rather than left as a corridor dimension with nothing left to threshold.",
   "distribution": "triangular",
   "parameters": {
     "globalCompute.demand2030Twh": {
@@ -115,19 +115,11 @@
       "source_id": "expert-guess",
       "kind": "physical"
     },
-    "scenarioDefaults.stressFlagThreshold": {
-      "low": 0.85,
-      "central": 0.9,
-      "high": 0.95,
-      "rationale": "Definitional, not physical: the demand-to-resources ratio at which a region is called stressed. Included so the corridor exposes how much a flag depends on the chosen line.",
-      "source_id": "expert-guess",
-      "kind": "threshold"
-    },
     "scenarioDefaults.dcPeakShareFlagThreshold": {
       "low": 0.12,
       "central": 0.15,
       "high": 0.2,
-      "rationale": "Share of national peak load from firm DC draw at which a region is flagged. Definitional like stressFlagThreshold, but far more consequential: in the central run the 2045 flags are triggered by THIS criterion, not by the adequacy ratio, so the corridor must show how sensitive the flag map is to where this line sits.",
+      "rationale": "Share of national peak load from firm DC draw at which a region is flagged. Definitional, not physical: the corridor exposes how sensitive the flag map is to where this line sits. The only flag criterion left in the model since issue #30 B2 dropped stressFlagThreshold from the flag logic -- every flag in every run is this criterion's doing.",
       "source_id": "expert-guess",
       "kind": "threshold"
     },
@@ -179,7 +171,6 @@
     "scenarioDefaults.allocationGravityExponent": "expert-guess",
     "scenarioDefaults.sitingConnectionExponent": "expert-guess",
     "scenarioDefaults.ntcUtilization": "expert-guess",
-    "scenarioDefaults.stressFlagThreshold": "expert-guess",
     "scenarioDefaults.dcPeakShareFlagThreshold": "expert-guess",
     "scenarioDefaults.gasEmissionFactorMtPerTwh": "ipcc2014ar5annex3",
     "scenarioDefaults.otherFirmEmissionFactorMtPerTwh": "ipcc2014ar5annex3",

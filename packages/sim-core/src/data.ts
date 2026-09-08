@@ -117,7 +117,7 @@ export interface ScenarioDefaults {
   gasEmissionFactorMtPerTwh: number;
   otherFirmEmissionFactorMtPerTwh: number;
   congestionBaselineBnEur2024: number;
-  stressFlagThreshold: number;
+  /** The only flag criterion left in the model (issue #30, B2 removed stressFlagThreshold). */
   dcPeakShareFlagThreshold: number;
   allocationGravityExponent: number;
   priceElasticity: number;

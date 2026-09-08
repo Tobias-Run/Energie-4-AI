@@ -62,30 +62,38 @@ Stating this up front so the review is not spent rediscovering it.
    as firm annual import capability, identical in every hour and every direction of stress, and it
    stands in for the flow model we do not have. An external review measured its swing across its
    own uncertainty range (0.2–0.45): **exactly 0.000**, on EU DC demand and on the flag count
-   alike. The reason is finding 2 below — the adequacy criterion it feeds essentially never fires.
+   alike. The reason is finding 2 below — the adequacy criterion it fed never fired past year
+   three of any run, which is exactly why that criterion has since been removed from flag logic.
    The parameters that actually move the corridor are `saturationTwh` (84.1 TWh),
    `demand2030Twh` (84.0) and the two capture shares (72.9 and 26.2); all fifteen others together
    move it by less than 0.9 TWh.
-2. **The peak-share criterion produces the headline result, and the adequacy criterion is close to
-   inert — and the headline result has now reversed twice in short order.** Luxembourg trips the
-   0.15 threshold on firm DC draw ÷ peak load at **15.80%**; Ireland is closer than it looks, at
-   **13.92%**, and still not flagged. (Both figures have moved five times: up when the peak-load
-   denominator was corrected — issue #30, B1 — apart when `peakFactor` itself was derived from
-   ENTSO-E's hourly load series instead of borrowed from an interconnection dataset — issue #39 —
-   further apart when that same series' measured trend was applied linearly from 2024 rather than
-   held flat, which represents only one of two opposing real effects (electrification raises the
-   baseline peak; a growing near-flat data centre share would lower it, but that effect is not
-   sourced) and was on its own enough to clear the model's only central-run flag — and back
-   together a fourth time when grid connection tightness was given a say in siting itself, not
-   just in what gets served once sited (issue #30, B5): countries with tight pipelines now attract
-   less new build from the start, and Luxembourg is one of the unconstrained countries that
-   absorbs the difference. The boom run still flags three countries throughout, EE/LV/LU,
-   unmoved by either of the last two corrections.) Adequacy
-   fires only on base-year data —
-   Poland in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903 — and never again; the 2045 maximum is
-   0.750. Both the 0.15 threshold and the 0.85 firm-load share are the numbers that matter, and
-   only the latter has a published source. Whether a criterion that reacts only to the starting
-   data belongs in the flag logic at all is an open question (issue #30, B2).
+2. **The peak-share criterion is now the only flag criterion in the model — the adequacy ratio was
+   removed from the flag logic entirely, not left inert (issue #30, B2, resolved).** Luxembourg
+   trips the 0.15 threshold on firm DC draw ÷ peak load at **15.80%**; Ireland is closer than it
+   looks, at **13.92%**, and still not flagged. (Both figures have moved six times: up when the
+   peak-load denominator was corrected — issue #30, B1 — apart when `peakFactor` itself was
+   derived from ENTSO-E's hourly load series instead of borrowed from an interconnection dataset
+   — issue #39 — further apart when that same series' measured trend was applied linearly from
+   2024 rather than held flat, which represents only one of two opposing real effects
+   (electrification raises the baseline peak; a growing near-flat data centre share would lower
+   it, but that effect is not sourced) and was on its own enough to clear the model's only
+   central-run flag — back together when grid connection tightness was given a say in siting
+   itself, not just in what gets served once sited (issue #30, B5) — and apart a final time when
+   `priceIndex` was sourced from real Eurostat data (issue #4), which also changed the boom run's
+   flag list to `FI, LV, LU, MT` from the long-standing `EE, LV, LU`.) The adequacy ratio used to
+   fire only on base-year data — Poland in 2024, 2025 and 2026 at 0.919 / 0.910 / 0.903 — and
+   never again; its 2045 maximum was 0.750, and sweeping `ntcUtilization` across its full
+   uncertainty range moved it by exactly 0.000 either way past 2026. **This was the open question
+   in the previous version of this document — whether a criterion that reacts only to the starting
+   data belongs in the flag logic at all — and it's been resolved: dropped, not sharpened.** The
+   ratio is still computed and shown (data table, CSV export); it just no longer decides a flag.
+   Sharpening it into a real capacity-adequacy check (peak GW demand against _firm_ GW capacity,
+   with per-technology capacity credits — the classic energy-vs-capacity-adequacy distinction,
+   the textbook case being Texas 2021) would be the more capable fix, but needs sourced data this
+   model doesn't hold (capacity credits, nameplate GW by technology, a firm-import figure) and
+   edges toward the intra-hour dispatch detail the model's own honest-limits already disclose as
+   out of scope. Sketched for v2 in `model-notes.md`; **we would value a view on whether that
+   sketch is the right shape for it.**
 3. **The connection pipeline could not constrain at all — found, fixed, and worth checking.**
    Every grid parameter used to score zero sensitivity on EU-wide DC demand. That turned out
    to be an artefact: available capacity was a per-country floor _plus_ the output of a delay
@@ -102,7 +110,7 @@ Stating this up front so the review is not spent rediscovering it.
    one — is itself defensible, absent any published per-country growth rate. See "Repaired
    defects" in `model-notes.md`.
 4. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
-   4.21% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
+   4.22% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
 5. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
    for being nuclear rather than fossil. Defensible as a reading of "renewables-coupled", but a

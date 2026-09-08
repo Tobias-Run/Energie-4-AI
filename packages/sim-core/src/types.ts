@@ -112,8 +112,17 @@ export interface CountryYear {
   importCapTwh: number;
   peakLoadGw: number;
   dcShareOfPeak: number;
-  /** Demand as share of total available resources (domestic + import). >stressFlagThreshold flags the region. */
+  /**
+   * Demand as share of total available resources (domestic + import), an annual energy
+   * balance. Shown for reference but no longer drives `flagged` (issue #30, B2): resource
+   * growth outpaces demand growth almost everywhere almost immediately, so this ratio only
+   * ever reflects the base year -- measured to swing 0.000 on both tornado targets from 2027
+   * onward, for any value of `ntcUtilization` across its full uncertainty range. A criterion
+   * that cannot fire past year three of a twenty-year run does not belong deciding flags for
+   * the other seventeen.
+   */
   stressIndex: number;
+  /** True if this region's DC share of peak load exceeds `dcPeakShareFlagThreshold`. */
   flagged: boolean;
   emissionsMt: number;
   /** DC grid-connection requests waiting in the queue (GW). Stranded-asset risk proxy. */
