@@ -97,6 +97,18 @@ function buildStories(locale: 'en' | 'de'): Story[] {
         step(x.nordicGoldRush.s5t, x.nordicGoldRush.s5, 2045, 'dcShareOfPeak', PRICE_STRONG),
       ],
     },
+    {
+      id: 'two-models',
+      title: x.twoModels.title,
+      blurb: x.twoModels.blurb,
+      steps: [
+        step(x.twoModels.s1t, x.twoModels.s1, 2025, 'dcEnergyTwh', BASE),
+        step(x.twoModels.s2t, x.twoModels.s2, 2025, 'dcShareOfDemand', BASE),
+        step(x.twoModels.s3t, x.twoModels.s3, 2035, 'dcEnergyTwh', REFORM),
+        step(x.twoModels.s4t, x.twoModels.s4, 2045, 'dcShareOfPeak', BASE),
+        step(x.twoModels.s5t, x.twoModels.s5, 2045, 'dcShareOfDemand', BASE),
+      ],
+    },
   ];
 }
 

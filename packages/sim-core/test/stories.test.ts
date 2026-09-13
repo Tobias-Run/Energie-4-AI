@@ -126,3 +126,85 @@ describe('story: Nordic gold rush', () => {
     expect(green.dc('SE')).toBeGreaterThan(market.dc('SE'));
   });
 });
+
+describe('story: two models, one map (issue #63)', () => {
+  // This story quotes figures from an outside source -- the EC Cloud & AI Study (Aug 2026) --
+  // against our own. Only our side can be pinned here; the EC figures are quoted in the story
+  // text and recorded in issue #63. What these tests guard is that our side still says what
+  // the story says it says.
+  const EU27 = [
+    'AT',
+    'BE',
+    'BG',
+    'HR',
+    'CY',
+    'CZ',
+    'DK',
+    'EE',
+    'FI',
+    'FR',
+    'DE',
+    'GR',
+    'HU',
+    'IE',
+    'IT',
+    'LV',
+    'LT',
+    'LU',
+    'MT',
+    'NL',
+    'PL',
+    'PT',
+    'RO',
+    'SK',
+    'SI',
+    'ES',
+    'SE',
+  ];
+  const eu27At = (year: number) => {
+    const r = runSimulation({ levers: BASE });
+    const i = r.years.indexOf(year);
+    const rows = EU27.map((iso) => [iso, r.countries[iso]![i]!] as const);
+    const twh = rows.reduce((s, [, c]) => s + c.dcEnergyTwh, 0);
+    const itGw = rows.reduce((s, [, c]) => s + c.dcItLoadGw, 0);
+    return { twh, itGw, peak: (iso: string) => r.countries[iso]![i]!.dcShareOfPeak };
+  };
+
+  it('claims DE, FR, NL and IE hold about 63.8% of EU-27 DC electricity in 2025', () => {
+    // The EC study independently reports 63% of EU-27 capacity in the same four countries.
+    // Nothing in the model was fitted to that figure -- the concentration is an output of the
+    // gravity/price allocation, which is the whole point of the story's first step.
+    const y = eu27At(2025);
+    const four = ['DE', 'FR', 'NL', 'IE'];
+    const r = runSimulation({ levers: BASE });
+    const i = r.years.indexOf(2025);
+    const share = four.reduce((s, iso) => s + r.countries[iso]![i]!.dcEnergyTwh, 0) / y.twh;
+    expect(share).toBeGreaterThan(0.6);
+    expect(share).toBeLessThan(0.67);
+  });
+
+  it('claims the model implies about 19.5 GW of EU-27 IT load in 2025', () => {
+    // Against the EC study's 13.9 GW of maximum IT load -- roughly 40% higher. The story
+    // attributes the whole gap to itUtilization; see issue #63 and the contested anchor in #34.
+    const itGw = eu27At(2025).itGw;
+    expect(itGw).toBeGreaterThan(19);
+    expect(itGw).toBeLessThan(20);
+  });
+
+  it('claims permitting reform moves the EU total by well under a percent', () => {
+    // The EC study: "physical grid capacity availability rather than the administrative grid
+    // connection permit procedure". Our model agrees for its own reason -- the connection
+    // ceiling binds first -- and the story invites the reader to flip the lever and see.
+    const base = at(BASE, 2035).eu;
+    const reform = at({ ...BASE, permittingReform: true }, 2035).eu;
+    expect(Math.abs(reform - base) / base).toBeLessThan(0.005);
+  });
+
+  it('claims Luxembourg is the only flag in 2045, with Ireland close but under', () => {
+    const y = eu27At(2045);
+    expect(y.peak('LU')).toBeGreaterThan(d.dcPeakShareFlagThreshold);
+    expect(y.peak('IE')).toBeLessThan(d.dcPeakShareFlagThreshold);
+    expect(y.peak('IE')).toBeGreaterThan(0.13);
+    expect(at(BASE).flags).toEqual(['LU']);
+  });
+});
