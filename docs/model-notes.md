@@ -298,6 +298,13 @@ comparable EU-27 2024 figure is **67.13 TWh, +21.4%** over it:
 | EUDCA / Pb7             | EU     | 2023 | 55.3 TWh | 67.13 | **+21.4%** |
 | ENTSO-E (authoritative) | Europe | 2024 | 87 TWh   | 82.13 | −5.6%      |
 | IEA                     | EU     | 2022 | ~100 TWh | 67.13 | −33%       |
+| EC Cloud & AI study     | EU-27  | 2025 | 97 TWh   | 72.78 | **−25.0%** |
+
+The EC study's reading (issue #63) joins this disagreement rather than settling it, and lands at the
+high end near IEA's. Its scope pulls in two directions at once: it **excludes** private enterprise
+data centres, which the IEA basis this model follows includes, so a like-for-like figure would be
+higher still — but it **adds** autonomous public-sector capacity that its own 12.44 GW commercial
+fleet figure leaves out.
 
 **ENTSO-E's own figure is not independent of EUDCA's.** ENTSO-E's 87 TWh is a synthesis that folds
 in this EUDCA survey alongside IEA and Accenture material, so the independent-tier anchor the model
@@ -349,6 +356,19 @@ independently-sourced figures — the anchor, the 48% conversion, and the energy
 against each other by any pairing. **No re-scoping produced a plausible match, which is the
 finding**, not a gap this project's own measurement could paper over by picking whichever pair of
 sources happens to agree.
+
+**One contested anchor is now _met_, and it is the most interesting number in the set.** The same
+study reports 63% of EU-27 capacity in four primary markets — Germany, France, the Netherlands and
+Ireland. The model puts **63.8%** of EU-27 data centre electricity in the same four, a deviation of
++1.3%, and nothing was fitted to it: the concentration is an output of the gravity-and-price
+allocation, not an input to it. It is filed `contested` rather than `independent` for comparability
+reasons only, not because anyone disputes the figure — the study measures a share of _capacity_
+where this reads a share of _electricity_ (identical inside this model, whose PUE and utilisation
+are single global values, but not in the measured fleet), and its denominator excludes private
+enterprise capacity, which may be distributed differently across countries than colocation and
+hyperscaler sites. Being unenforced makes it the anchor most worth watching for drift, so it carries
+its own test rather than riding on the blanket "contested anchors are missed" assumption that held
+until now.
 
 #### A fourth source narrows it from "irreconcilable" to "explained" (issue #63)
 
