@@ -126,18 +126,33 @@ Stating this up front so the review is not spent rediscovering it.
    occupancy over commissioned capacity). **We would value a view on whether that decomposition is
    right**, and on whether a 30-country model should be reaching for a study that explicitly excludes
    enterprise capacity as a check at all. See `model-notes.md`, "A fourth source narrows it".
-5. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
+5. **Three of the five most-constrained markets in Europe carry an unsourced connection tightness,
+   and we could not find a defensible way to fix it (issue #63).** `pipelineTightness` is sourced
+   for Denmark, Ireland, the Netherlands and Italy, where a TSO has published a binding constraint.
+   Great Britain (0.7), Germany (0.8) and France (0.9) carry values with no source — and all three
+   are FLAP-D markets, which the EC study puts at 62% of European capacity and 7–10 year connection
+   waits. The study looked like the fix: its Table 36 gives grid-connection timelines for twelve
+   member states. We rejected it as a systematic source because the column explicitly blends
+   administrative permitting with physical capacity availability, which this model represents as two
+   separate parameters; because it mixes national figures with metro-versus-rest splits; and because
+   it disagrees with the study's own appendix. We then measured changing Germany alone to the 0.45
+   band its evidence arguably supports: EU-27 demand and the flag list are unchanged, but France
+   overtakes Germany as the largest market — i.e. the load lands on the neighbouring _guess_. **We
+   would value a view on whether a relative-allocation parameter can be sourced one country at a
+   time at all**, and on whether leaving three known-constrained markets at unsourced values is the
+   lesser error. See `model-notes.md` under data provenance.
+6. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
    4.22% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
-6. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
+7. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
    for being nuclear rather than fossil. Defensible as a reading of "renewables-coupled", but a
    reviewer may consider it the wrong construct.
-7. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
+8. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
    This is a large part of why efficiency bends the curve rather than breaking it, and it is an
    assumption rather than a finding. Note this is now the _only_ remaining caveat on the lever: it
    previously also multiplied European additions alone, which made it indistinguishable from Europe
    losing capture share. It acts on the global increment since issue #27.
-8. **Grid connection now shapes siting itself, not just what gets served once sited (issue #30,
+9. **Grid connection now shapes siting itself, not just what gets served once sited (issue #30,
    B5).** `allocationWeight` multiplies in `pipelineTightness^0.5`, so a tight-pipeline country
    attracts less new build from the outset rather than only failing to connect it later. The
    exponent (0.5, `sitingConnectionExponent`, expert-guess) is load-bearing: applying

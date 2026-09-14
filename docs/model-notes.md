@@ -450,10 +450,33 @@ capacity and facing the continent's longest connection waits — 7–10 years, u
 Its Table 36 puts Germany's _average_ grid connection at **84 months**, the longest stated across
 the twelve member states it surveys. On this file's own mapping convention that evidence reads
 closer to the 0.45 band ("moratorium in the principal hub region plus multi-year zero-capacity
-zones elsewhere") than the 0.7–0.8 band these values currently sit in. The values are left
-unchanged pending a decision, because `pipelineTightness` caps the connection ceiling _and_ scales
-ex-ante siting (issue #30, B5), and Germany alone carries 28.7% of modelled EU-27 data centre
-electricity — this is a behavioural change, not a relabelling. Recorded in issue #63.
+zones elsewhere") than the 0.7–0.8 band these values currently sit in.
+
+**Its Table 36 was then evaluated as a systematic source for all of them, and rejected — twice
+over.** The table gives grid-connection timelines for twelve member states, which looks like exactly
+the per-country evidence this parameter has always lacked. It does not survive contact with the
+model, for three reasons. Its own footnote 132 states the column covers "both the administrative
+permit procedure and the actual availability of grid capacity" — two things this model represents
+_separately_, as `permittingYearsBaseline` and `pipelineTightness`, so folding the column into the
+latter would double-count the former. It is reported at inconsistent granularity: Germany's figure
+is explicitly national ("average waiting time for a new grid connection in Frankfurt (and for
+Germany) is up to 7 years"), while Ireland's and the Netherlands' are split metro-versus-rest
+("moratorium in Dublin / 12–36 outside") — and metro-versus-national is precisely the distinction a
+country-level model cannot make. And the summary table disagrees with the country appendix: France's
+average timeline is 18–72 months in Table 36 and 24–60 months in Appendix E.
+
+**Changing Germany alone was then measured, and rejected for a different reason.** Setting it to
+0.45 leaves EU-27 demand at 219.2 TWh in 2045 and the flag list at `LU` — a redistribution, as every
+constraint in this model is — but it moves Germany from 36.69 to 32.15 TWh and hands most of the
+difference to France, which **overtakes Germany as the model's largest market**. France's 0.9
+carries no source either. Sourcing one country of a set that drives a _relative_ allocation
+therefore makes the map less defensible rather than more: the load lands on whichever neighbouring
+guess happens to be loosest. The study's own narrative does not support that reallocation either —
+it names Milan, Madrid and Poland as the destinations developers shift toward, not Paris, which is
+itself a FLAP-D market.
+
+So all three values stay as they are, now disclosed rather than implied, and the question goes to
+the external reviewer instead. Recorded in issue #63.
 
 **The generation-mix categories were an unbacked convention; they still are, just a sourced one
 (issue #38).** `renewablesTwh2024`, `nuclearTwh2024` and `otherFirmTwh2024` have carried a
