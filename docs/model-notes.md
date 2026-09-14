@@ -370,6 +370,22 @@ hyperscaler sites. Being unenforced makes it the anchor most worth watching for 
 its own test rather than riding on the blanket "contested anchors are missed" assumption that held
 until now.
 
+**The capture share survives a stock-share check that was set up to challenge it (issue #63).**
+Draghi's column, Epoch AI and Carnegie all put the EU below 5% of global AI compute, and #63
+recorded that as a possible problem: a 6.5% share of _additions_ against a sub-5% _stock_ would
+have Europe gaining ground, which is the opposite of what those sources argue. That framing
+compared the wrong quantities. Epoch measures installed AI-accelerator performance — a narrower and
+far more US-concentrated thing than data centres generally, which is what this model represents.
+The apt comparison is the EC study's own: global data centre capacity of 55–60 GW excluding private
+enterprise, "of which the EU27 accounts for around 20%". Put on the all-data-centre basis this
+model uses — EU-27's 12.44 GW plus EUDCA's ~2.66 GW of enterprise capacity, over IEA's 97 GW global
+including enterprise — that implies roughly **15.6%**. The model reads **15.1%** in 2025 and 16.2%
+in 2024. And it does have Europe losing ground, because the capture share sits far below the
+standing stock share: 8.5% of additions before 2030 and 6.5% after, against a ~15% stock, which
+takes EU-27 from 15.1% of global data centre electricity in 2025 to 11.9% in 2030 and 8.5% by 2045.
+The direction all three sources argue for is already in the model; it was the sub-5% figure that
+did not belong in this comparison.
+
 #### A fourth source narrows it from "irreconcilable" to "explained" (issue #63)
 
 The EC's _Study on Cloud and AI Development in the EU_ (Aug 2026) measures the same fleet for a
