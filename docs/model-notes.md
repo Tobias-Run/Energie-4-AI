@@ -439,8 +439,21 @@ constraint: Denmark (national connection pause, 2026-03-02), Ireland (CRU decisi
 the Netherlands (TenneT queue and the Amsterdam moratorium) and Italy (Terna). The numeric
 mapping from those facts to a 0–1 multiplier is a documented model convention, recorded in
 `data/v1/countries.json` under `pipelineTightnessMapping` — the evidence is sourced, the
-multiplier is not a measured quantity. The remaining 26 countries stay at 1.0 and
-`expert-guess`.
+multiplier is not a measured quantity.
+
+**The other 26 countries are not all at 1.0, and an earlier version of this paragraph said they
+were.** Three carry a non-default tightness with no source behind it: Great Britain (0.7), Germany
+(0.8) and France (0.9). That matters more than a normal `expert-guess` because all three are
+FLAP-D markets, which the EC Cloud and AI Study (issue #63) identifies as holding 62% of European
+capacity and facing the continent's longest connection waits — 7–10 years, up to 13 — with
+"effective moratoria or severe limitations on new connections in Frankfurt, Amsterdam, and Dublin".
+Its Table 36 puts Germany's _average_ grid connection at **84 months**, the longest stated across
+the twelve member states it surveys. On this file's own mapping convention that evidence reads
+closer to the 0.45 band ("moratorium in the principal hub region plus multi-year zero-capacity
+zones elsewhere") than the 0.7–0.8 band these values currently sit in. The values are left
+unchanged pending a decision, because `pipelineTightness` caps the connection ceiling _and_ scales
+ex-ante siting (issue #30, B5), and Germany alone carries 28.7% of modelled EU-27 data centre
+electricity — this is a behavioural change, not a relabelling. Recorded in issue #63.
 
 **The generation-mix categories were an unbacked convention; they still are, just a sourced one
 (issue #38).** `renewablesTwh2024`, `nuclearTwh2024` and `otherFirmTwh2024` have carried a
@@ -886,8 +899,9 @@ constrained its pipeline was, found out it couldn't connect everything, and 60% 
 relocated (`spillShare`). A developer avoids Dublin _because of_ the moratorium; the model had it
 avoiding Dublin only after building there and being turned away.
 
-`pipelineTightness` — already sourced for six countries (Germany, France, Italy, the Netherlands,
-Denmark, Ireland) and already used to cap what can connect — now also scales the ex-ante siting
+`pipelineTightness` — sourced for four countries (Italy, the Netherlands, Denmark, Ireland; an
+earlier version of this sentence also claimed Germany and France, which carry values but no
+source) and already used to cap what can connect — now also scales the ex-ante siting
 weight in `allocationWeight`, damped by a new `sitingConnectionExponent` (0.5, expert-guess).
 The damping is load-bearing, not cosmetic: applying `pipelineTightness` at full, unexponentiated
 strength here exactly cancels the _other_ place it already appears, the connection ceiling
