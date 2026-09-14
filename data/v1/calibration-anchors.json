@@ -144,6 +144,24 @@
       "unit": "share",
       "label": "DC share of EU electricity demand 2024 — EUDCA",
       "note": "EUDCA / Pb7 Research: '2% of all electricity usage in the European Union', 2023. Unlike the EU-27 volume anchor above, kept independent rather than contested: EUDCA's estimate has a stated bottom-up basis (grid-operator input plus measured national usage data, p.60 -- see euDc2024TwhEudca's note), which is a different and arguably better-grounded method than the top-down synthesis the ENTSO-E volume anchor rests on, and it is a share, so it is not entangled with the demand-denominator disputes that already run through the 2030 share anchors below (issue #40)."
+    },
+    "euDc2025TwhEc": {
+      "tier": "contested",
+      "comparison": "within",
+      "value": 97,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "EU-27 DC electricity 2025 -- EC Cloud & AI study",
+      "note": "EC Study on Cloud and AI Development in the EU (Aug 2026), section 4.3.3.1: 'We estimate data centres in EU27 to consume 97 TWh of electricity in 2025.' Joins the existing disagreement rather than settling it -- the published range for European DC electricity already spanned nearly a factor of two (EUDCA 55.3 TWh EU 2023, IEA ~100 TWh EU 2022, Ember 168 TWh Europe 2030, IEA 109 TWh for the same year and scope), and this reading sits at the high end. Two scope caveats, in opposite directions: the study EXCLUDES private enterprise data centres, which the IEA basis this model follows includes (EUDCA puts EU-27 enterprise capacity near 2.66 GW), so a like-for-like figure would be higher still; but it adds autonomous public-sector capacity that the 12.44 GW commercial fleet figure omits. Contested, not independent: no model can satisfy sources this far apart within a tolerance (issue #63)."
+    },
+    "euPrimaryMarketShare2025Ec": {
+      "tier": "contested",
+      "comparison": "within",
+      "value": 0.63,
+      "tolerance": 0.1,
+      "unit": "share",
+      "label": "DE/FR/NL/IE share of EU-27 DC 2025 -- EC Cloud & AI study",
+      "note": "EC Study on Cloud and AI Development in the EU (Aug 2026), section 6.5.1: 'roughly 63% of this capacity concentrated in four primary markets (Germany, France, the Netherlands and Ireland)'. The model reproduces this closely without being fitted to it -- the concentration is an output of the gravity/price allocation, not an input -- which makes it the most interesting agreement in the anchor set. Contested rather than independent for two reasons it cannot escape: the study measures a share of CAPACITY where this reads a share of ELECTRICITY (identical in this model, whose PUE and utilisation are single global values, but not in the measured fleet), and the study's denominator excludes private enterprise data centres, which may be distributed differently across countries than colocation and hyperscaler capacity. Recorded so the agreement is visible and so drift in the allocation would surface (issue #63)."
     }
   },
   "provenance": {
@@ -162,6 +180,8 @@
     "europeDc2030TwhEmber": "ember2025grids",
     "europeDc2030TwhIea": "iea2025energyai",
     "euDc2024TwhEudca": "eudca2025state",
-    "euDcShareOfDemand2024Eudca": "eudca2025state"
+    "euDcShareOfDemand2024Eudca": "eudca2025state",
+    "euDc2025TwhEc": "eucommission2026cloudai",
+    "euPrimaryMarketShare2025Ec": "eucommission2026cloudai"
   }
 }
