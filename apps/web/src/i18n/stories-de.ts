@@ -59,4 +59,18 @@ export const storiesDe: typeof storiesEn = {
     s5t: 'Der Haken',
     s5: 'In diesem Modell gibt es kein lokales Verteilnetz, keine Flächen, kein Wasser, keinen Genehmigungsunterschied zwischen Norrland und Nordrhein-Westfalen und keine Preisrückkopplung der neuen Last selbst. Ein echter Goldrausch würde die Preise treiben, die ihn angezogen haben.',
   },
+  twoModels: {
+    title: 'Zwei Modelle, eine Karte',
+    blurb: 'Was eine EU-Kommissionsstudie über denselben Bestand sagt.',
+    s1t: 'Die Karte stimmt überein',
+    s1: 'Im August 2026 veröffentlichte die Europäische Kommission eine Studie zum europäischen Rechenzentrumsbestand — gestützt auf eine Befragung von 280 Standorten und gerichtet auf eine Frage der Souveränität, nicht der Stromversorgung. Sie verortet 63 % der EU-27-Kapazität in vier Ländern: Deutschland, Frankreich, Niederlande, Irland. Dieses Modell verteilt nach Gravitation und Preis, kennt diese Zahl nicht und legt 63,8 % der EU-27-Rechenzentrumsstrommenge auf dieselben vier. Die Konzentration ist hier ein Ergebnis, keine Vorgabe.',
+    s2t: 'Das Niveau nicht',
+    s2: 'Wie viel davon es gibt, ist eine andere Frage — und die ehrliche Antwort brauchte erst eine Korrektur des Geltungsbereichs. Die Studie misst 13,9 GW maximale IT-Last in der EU-27, schließt private Enterprise-Rechenzentren aber aus, die dieses Modell mitzählt. Rechnet man die rund 2,7 GW hinzu, die EUDCA dafür schätzt, stehen etwa 16,6 GW gegen die 19,49 GW dieses Modells: rund 18 % Abstand, nicht die 40 %, die die Rohzahlen nahelegen.',
+    s3t: 'Nicht die Genehmigung bindet',
+    s3: 'Die Studie wird deutlich, was ein Rechenzentrum tatsächlich aufhält: „die physische Verfügbarkeit von Netzkapazität, nicht das administrative Netzanschluss-Genehmigungsverfahren". Prüfen Sie es hier nach. Schalten Sie die Permitting-Reform ein, und der EU-Gesamtwert bewegt sich um 0,06 TWh — 0,04 %. Das Modell kommt zum selben Schluss, aus eigenem Grund: Die Anschlussobergrenze bindet zuerst, eine kürzere Genehmigung ändert daran fast nichts.',
+    s4t: 'Was eine Kapazitätsstudie auslässt',
+    s4: 'Das ist der Teil, den die Kommissionsstudie nicht trägt, weil sie bei Gigawatt endet. Verfolgen Sie denselben Bestand bis 2045: Er zieht 219 TWh, 6,7 % des EU-27-Stromverbrauchs. Wechseln Sie auf den RZ-Anteil an der Spitzenlast — Luxemburg überschreitet die 15-%-Linie mit 15,8 % und ist das einzige geflaggte Land in diesem Lauf. Irland liegt bei 13,9 %: näher dran, als es aussieht, und trotzdem darunter.',
+    s5t: 'Was die Übereinstimmung nicht beweist',
+    s5: 'Gehen Sie vorsichtig damit um. „Kapazität" bedeutet in diesen Quellen drei verschiedene Dinge, und die hier gewählte Zuordnung ist unsere Einschätzung. Die verbleibenden 18 % sind keine einzelne falsch gesetzte Zahl: Der EU-27-Stromverbrauch dieses Modells liegt unter den 97 TWh der Studie, seine Auslastung ebenfalls unter ihrer — und beide Abweichungen heben sich in der Kapazitätszahl teilweise auf. Sie messen zudem nicht dasselbe: unsere ist gezogene Leistung bezogen auf die Typenschildleistung aus verpflichtender EED-Berichterstattung, ihre eine Belegungsquote bezogen auf in Betrieb genommene Kapazität. Die veröffentlichten Schätzungen zum europäischen Rechenzentrumsstrom liegen ohnehin um fast den Faktor zwei auseinander. Dass zwei Modelle auf derselben Karte landen, ist ein Befund, der etwas wert ist; eine Bestätigung ist er nicht, und eine Prognose ist keines von beiden.',
+  },
 };

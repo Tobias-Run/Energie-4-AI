@@ -28,7 +28,7 @@ an exploration device, and the reviewer is not being asked to endorse any scenar
 
 ```bash
 npm install
-npm test          # 76 tests, includes the calibration gate and the narrative claims
+npm test          # 147 tests, includes the calibration gate and the narrative claims
 npm run dev       # the tool itself
 ```
 
@@ -109,18 +109,35 @@ Stating this up front so the review is not spent rediscovering it.
    whether the _default_ of a frozen ceiling — now a stated assumption rather than a silent
    one — is itself defensible, absent any published per-country growth rate. See "Repaired
    defects" in `model-notes.md`.
-4. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
+4. **An outside study now says the binding constraint is the one we model — and narrows our worst
+   anchor (issue #63).** The EC's _Study on Cloud and AI Development in the EU_ (Aug 2026, CATI
+   survey of 280 European data centres) states the mechanism directly: **"the primary delay stems
+   from physical grid capacity availability rather than the administrative grid connection permit
+   procedure."** That is finding 3 above, reached independently, and it has an uncomfortable
+   corollary we would like a view on: our permitting-reform lever acts on the thing this source says
+   is _not_ binding, which is also why it moves the EU total by 0.04%. The same study reports
+   connection waits of 7–10 years (up to 13) in the FLAP-D markets holding 62% of European capacity,
+   which corroborates `permittingYearsBaseline` = 9 from a second source. It also supplies the exact
+   concept our contested IT-power anchor needed — 13.9 GW of "maximum IT load, assuming 100%
+   utilisation" — which, once its exclusion of private enterprise data centres is corrected for,
+   takes that anchor from +80% to **about +18%**. It does not clear it: the residual splits into a
+   volume difference and a utilisation difference that partly cancel, and the two utilisation figures
+   turn out to measure different things (nameplate draw from mandatory EED reporting, versus
+   occupancy over commissioned capacity). **We would value a view on whether that decomposition is
+   right**, and on whether a 30-country model should be reaching for a study that explicitly excludes
+   enterprise capacity as a check at all. See `model-notes.md`, "A fourth source narrows it".
+5. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
    4.22% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
-5. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
+6. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
    for being nuclear rather than fossil. Defensible as a reading of "renewables-coupled", but a
    reviewer may consider it the wrong construct.
-6. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
+7. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
    This is a large part of why efficiency bends the curve rather than breaking it, and it is an
    assumption rather than a finding. Note this is now the _only_ remaining caveat on the lever: it
    previously also multiplied European additions alone, which made it indistinguishable from Europe
    losing capture share. It acts on the global increment since issue #27.
-7. **Grid connection now shapes siting itself, not just what gets served once sited (issue #30,
+8. **Grid connection now shapes siting itself, not just what gets served once sited (issue #30,
    B5).** `allocationWeight` multiplies in `pipelineTightness^0.5`, so a tight-pipeline country
    attracts less new build from the outset rather than only failing to connect it later. The
    exponent (0.5, `sitingConnectionExponent`, expert-guess) is load-bearing: applying

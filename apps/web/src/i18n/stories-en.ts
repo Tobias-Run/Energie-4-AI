@@ -56,4 +56,18 @@ export const storiesEn = {
     s5t: 'The catch',
     s5: 'There is no local grid in this model, no land, no water, no permitting difference between Norrland and North Rhine-Westphalia, and no price feedback from the new load itself. A real gold rush would raise the prices that attracted it.',
   },
+  twoModels: {
+    title: 'Two models, one map',
+    blurb: 'What an EU Commission study says about the same fleet.',
+    s1t: 'The map agrees',
+    s1: "In August 2026 the European Commission published a study of Europe's data centre fleet, built on a 280-site survey and aimed at a question about sovereignty rather than power. It puts 63% of EU-27 capacity in four countries: Germany, France, the Netherlands, Ireland. This model allocates by gravity and price, knows nothing of that figure, and puts 63.8% of EU-27 data centre electricity in the same four. The concentration is an output here, not an input.",
+    s2t: 'The level does not',
+    s2: 'How much of it there is, is another matter — and the honest answer took a scope correction to reach. The study measures 13.9 GW of maximum IT load across the EU-27, but excludes private enterprise data centres, which this model includes. Add the roughly 2.7 GW that EUDCA estimates for those, and the like-for-like figures are about 16.6 GW against this model’s 19.49 GW: some 18% apart, not the 40% the raw numbers suggest.',
+    s3t: 'Permitting is not what binds',
+    s3: 'The study is blunt about what actually delays a data centre: "physical grid capacity availability rather than the administrative grid connection permit procedure". Test it here. Flip permitting reform on and the EU total moves by 0.06 TWh — 0.04%. The model agrees, for its own reason: the connection ceiling binds first, so shortening the permit changes almost nothing.',
+    s4t: 'What a capacity study leaves out',
+    s4: 'This is the part the Commission’s study does not carry, because it stops at gigawatts. Follow the same fleet to 2045 and it draws 219 TWh, 6.7% of EU-27 electricity. Switch to DC share of peak load: Luxembourg crosses the 15% line at 15.8%, the only country flagged in this run. Ireland sits at 13.9% — closer than it looks, and still under.',
+    s5t: 'What the agreement does not prove',
+    s5: 'Be careful with it. "Capacity" means three different things across these sources, and the alignment used here is our judgement. The remaining 18% is not one mis-set number: this model’s EU-27 electricity sits below the study’s 97 TWh while its utilisation sits below the study’s, and the two differences partly cancel in the capacity figure. They are also not the same quantity — ours is drawn power over nameplate from mandatory EED reporting, theirs an occupancy rate over commissioned capacity. Published estimates of European data centre electricity span nearly a factor of two anyway. Two models landing on the same map is evidence worth having; it is not confirmation, and neither is a forecast.',
+  },
 };

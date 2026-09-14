@@ -350,6 +350,48 @@ against each other by any pairing. **No re-scoping produced a plausible match, w
 finding**, not a gap this project's own measurement could paper over by picking whichever pair of
 sources happens to agree.
 
+#### A fourth source narrows it from "irreconcilable" to "explained" (issue #63)
+
+The EC's _Study on Cloud and AI Development in the EU_ (Aug 2026) measures the same fleet for a
+different purpose, and does something no earlier source did: it publishes **every step of the chain
+this model computes**, from one methodology. That removes the definitional ambiguity the section
+above could not resolve.
+
+| Quantity, EU-27         | EC study 2025      | This model 2025 |
+| ----------------------- | ------------------ | --------------- |
+| Max IT load @ 100% util | 13.9 GW            | 19.49 GW        |
+| Installed IT power      | 12.44 GW           | —               |
+| DC electricity          | 97 TWh             | 72.8 TWh        |
+| IT utilisation          | ≈45–50% EU-wide    | 0.316           |
+| PUE                     | 1.39 colo / 1.1 HS | 1.349           |
+
+Their 13.9 GW is stated as "maximum IT load, assuming 100% utilisation" — the Art. 2(14)-like
+concept `dcItLoadGw` is built as. **But the study excludes private enterprise data centres**, in its
+own words "excluded from the JLL and Goldman Sachs' forecasts and from this study's scope", while the
+IEA basis this model is anchored on includes them. Adding EUDCA's ≈2.66 GW of EU-27 enterprise
+capacity gives a like-for-like ≈16.6 GW against the model's 19.49 — **about +18%**, against the
++80% this anchor reports versus ENTSO-E.
+
+**The residual is not one mis-set parameter.** It decomposes into two opposite-signed differences
+that partly cancel in the capacity figure: the model's electricity sits below the study's, while its
+utilisation sits below the study's too, and capacity is energy ÷ (8,760 × utilisation × PUE). Running
+the model's own 2025 energy through the study's ≈61.7% blended utilisation gives 9.98 GW — which
+overshoots in the other direction. Only both together reproduce their number.
+
+**The two utilisation figures are not the same quantity, and that is the substantive result.** Ours
+is drawn power over Art. 2(14) nameplate, from mandatory EED reporting across 770 data centres.
+Theirs is an occupancy-style operational rate over commissioned capacity — the study's own cost
+tables are footnoted "commissioned IT load", and its footnote 166 distinguishes a desk-research
+colocation rate of 79% from "the EU-wide operational average (≈45–50%) reported in Section 2".
+That is the same available-versus-installed gap named above, now visible in a second independent
+source. **`itUtilization` therefore stays at 0.316**: substituting the study's rates would import a
+denominator mismatch, not remove one.
+
+So the anchors stay `contested`, but for a reason that is now specific and checkable rather than a
+dead end. And the volume question behind the residual is the same one this whole section documents:
+the study's 97 TWh joins a published range for European DC electricity that already spanned nearly
+a factor of two, with this model mid-range throughout.
+
 ### What this gate still does not establish
 
 - **ENTSO-E is not independent of the IEA.** Its figures are a synthesis of IEA _Energy and AI_
