@@ -143,7 +143,7 @@
       "low": 8,
       "central": 9,
       "high": 10,
-      "rationale": "Baseline grid-connection permitting duration, ~8–10 years per the Grids Package impact material.",
+      "rationale": "Baseline grid-connection permitting duration, ~8-10 years per the Grids Package impact material. Independently corroborated by the EC Cloud and AI Study (Aug 2026, issue #63), which reports average connection waits of 7-10 years in the FLAP-D markets that hold 62% of European capacity, and up to 13 years in the worst locations. Note the study's figure is the broader quantity -- it states that its grid connection timelines 'include both the administrative permit procedure and the actual availability of grid capacity' -- so it bounds this parameter from above rather than measuring exactly the same thing.",
       "source_id": "ec2025gridspackage",
       "kind": "physical"
     },
