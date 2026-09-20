@@ -1,6 +1,6 @@
 import { calibrationAnchors, countries } from './data.js';
 import { runSimulation } from './engine.js';
-import type { SimulationResult } from './types.js';
+import type { CountryYear, SimulationResult } from './types.js';
 
 /**
  * Validation gate V1 (mission document §5, §10.1).
@@ -64,7 +64,25 @@ const readers: Record<string, (r: SimulationResult) => number | string[]> = {
   europeDc2030TwhIea: (r) => at(r, 2030).europeDcTwh,
   euDc2024TwhEudca: (r) => at(r, 2024).euDcTwh,
   euDcShareOfDemand2024Eudca: (r) => at(r, 2024).euDcShareOfDemand,
+  euDc2025TwhEc: (r) => euSum(r, 2025, (c) => c.dcEnergyTwh),
+  euPrimaryMarketShare2025Ec: (r) => {
+    const total = euSum(r, 2025, (c) => c.dcEnergyTwh);
+    const i = r.years.indexOf(2025);
+    const four = ['DE', 'FR', 'NL', 'IE'].reduce(
+      (s, iso) => s + r.countries[iso]![i]!.dcEnergyTwh,
+      0,
+    );
+    return four / total;
+  },
 };
+
+/** Sum a per-country field across EU-27 in a given year. */
+function euSum(r: SimulationResult, year: number, pick: (c: CountryYear) => number): number {
+  const i = r.years.indexOf(year);
+  return Object.entries(r.countries)
+    .filter(([iso]) => eu27.has(iso))
+    .reduce((sum, [, series]) => sum + pick(series[i]!), 0);
+}
 
 const eu27 = new Set(countries.filter((c) => c.eu27).map((c) => c.iso));
 

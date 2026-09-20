@@ -28,7 +28,7 @@ an exploration device, and the reviewer is not being asked to endorse any scenar
 
 ```bash
 npm install
-npm test          # 147 tests, includes the calibration gate and the narrative claims
+npm test          # 148 tests, includes the calibration gate and the narrative claims
 npm run dev       # the tool itself
 ```
 

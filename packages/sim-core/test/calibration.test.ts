@@ -127,7 +127,30 @@ describe('calibration gate V1', () => {
       // recorded rather than absorbed by a tolerance: that spread IS the finding.
       expect(dev('europeDc2030TwhEmber')).toBe(-19.6);
       expect(dev('europeDc2030TwhIea')).toBe(23.9);
-      expect(report.anchors.filter((a) => a.tier === 'contested').every((a) => !a.met)).toBe(true);
+      // Every contested anchor that exists because sources DISAGREE on a volume is missed, by
+      // construction: the model follows one reading, so it cannot satisfy the others.
+      const volumeContested = [
+        'europeDc2030TwhEmber',
+        'europeDc2030TwhIea',
+        'euDc2024TwhEudca',
+        'euDc2025TwhEc',
+        'europeItPower2024Gw',
+        'euItPower2024Gw',
+      ];
+      expect(volumeContested.every((id) => !get(id).met)).toBe(true);
+    });
+
+    it('meets a contested anchor for the first time — and the reason it is contested is not disagreement (issue #63)', () => {
+      // euPrimaryMarketShare2025Ec breaks the pattern above. It is contested because the study
+      // measures a share of CAPACITY where this reads a share of ELECTRICITY, and because its
+      // denominator excludes private enterprise data centres -- comparability caveats, not a
+      // dispute about the number. On that caveat-laden basis the model lands within 1.3%, and
+      // nothing was fitted to it: the concentration is an output of the gravity/price allocation.
+      // This is the anchor most worth watching for drift, precisely because it is not enforced.
+      const a = get('euPrimaryMarketShare2025Ec');
+      expect(a.tier).toBe('contested');
+      expect(a.met).toBe(true);
+      expect(dev('euPrimaryMarketShare2025Ec')).toBe(1.3);
     });
 
     it('sits 21% above the EUDCA base-year reading, contested rather than independent (issue #40)', () => {
