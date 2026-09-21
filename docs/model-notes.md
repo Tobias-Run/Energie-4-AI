@@ -357,7 +357,7 @@ against each other by any pairing. **No re-scoping produced a plausible match, w
 finding**, not a gap this project's own measurement could paper over by picking whichever pair of
 sources happens to agree.
 
-**One contested anchor is now _met_, and it is the most interesting number in the set.** The same
+**A contested anchor is _met_, and it is the most interesting number in the set.** The same
 study reports 63% of EU-27 capacity in four primary markets — Germany, France, the Netherlands and
 Ireland. The model puts **63.8%** of EU-27 data centre electricity in the same four, a deviation of
 +1.3%, and nothing was fitted to it: the concentration is an output of the gravity-and-price
@@ -385,6 +385,48 @@ standing stock share: 8.5% of additions before 2030 and 6.5% after, against a ~1
 takes EU-27 from 15.1% of global data centre electricity in 2025 to 11.9% in 2030 and 8.5% by 2045.
 The direction all three sources argue for is already in the model; it was the sub-5% figure that
 did not belong in this comparison.
+
+#### The demand denominator has the same problem, and it was wearing a citation (issue #68)
+
+Everything above is about how much electricity **data centres** draw. The same disagreement runs
+through the denominator they are measured against, and it went unnoticed for longer because the
+parameter carried a source it did not follow.
+
+`baselineGrowthPre2030` and `baselineGrowthPost2030` carried `source_id: entsoe2026tyndp` from the
+first commit. TYNDP 2026's own Central Scenario puts EU-27 final electricity demand at
+**2,380 TWh (2023) → 2,920 (2030) → 3,710 (2040)** — about **+2.5%/yr**. The country rates imply
+**+0.85%/yr**, and invert the shape: TYNDP grows faster before 2030 than after, this model does the
+opposite. The values are near-uniform — 20 of 30 countries at exactly 0.002, 28 of 30 at exactly
+0.012 — and both they and the attribution have been byte-identical since `5955911`, while every
+other country parameter was hardened along the way. **The `source_id` is now `expert-guess`, which
+is what it always was.**
+
+The harder half is that TYNDP cannot simply be adopted instead:
+
+| Year | implied by Ember's share anchor | this model | TYNDP NT+ |
+| ---- | ------------------------------- | ---------- | --------- |
+| 2030 | 2,490 TWh                       | 2,656      | **2,920** |
+| 2035 | 2,684 TWh                       | 2,853      | **3,361** |
+
+**Ember and ENTSO-E disagree about EU-27 electricity demand by 17% in 2030 and 25% by 2035** — the
+same shape as the DC-volume spread above, on the other side of the ratio. Adopting TYNDP's rates was
+measured rather than assumed: the EU-27 path then reproduces the source well (3,789 TWh in 2040), and
+it takes the gate from **2 to 4 of 8** independent anchors missed and **removes the model's only
+central-run flag**. So both readings are recorded — `euDemand2030TwhTyndp` and
+`euDemand2040TwhTyndp` — and neither is enforced.
+
+The gap is horizon-dependent in a way worth keeping: at 2030 the model still lands inside the ±10%
+tolerance (−9.1%); by 2040 it does not (−17.5%). The disagreement only becomes decisive after 2030.
+
+This also disproves a claim the `euDcShareOfDemand2030` note used to carry — that "Ember's EU demand
+projection is not the figure ENTSO-E disagrees with". It is exactly that figure. The note is
+corrected.
+
+**Why this matters more than a provenance tidy-up.** Since #30/B2 the DC share of peak load is the
+only criterion that decides a flag, and this trajectory is its denominator. Issue #67 measured that
+**+0.5 pp/yr on baseline growth clears every flag in the model**; the gap to TYNDP is roughly
++1.5 pp/yr. The single central-run flag is therefore contingent on which of two authorities the
+denominator follows — which is now visible rather than implied.
 
 #### A fourth source narrows it from "irreconcilable" to "explained" (issue #63)
 

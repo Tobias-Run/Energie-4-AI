@@ -113,7 +113,13 @@
   title       = {{TYNDP} 2026 Scenarios Report},
   institution = {ENTSO-E/ENTSOG},
   year        = {2026},
-  note        = {Central Scenario (National Trends+) plus two economic variants; default baseline and structural template for the scenario UI.}
+  note        = {Central Scenario (National Trends+) plus two economic variants (High/Low, GDP-driven stress tests applied to 2035 and 2040).
+                  EU-27 final electricity demand on the Central Scenario: 2{,}380 TWh (2023), 2{,}920 (2030), 3{,}710 (2040), 4{,}220 (2050).
+                  Economic variants put EU-27 electricity at $\pm$8\% around the Central Scenario at both 2035 and 2040 (Table 1).
+                  NOTE (issue \#68): this entry was cited as the source for baselineGrowthPre2030 and baselineGrowthPost2030 from the first
+                  commit onward, and those rates do NOT follow it --- they imply ${\sim}0.85\%$/yr against this report's ${\sim}2.5\%$/yr.
+                  That provenance is corrected to expert-guess; this report is now the source for the contested anchors euDemand2030TwhTyndp
+                  and euDemand2040TwhTyndp, and for the corroboration of permittingYearsBaseline. Structural template for the scenario UI.}
 }
 
 @misc{entsoe2026hourlyload,

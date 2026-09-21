@@ -28,7 +28,7 @@ an exploration device, and the reviewer is not being asked to endorse any scenar
 
 ```bash
 npm install
-npm test          # 148 tests, includes the calibration gate and the narrative claims
+npm test          # 149 tests, includes the calibration gate and the narrative claims
 npm run dev       # the tool itself
 ```
 
@@ -141,28 +141,43 @@ Stating this up front so the review is not spent rediscovering it.
    would value a view on whether a relative-allocation parameter can be sourced one country at a
    time at all**, and on whether leaving three known-constrained markets at unsourced values is the
    lesser error. See `model-notes.md` under data provenance.
-6. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
+6. **The flag denominator is unsourced, uncertain, and decisive — and it cited a source it does not
+   follow (issues #67, #68).** Since the adequacy ratio was dropped (finding 2), DC share of peak
+   load is the only flag criterion, and the non-DC demand trajectory is its denominator. Three
+   things are true of it at once. It carried `entsoe2026tyndp` as its `source_id` from the first
+   commit while implying ~0.85%/yr against that report's ~2.5%/yr — now corrected to `expert-guess`.
+   It carries **no uncertainty at all**: all 19 corridor parameters are scenario or global-compute
+   values, so the Monte Carlo treats the demand path as known. And it decides the output — **±0.5
+   pp/yr on baseline growth takes the model from two flags to none**, against `ntcUtilization`,
+   which the corridor does sample and which moves the flag count by exactly 0.000. Adopting TYNDP's
+   own rates was measured: it takes the gate from 2 to 4 of 8 independent anchors missed and removes
+   the only central-run flag, because **Ember and ENTSO-E disagree about EU-27 electricity demand by
+   17% in 2030 and 25% by 2035** — the same shape as finding 4's volume spread, on the other side of
+   the ratio. Both readings are now recorded as contested anchors and neither is enforced.
+   **We would value a view on whether a flag criterion whose denominator carries no uncertainty
+   should be reported at all**, and on which authority a European demand denominator should follow.
+7. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
    4.22% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
-7. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
+8. **The renewables siting tilt uses generation mix, not carbon intensity**, so France is penalised
    for being nuclear rather than fossil. Defensible as a reading of "renewables-coupled", but a
    reviewer may consider it the wrong construct.
-8. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
+9. **Efficiency applies only to new additions**, with no retirement or retrofit of installed stock.
    This is a large part of why efficiency bends the curve rather than breaking it, and it is an
    assumption rather than a finding. Note this is now the _only_ remaining caveat on the lever: it
    previously also multiplied European additions alone, which made it indistinguishable from Europe
    losing capture share. It acts on the global increment since issue #27.
-9. **Grid connection now shapes siting itself, not just what gets served once sited (issue #30,
-   B5).** `allocationWeight` multiplies in `pipelineTightness^0.5`, so a tight-pipeline country
-   attracts less new build from the outset rather than only failing to connect it later. The
-   exponent (0.5, `sitingConnectionExponent`, expert-guess) is load-bearing: applying
-   `pipelineTightness` unexponentiated here exactly cancels the _other_ place it already scales a
-   quantity, the connection ceiling, and collapses the EU-wide connection queue to zero regardless
-   of scenario — measured directly, not assumed. **We would value a view on whether 0.5 is a
-   defensible middle ground or an arbitrary one**, and on whether reusing one sourced number for
-   two different real-world decisions (whether to propose a project, and how much of it connects)
-   is the right modelling choice at all. See `docs/model-notes.md`, "Grid connection now has a say
-   in siting itself".
+10. **Grid connection now shapes siting itself, not just what gets served once sited (issue #30,
+    B5).** `allocationWeight` multiplies in `pipelineTightness^0.5`, so a tight-pipeline country
+    attracts less new build from the outset rather than only failing to connect it later. The
+    exponent (0.5, `sitingConnectionExponent`, expert-guess) is load-bearing: applying
+    `pipelineTightness` unexponentiated here exactly cancels the _other_ place it already scales a
+    quantity, the connection ceiling, and collapses the EU-wide connection queue to zero regardless
+    of scenario — measured directly, not assumed. **We would value a view on whether 0.5 is a
+    defensible middle ground or an arbitrary one**, and on whether reusing one sourced number for
+    two different real-world decisions (whether to propose a project, and how much of it connects)
+    is the right modelling choice at all. See `docs/model-notes.md`, "Grid connection now has a say
+    in siting itself".
 
 ## What is deliberately out of scope
 

@@ -3,8 +3,8 @@
   "description": "Per-country parameters, base year 2024, hardened per issues #4/#12: demand and generation split (renewables / nuclear / fossil) approximated from Ember European Electricity Review 2025 (values rounded, quarterly review per §8.3); DC 2024 country split from the ENTSO-E data centre report where published, otherwise expert allocation; growth trajectories NECP/TYNDP-flavored expert estimates. Nuclear deltas may be negative (phase-out) or positive (new builds); the engine floors nuclear at zero. v2.3.0 (issue #39): peakFactor is derived from ENTSO-E's published hourly load series (Monthly Hourly Load Values, 2019-2025) rather than borrowed from an interconnection-capacity dataset — peak taken as the 99.9th percentile of hourly load per country-year (the raw maximum is contaminated by single-hour data errors), value published as the median across usable years. Covers 29 of 30 countries, including Great Britain; Malta has no ENTSO-E load series and stays expert-guess. See scripts/derive-peak-factors.mjs. v2.4.0 (issue #38): renewablesTwh2024/nuclearTwh2024/otherFirmTwh2024 checked against Ember's own documented fuel-type taxonomy and Unnewehr et al. (2022)'s published ENTSO-E mapping; the split holds against Ember (the actual data source) but not against Unnewehr, which the mixCategoryMapping note below explains. No values changed. v2.5.0 (issue #4): priceIndex derived from Eurostat's industrial electricity price dataset (nrg_pc_205, consumption band IE, 2025-S2, tax-excluded), each country's price divided by the EU-27 average for the same band and period. Covers 28 of 30 countries; GB and CH are outside Eurostat's reporting scope and stay expert-guess. See docs/model-notes.md for the band choice and the resulting swings.",
   "provenance": {
     "baselineTwh2024": "ember2025eer",
-    "baselineGrowthPre2030": "entsoe2026tyndp",
-    "baselineGrowthPost2030": "entsoe2026tyndp",
+    "baselineGrowthPre2030": "expert-guess",
+    "baselineGrowthPost2030": "expert-guess",
     "dcTwh2024": "entsoe2026datacentres",
     "priceIndex": "expert-guess",
     "peakFactor": "entsoe2026hourlyload",

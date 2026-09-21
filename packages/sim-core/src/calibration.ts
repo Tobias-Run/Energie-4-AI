@@ -65,6 +65,8 @@ const readers: Record<string, (r: SimulationResult) => number | string[]> = {
   euDc2024TwhEudca: (r) => at(r, 2024).euDcTwh,
   euDcShareOfDemand2024Eudca: (r) => at(r, 2024).euDcShareOfDemand,
   euDc2025TwhEc: (r) => euSum(r, 2025, (c) => c.dcEnergyTwh),
+  euDemand2030TwhTyndp: (r) => at(r, 2030).euTotalDemandTwh,
+  euDemand2040TwhTyndp: (r) => at(r, 2040).euTotalDemandTwh,
   euPrimaryMarketShare2025Ec: (r) => {
     const total = euSum(r, 2025, (c) => c.dcEnergyTwh);
     const i = r.years.indexOf(2025);
