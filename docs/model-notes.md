@@ -422,6 +422,20 @@ This also disproves a claim the `euDcShareOfDemand2030` note used to carry — t
 projection is not the figure ENTSO-E disagrees with". It is exactly that figure. The note is
 corrected.
 
+**The choice is now a lever, not an assumption (issue #68).** `demandPath` selects between the two
+readings: `ember` (the default, reproducing every figure in this repository) and `tyndp` (ENTSO-E's
+rates, 2.96%/yr to 2030 then 2.42%, uniform across countries because the report publishes no
+country breakdown). It is an enum rather than a slider for two reasons — the disagreement is between
+two named sources rather than a continuum, so intermediate values would be readings nobody
+published; and a single growth multiplier could not express it anyway, because the bundle's shape is
+inverted against TYNDP's and no one factor reaches both segments.
+
+One imperfection is stated rather than fitted away: the `tyndp` path overshoots TYNDP's own totals
+by roughly 7%, because those rates are applied to this model's **non-DC** baseline and data centre
+demand is then added on top, while TYNDP's trajectory already includes data centres. Correcting it
+would need TYNDP's DC component broken out, which the report does not publish. The lever's own UI
+note says so, in both locales.
+
 **Why this matters more than a provenance tidy-up.** Since #30/B2 the DC share of peak load is the
 only criterion that decides a flag, and this trajectory is its denominator. Issue #67 measured that
 **+0.5 pp/yr on baseline growth clears every flag in the model**; the gap to TYNDP is roughly

@@ -28,7 +28,7 @@ an exploration device, and the reviewer is not being asked to endorse any scenar
 
 ```bash
 npm install
-npm test          # 149 tests, includes the calibration gate and the narrative claims
+npm test          # 154 tests, includes the calibration gate and the narrative claims
 npm run dev       # the tool itself
 ```
 
@@ -154,6 +154,8 @@ Stating this up front so the review is not spent rediscovering it.
    the only central-run flag, because **Ember and ENTSO-E disagree about EU-27 electricity demand by
    17% in 2030 and 25% by 2035** — the same shape as finding 4's volume spread, on the other side of
    the ratio. Both readings are now recorded as contested anchors and neither is enforced.
+   The choice is now a `demandPath` lever rather than a buried assumption — `ember` (default, every
+   figure here) or `tyndp` — so a reviewer can see what it does to the flag list directly.
    **We would value a view on whether a flag criterion whose denominator carries no uncertainty
    should be reported at all**, and on which authority a European demand denominator should follow.
 7. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
