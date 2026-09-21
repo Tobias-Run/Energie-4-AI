@@ -37,6 +37,13 @@ export const de: typeof en = {
     connectionGrowth: 'Wachstum der Anschlusskapazität',
     connectionGrowthNote:
       'Zinseszins-Wachstum auf die Anschlussobergrenze jedes Landes, ab 2024 (Standard 0 %/Jahr = für den gesamten Lauf auf dem heutigen Stand eingefroren). Keine Publikation nennt eine länderspezifische Wachstumsrate dafür, deshalb setzt der Standard keine an — eine zu erfinden würde eine offengelegte Lücke gegen eine erfundene Zahl eintauschen. Der Regler existiert, weil eine dauerhaft eingefrorene Obergrenze ebenso wenig zu rechtfertigen ist: Irlands eigener Anteil an der nationalen Nachfrage steigt in den beobachteten Daten weiter, während der des Modells beim Standardwert erst steigt und dann unter das Niveau von 2024 zurückfällt (Issue #30, B8).',
+    demandPath: 'Europäischer Nachfragepfad',
+    demandEmber: 'Ember-konsistent (Standard)',
+    demandEmberNote:
+      'Grundlage sämtlicher veröffentlichter Zahlen in diesem Repository. Die EU-27-Nachfrage wächst um rund 0,85 %/Jahr und liegt damit nahe am Nenner, den Embers Rechenzentrums-Anteilsanker implizieren (~2.490 TWh in 2030). Die dahinterliegenden Länderraten sind expert-guess-Gerüst; der Name steht für die Lesart, zu der sie passen, nicht für eine Herleitung (Issue #68).',
+    demandTyndp: 'TYNDP-konsistent',
+    demandTyndpNote:
+      'Stattdessen ENTSO-Es TYNDP-2026-Zentralszenario: 2,96 %/Jahr bis 2030, danach 2,42 %, einheitlich über alle Länder, weil dieser Bericht keine Länderaufteilung veröffentlicht. Die beiden Quellen weichen 2030 um 17 % und 2035 um 25 % voneinander ab — und das ist der Nenner des RZ-Anteils an der Spitzenlast, des einzigen Kriteriums, das einen Stress-Flag auslöst. Auf diesem Pfad wächst der Nenner so stark, dass überhaupt kein Land mehr geflaggt wird, dafür werden zwei unabhängige Kalibrierungsanker verfehlt, die der Standard trifft. Keine der beiden Lesarten ist umsonst; der Schalter macht die Wahl sichtbar, statt sie vorauszusetzen. Zu beachten: Der Pfad überschießt TYNDPs eigene Summen um rund 7 %, weil dessen Raten auf den rechenzentrumsfreien Basispfad dieses Modells angewandt werden und die RZ-Nachfrage obendrauf kommt, während TYNDPs Verlauf Rechenzentren bereits enthält. Offengelegt statt passend skaliert, weil der Bericht seine RZ-Komponente nicht ausweist.',
     siting: 'Standortpolitik',
     sitingMarket: 'Marktgetrieben',
     sitingMarketNote: 'Zubau folgt allein bestehenden Clustern und dem Strompreis.',

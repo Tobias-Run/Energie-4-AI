@@ -32,6 +32,13 @@ export const en = {
     connectionGrowth: 'Connection capacity growth',
     connectionGrowthNote:
       'Compounding annual growth on every country’s connection ceiling, from 2024 (default 0%/yr = frozen at today’s level, for the whole run). No publication gives a per-country growth rate for this, so the default asserts none — inventing one would trade a disclosed gap for a fabricated number. The dial exists because a permanently frozen ceiling is not defensible either: Ireland’s own share of national demand keeps climbing in observed data while the model’s, at the default, first rises then falls back below its 2024 level (issue #30, B8).',
+    demandPath: 'European demand path',
+    demandEmber: 'Ember-consistent (default)',
+    demandEmberNote:
+      'What every published figure in this repository is computed on. EU-27 demand grows about 0.85%/yr, which sits near the denominator Ember’s data-centre share anchors imply (~2,490 TWh in 2030). The per-country rates behind it are expert-guess scaffolding, named for the reading they agree with rather than derived from it (issue #68).',
+    demandTyndp: 'TYNDP-consistent',
+    demandTyndpNote:
+      'ENTSO-E’s TYNDP 2026 Central Scenario instead: 2.96%/yr to 2030, then 2.42%, uniform across countries because that report publishes no country breakdown. The two sources disagree by 17% in 2030 and 25% by 2035, and this is the denominator of the DC share of peak load — the only criterion that decides a stress flag. On this path the denominator grows enough that no country is flagged at all, and two independent calibration anchors the default meets are missed instead. Neither reading is free; the switch exists so the choice is visible rather than assumed. Note it overshoots TYNDP’s own totals by roughly 7%: those rates are applied to this model’s non-data-centre baseline and DC demand is added on top, while TYNDP’s trajectory already includes data centres. Disclosed rather than scaled to fit, because the report does not break its DC component out.',
     siting: 'Siting policy',
     sitingMarket: 'Market-driven',
     sitingMarketNote: 'Additions follow existing clusters and price only.',

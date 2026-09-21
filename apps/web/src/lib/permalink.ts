@@ -33,6 +33,7 @@ export function encodeScenario(s: ScenarioState): string {
   if (s.levers.capturePost2030 !== d.capturePost2030) p.set('c', String(s.levers.capturePost2030));
   if (s.levers.connectionCapacityGrowthPerYear !== d.connectionCapacityGrowthPerYear)
     p.set('cg', String(s.levers.connectionCapacityGrowthPerYear));
+  if (s.levers.demandPath !== d.demandPath) p.set('dp', s.levers.demandPath);
   p.set('y', String(s.year));
   p.set('m', s.metricId);
   if (s.monteCarlo) p.set('mc', '1');
@@ -58,6 +59,7 @@ export function decodeScenario(search: string, fallback: ScenarioState): Scenari
   const p = new URLSearchParams(search);
   const d = scenarioDefaults.levers;
   const siting = p.get('s');
+  const demand = p.get('dp');
   return {
     levers: {
       computeGrowthMultiplier: num(p.get('g'), d.computeGrowthMultiplier, 0.5, 2),
@@ -75,6 +77,9 @@ export function decodeScenario(search: string, fallback: ScenarioState): Scenari
       // share no source states.
       capturePost2030: optNum(p.get('c'), 0.045, 0.09),
       connectionCapacityGrowthPerYear: num(p.get('cg'), d.connectionCapacityGrowthPerYear, 0, 0.05),
+      // Which published reading of European demand the baseline follows (issue #68). Anything
+      // other than the two named readings falls back to the default rather than being invented.
+      demandPath: demand === 'tyndp' || demand === 'ember' ? demand : d.demandPath,
     },
     year: Math.round(num(p.get('y'), fallback.year, 2026, 2045)),
     metricId: p.get('m') ?? fallback.metricId,

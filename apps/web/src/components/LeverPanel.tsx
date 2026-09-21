@@ -1,4 +1,9 @@
-import { scenarioDefaults, type Levers, type SitingPolicy } from '@energie4ai/sim-core';
+import {
+  scenarioDefaults,
+  type DemandPath,
+  type Levers,
+  type SitingPolicy,
+} from '@energie4ai/sim-core';
 import { fmt, useI18n, type Strings } from '../i18n/index.js';
 
 interface Props {
@@ -18,10 +23,16 @@ const siting = (t: Strings): Array<{ id: SitingPolicy; label: string; note: stri
   },
 ];
 
+const demandPaths = (t: Strings): Array<{ id: DemandPath; label: string; note: string }> => [
+  { id: 'ember', label: t.levers.demandEmber, note: t.levers.demandEmberNote },
+  { id: 'tyndp', label: t.levers.demandTyndp, note: t.levers.demandTyndpNote },
+];
+
 /** Scenario levers, each with its source-backed default and plausible range (spec §6). */
 export function LeverPanel({ levers, onChange }: Props) {
   const { t } = useI18n();
   const SITING = siting(t);
+  const DEMAND = demandPaths(t);
   return (
     <div>
       <h2>{t.levers.title}</h2>
@@ -102,6 +113,32 @@ export function LeverPanel({ levers, onChange }: Props) {
           />
         </label>
         <div className="muted">{t.levers.connectionGrowthNote}</div>
+      </div>
+
+      <div className="lever">
+        <label>
+          <span className="lever-head">
+            <span>
+              {/* Not a tuning knob: the two options are two published readings of European
+                  demand that disagree by 17-25%, and this is the denominator of the only
+                  criterion that still decides a flag (issue #68). */}
+              {t.levers.demandPath} <span className="source-chip">entsoe2026tyndp</span>{' '}
+              <span className="source-chip">expert-guess</span>
+            </span>
+          </span>
+          <select
+            value={levers.demandPath}
+            onChange={(e) => onChange({ ...levers, demandPath: e.target.value as DemandPath })}
+            style={{ width: '100%' }}
+          >
+            {DEMAND.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="muted">{DEMAND.find((o) => o.id === levers.demandPath)!.note}</div>
       </div>
 
       <div className="lever">

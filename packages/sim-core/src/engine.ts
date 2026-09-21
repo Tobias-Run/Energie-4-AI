@@ -178,7 +178,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
         const gen = ren + nuclearTwh(c, year) + otherFirmTwh(c, year) + c.gasCapTwh2024;
         const renShare = gen > 0 ? ren / gen : 0;
         const dcTwh = state.get(c.iso)!.dcEnergyTwh;
-        const demand = baselineDemandTwh(c, year) + dcTwh;
+        const demand = baselineDemandTwh(c, year, d, levers.demandPath) + dcTwh;
         dcShare.set(c.iso, demand > 0 ? dcTwh / demand : 0);
         weights.set(
           c.iso,
@@ -300,7 +300,7 @@ export function runSimulation(config?: Partial<SimConfig>): SimulationResult {
 
     for (const c of countries) {
       const s = state.get(c.iso)!;
-      const baseline = baselineDemandTwh(c, year);
+      const baseline = baselineDemandTwh(c, year, d, levers.demandPath);
       const total = baseline + s.dcEnergyTwh;
       const ren = renewablesTwh(c, year);
       const nuc = nuclearTwh(c, year);
