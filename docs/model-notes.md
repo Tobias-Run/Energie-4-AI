@@ -513,10 +513,19 @@ a factor of two, with this model mid-range throughout.
 ## Data provenance
 
 Every parameter carries a `source_id` resolving to `docs/sources.bib` or the reserved value
-`expert-guess`, enforced by a unit test. Currently **108 of 154 tracked parameters are sourced
+`expert-guess`, enforced by a unit test. Currently **112 of 160 tracked parameters are sourced
 (70%)**, computed directly from `provenanceMaps` rather than carried over by hand. The jump from
 80/128 is almost entirely the 28 new `countries.<ISO>.priceIndex` entries (issue #4, below); the
-drop from 156 to 154 is `stressFlagThreshold` leaving the model entirely (issue #30, B2, below).
+drop from 156 to 154 was `stressFlagThreshold` leaving the model entirely (issue #30, B2, below).
+
+The move from 108/154 to 112/160 is worth reading in full, because the share did not budge while
+six entries arrived and two changed sides. Four new sourced anchors came from the EC Cloud & AI
+study and the TYNDP trajectory (issues #63, #68), and two new sourced entries came with the
+`demandPath` lever. Against that, `baselineGrowthPre2030` and `baselineGrowthPost2030` moved from
+sourced to `expert-guess` — not because anything about them changed, but because they had carried
+ENTSO-E's `source_id` since the first commit while implying about a third of that report's growth
+(issue #68). **A percentage that holds steady while a false citation is withdrawn is the more
+honest 70%**, and it is the reason this figure is computed rather than asserted.
 
 That percentage went _down_ when uncertainty ranges were added, because 19 new parameters came under
 the same tracking rule and 11 of them are expert estimates. The denominator grew; nothing regressed.
