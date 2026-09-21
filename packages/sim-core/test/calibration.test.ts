@@ -140,6 +140,24 @@ describe('calibration gate V1', () => {
       expect(volumeContested.every((id) => !get(id).met)).toBe(true);
     });
 
+    it('records the demand-denominator disagreement between Ember and ENTSO-E (issue #68)', () => {
+      // baselineGrowthPre2030/Post2030 carried entsoe2026tyndp as their source_id from the first
+      // commit onward, and did not follow it: TYNDP's Central Scenario implies ~2.5%/yr from 2024,
+      // the country rates ~0.85%/yr. Correcting the provenance to expert-guess is the honest half.
+      // The other half is that the two sources cannot both be right -- Ember's share anchors imply
+      // an EU-27 denominator around 2,490 TWh in 2030 where TYNDP publishes 2,920 -- so the TYNDP
+      // reading is recorded as contested rather than adopted. Adopting it was measured: it takes
+      // the gate from 2 to 4 of 8 independent anchors missed and removes the only central-run flag.
+      expect(get('euDemand2030TwhTyndp').tier).toBe('contested');
+      expect(get('euDemand2040TwhTyndp').tier).toBe('contested');
+      // The gap widens with the horizon, and only becomes decisive after 2030: at 2030 the model
+      // still lands inside the ±10% tolerance, at 2040 it does not. That is why both are recorded.
+      expect(dev('euDemand2030TwhTyndp')).toBe(-9.1);
+      expect(get('euDemand2030TwhTyndp').met).toBe(true);
+      expect(dev('euDemand2040TwhTyndp')).toBe(-17.5);
+      expect(get('euDemand2040TwhTyndp').met).toBe(false);
+    });
+
     it('meets a contested anchor for the first time — and the reason it is contested is not disagreement (issue #63)', () => {
       // euPrimaryMarketShare2025Ec breaks the pattern above. It is contested because the study
       // measures a share of CAPACITY where this reads a share of ELECTRICITY, and because its

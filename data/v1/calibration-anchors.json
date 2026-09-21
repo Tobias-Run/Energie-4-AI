@@ -98,7 +98,7 @@
       "tolerance": 0.1,
       "unit": "share",
       "label": "DC share of EU-27 demand 2030",
-      "note": "Retained despite coming from a contested source: what it tests is the exogenous demand denominator, and Ember's EU demand projection is not the figure ENTSO-E disagrees with. Read together with europeDc2030TwhEmber below."
+      "note": "Retained despite coming from a contested source: what it tests is the exogenous demand denominator. An earlier version of this note added 'and Ember's EU demand projection is not the figure ENTSO-E disagrees with' -- that is disproven (issue #68). ENTSO-E's TYNDP 2026 Central Scenario puts EU-27 electricity demand at 2,920 TWh in 2030, while this anchor's share, against the model's own DC volume, implies about 2,490 TWh: a 17% disagreement on exactly that denominator, widening to 25% by 2035. Both readings are now recorded -- see euDemand2030TwhTyndp -- and neither is enforced. Read together with europeDc2030TwhEmber below."
     },
     "euDcShareOfDemand2035": {
       "tier": "independent",
@@ -162,6 +162,24 @@
       "unit": "share",
       "label": "DE/FR/NL/IE share of EU-27 DC 2025 -- EC Cloud & AI study",
       "note": "EC Study on Cloud and AI Development in the EU (Aug 2026), section 6.5.1: 'roughly 63% of this capacity concentrated in four primary markets (Germany, France, the Netherlands and Ireland)'. The model reproduces this closely without being fitted to it -- the concentration is an output of the gravity/price allocation, not an input -- which makes it the most interesting agreement in the anchor set. Contested rather than independent for two reasons it cannot escape: the study measures a share of CAPACITY where this reads a share of ELECTRICITY (identical in this model, whose PUE and utilisation are single global values, but not in the measured fleet), and the study's denominator excludes private enterprise data centres, which may be distributed differently across countries than colocation and hyperscaler capacity. Recorded so the agreement is visible and so drift in the allocation would surface (issue #63)."
+    },
+    "euDemand2030TwhTyndp": {
+      "tier": "contested",
+      "comparison": "within",
+      "value": 2920,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "EU-27 total electricity demand 2030 -- TYNDP NT+",
+      "note": "ENTSO-E/ENTSOG TYNDP 2026 Scenarios Report, Central Scenario (National Trends+): EU-27 final electricity demand 'starting from 2,380 TWh in 2023, demand rises to around 2,920 TWh in the short term (2030), reaches 3,710 TWh in the long term (2040)'. Recorded because the model does NOT follow it, despite baselineGrowthPre2030 and baselineGrowthPost2030 having carried this report's source_id since the first commit (issue #68). TYNDP's trajectory implies ~2.5%/yr from 2024; the model's country rates imply ~0.85%/yr. Contested rather than independent because it cannot be met at the same time as euDcShareOfDemand2030 and euDcShareOfDemand2035: those Ember share figures imply an EU-27 denominator of roughly 2,490 TWh in 2030 and 2,684 TWh in 2035, against TYNDP's 2,920 and 3,361 -- a 17% to 25% disagreement between two authorities about the same quantity. Adopting TYNDP's rates was measured: the EU-27 path reproduces the source well (3,789 TWh in 2040), and it takes the gate from 2 to 4 of 8 independent anchors missed and removes the model's only central-run flag. Both readings are therefore recorded and neither is enforced, the same treatment europeDc2030TwhEmber and europeDc2030TwhIea get for the DC volume disagreement. Comparison is against euTotalDemandTwh -- baseline plus data centres -- because TYNDP's demand explicitly includes 'datacentre expansion and cloud-based services'."
+    },
+    "euDemand2040TwhTyndp": {
+      "tier": "contested",
+      "comparison": "within",
+      "value": 3710,
+      "tolerance": 0.1,
+      "unit": "TWh",
+      "label": "EU-27 total electricity demand 2040 -- TYNDP NT+",
+      "note": "See euDemand2030TwhTyndp for the full note: same source, same disagreement, measured at the later of TYNDP's two published horizons where the gap is widest (issue #68)."
     }
   },
   "provenance": {
@@ -182,6 +200,8 @@
     "euDc2024TwhEudca": "eudca2025state",
     "euDcShareOfDemand2024Eudca": "eudca2025state",
     "euDc2025TwhEc": "eucommission2026cloudai",
-    "euPrimaryMarketShare2025Ec": "eucommission2026cloudai"
+    "euPrimaryMarketShare2025Ec": "eucommission2026cloudai",
+    "euDemand2030TwhTyndp": "entsoe2026tyndp",
+    "euDemand2040TwhTyndp": "entsoe2026tyndp"
   }
 }
