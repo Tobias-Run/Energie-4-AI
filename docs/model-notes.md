@@ -1143,18 +1143,43 @@ demand" becomes an explicit, adjustable assumption instead of an invisible const
 stays 0, so every published figure in this file, `README.md`, `docs/review-package.md` and
 `docs/fallstudien.md` is unchanged — this is a disclosure and exploration fix, not a recalibration.
 
-### The 2024 Ireland gap against national statistics stays open
+### The 2024 Ireland gap is explained: two causes, both measured (issue #30, B8)
 
-Correcting B8's dynamics claim narrows, rather than closes, the honest-limits entry this replaces.
-The model's 2024 DC share for Ireland (19.70%) does not match the CSO figure the issue cites (22%),
-and nothing in this pass explains why: it is a base-year mismatch, not a trajectory one, so it
-cannot be the connection ceiling, the siting weights, or anything else that only acts from 2025
-onward. Plausible causes — a different denominator (CSO may report against metered consumption on
-a narrower base than this model's total demand), a different reference year within "2024", or a
-genuine `dcTwh2024` sourcing gap — are each a real possibility and none is confirmed. Left open
-rather than patched with whichever adjustment would close the gap, because closing it without
-knowing which of those it actually is would be exactly the fabricated precision #30 B3 warned
-against.
+This entry used to say the gap was unexplained and list three candidate causes without confirming
+any. Checked against the primary source, **two of the three are real and together account for all
+of it.** The CSO's own release states 6,969 GWh of data centre metered consumption in 2024 against
+31,903 GWh of total metered consumption — 21.84%, which is the 22% the issue cites.
+
+|                                 |                  | share                     |
+| ------------------------------- | ---------------- | ------------------------- |
+| This model                      | 6.50 / 33.00 TWh | **19.70%**                |
+| CSO numerator, this denominator | 6.969 / 33.00    | 21.12% (**+1.42 pp**)     |
+| CSO on both                     | 6.969 / 31.903   | **21.84%** (**+0.73 pp**) |
+
+**Two thirds of the gap is the numerator, one third is the denominator, and the denominator third
+is not an error.** The CSO measures _metered consumption_; this model's denominator is total
+demand, which is legitimately larger — it includes what meters do not. Those shares were never
+directly comparable, and the original comparison treated them as if they were.
+
+**The numerator is a real sourcing gap, and possibly a vintage one.** `dcTwh2024` for Ireland is
+6.5 TWh, sourced to `entsoe2026datacentres` like every other country's. The CSO measures 6.335 TWh
+in 2023 and 6.969 in 2024 — **our value sits between them**, which is what a figure carrying a
+year's lag would look like. That is a hypothesis, not a finding: confirming it needs ENTSO-E's own
+vintage for the Irish split, which was not established in this pass.
+
+**Correcting it was measured, and not applied.** Setting Ireland to the CSO's 6.969 moves its 2024
+share to 20.82% — the residual 1.02 pp then being exactly the denominator construct — lifts its
+2045 DC share of peak load from 13.92% to 14.61%, and leaves the flag list (`LU`), the calibration
+verdict and EU-27 totals essentially unchanged (219.2 → 219.7 TWh). The reason for not applying it
+is the one this file already reached for `pipelineTightness` (issue #63): `dcTwh2024` feeds the
+allocation gravity, so it drives a **relative** distribution. Every other country's figure comes
+from the same ENTSO-E split. If that split is systematically a year behind, correcting Ireland
+alone does not make the map more accurate — it gives Ireland gravity the others are denied for no
+reason but which national statistics office happened to be checked. **Sourcing one country of a
+relative set is the same error twice.**
+
+So the gap is closed as an explanation and left open as a correction, which is a different and
+more useful state than "unexplained".
 
 ### `priceIndex` was a guess for all 30 countries; now it is measured for 28 (issue #4)
 

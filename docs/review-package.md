@@ -104,7 +104,15 @@ Stating this up front so the review is not spent rediscovering it.
    binding parameter. It no longer has to stay frozen for the whole run: a
    `connectionCapacityGrowthPerYear` lever (default 0, so every published figure here is
    unchanged) lets a user compound it from 2024, prompted by Ireland's own modelled share
-   not resembling the national statistics it should track (issue #30, B8). **We would
+   not resembling the national statistics it should track (issue #30, B8). That mismatch has
+   since been traced to its two causes and is no longer an open question: two thirds of it is
+   a `dcTwh2024` that sits between the CSO's 2023 and 2024 readings, one third is that the CSO
+   measures metered consumption where this model's denominator is total demand — the two
+   shares were never directly comparable. **We deliberately did not correct Ireland's figure**,
+   because `dcTwh2024` feeds the allocation gravity and every other country comes from the same
+   ENTSO-E split; fixing one country of a relative set distorts the map rather than sharpening
+   it. **A view on that call would be useful** — it is the same reasoning as weak-point 5, and
+   we would rather be told it is too conservative than keep applying it by reflex. **We would
    particularly value a view on whether capping the inflow is the right repair**, and on
    whether the _default_ of a frozen ceiling — now a stated assumption rather than a silent
    one — is itself defensible, absent any published per-country growth rate. See "Repaired

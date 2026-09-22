@@ -361,6 +361,21 @@
                   Cloud and AI study (issue \#63).}
 }
 
+@misc{cso2026dcmec,
+  author       = {{Central Statistics Office Ireland}},
+  title        = {Data Centres Metered Electricity Consumption 2024},
+  howpublished = {\url{https://www.cso.ie/en/releasesandpublications/ep/p-dcmec/datacentresmeteredelectricityconsumption2024/}},
+  year         = {2026},
+  note         = {Ireland's national statistical office, measured from meters rather than synthesised. 2024: data centre consumption
+                  6{,}969 GWh, total metered consumption 31{,}903 GWh, a 21.84\% share (the 22\% cited in issue \#30 B8); 2023 was
+                  6{,}335 GWh. Used to EXPLAIN the Irish base-year gap, not to replace a value (issue \#30, B8): this model's 6.5 TWh
+                  for Ireland sits between the CSO's 2023 and 2024 readings, and its denominator is total demand where the CSO's is
+                  metered consumption, so the two shares were never directly comparable. Not adopted as `countries.IE.dcTwh2024`
+                  because that field feeds the allocation gravity and every other country's value comes from the same
+                  entsoe2026datacentres split --- correcting one country of a relative set would distort the map rather than sharpen
+                  it. See docs/model-notes.md, "The 2024 Ireland gap is explained".}
+}
+
 % ---------------------------------------------------------------------------
 % Special key: parameters without a published source
 % ---------------------------------------------------------------------------
