@@ -123,7 +123,12 @@ describe('Monte Carlo mode (issue #5)', () => {
     // inactive, so it cannot touch allocation. That asymmetry is exactly why the tornado offers
     // a second target: on euDcTwh this parameter is invisible, on flaggedCount it is not.
     const demand = runMonteCarlo({ levers: LEVERS, runs: 20, seed: 4, tornadoTarget: 'euDcTwh' });
-    const flags = runMonteCarlo({ levers: LEVERS, runs: 20, seed: 4, tornadoTarget: 'flaggedCount' });
+    const flags = runMonteCarlo({
+      levers: LEVERS,
+      runs: 20,
+      seed: 4,
+      tornadoTarget: 'flaggedCount',
+    });
     const swing = (r: typeof demand) =>
       r.tornado.find((t) => t.path === 'scenarioDefaults.demandPathBlend')!.swing;
     expect(swing(demand)).toBeCloseTo(0, 9);
