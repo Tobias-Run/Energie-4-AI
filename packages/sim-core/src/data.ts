@@ -107,6 +107,13 @@ export interface ScenarioDefaults {
    * trajectory: 2,380 TWh (2023) -> 2,920 (2030) -> 3,710 (2040).
    */
   tyndpDemandGrowth: { pre2030: number; post2030: number };
+  /**
+   * How far the baseline demand path sits between the two published readings: 0 = the bundle's
+   * own country rates (Ember-consistent, every published figure), 1 = `tyndpDemandGrowth`.
+   * Interpolates the RATES, not a scaling of them, so blend 1 reproduces TYNDP at every horizon
+   * rather than only at one (issue #67). The `demandPath` lever overrides it at 'tyndp'.
+   */
+  demandPathBlend: number;
   firmLoadShare: number;
   connectionLoadFactor: number;
   spareCapacityFactor: number;

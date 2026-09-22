@@ -18,6 +18,7 @@
     "pre2030": 0.0296,
     "post2030": 0.0242
   },
+  "demandPathBlend": 0.0,
   "firmLoadShare": 0.85,
   "connectionLoadFactor": 0.85,
   "spareCapacityFactor": 1.5,
@@ -82,6 +83,7 @@
     "levers.connectionCapacityGrowthPerYear": "expert-guess",
     "hubCapDcShareOfDemand": "expert-guess",
     "tyndpDemandGrowth": "entsoe2026tyndp",
-    "levers.demandPath": "entsoe2026tyndp"
+    "levers.demandPath": "entsoe2026tyndp",
+    "demandPathBlend": "entsoe2026tyndp"
   }
 }

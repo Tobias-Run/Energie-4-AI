@@ -28,7 +28,7 @@ an exploration device, and the reviewer is not being asked to endorse any scenar
 
 ```bash
 npm install
-npm test          # 154 tests, includes the calibration gate and the narrative claims
+npm test          # 156 tests, includes the calibration gate and the narrative claims
 npm run dev       # the tool itself
 ```
 
@@ -154,10 +154,18 @@ Stating this up front so the review is not spent rediscovering it.
    load is the only flag criterion, and the non-DC demand trajectory is its denominator. Three
    things are true of it at once. It carried `entsoe2026tyndp` as its `source_id` from the first
    commit while implying ~0.85%/yr against that report's ~2.5%/yr — now corrected to `expert-guess`.
-   It carries **no uncertainty at all**: all 19 corridor parameters are scenario or global-compute
-   values, so the Monte Carlo treats the demand path as known. And it decides the output — **±0.5
-   pp/yr on baseline growth takes the model from two flags to none**, against `ntcUtilization`,
-   which the corridor does sample and which moves the flag count by exactly 0.000. Adopting TYNDP's
+   It carried **no uncertainty at all** — every corridor parameter was a scenario or
+   global-compute value — while deciding the output: **±0.5 pp/yr on baseline growth takes the
+   model from two flags to none**, against `ntcUtilization`, which the corridor does sample and
+   which moves the flag count by exactly 0.000. **That is now fixed** (issue #67):
+   `demandPathBlend` samples the denominator, ranged on the 17–25% disagreement between the two
+   authorities rather than on TYNDP's own ±8% economic variants — the variants measure movement
+   within one reading and would leave the choice between readings treated as certain. The effect
+   is large: sampled flag frequencies fall by roughly two thirds (Luxembourg 60.0% → 44.5%,
+   Ireland 12.0% → 4.0%). **The corridor had been overstating how often anything crosses the
+   line.** One caveat we would rather state than let a reader infer: the range is **not a
+   probability statement** — a draw of 0.5 corresponds to no published path at all, and the mode
+   sits at the low bound because that is where the central run is. Adopting TYNDP's
    own rates was measured: it takes the gate from 2 to 4 of 8 independent anchors missed and removes
    the only central-run flag, because **Ember and ENTSO-E disagree about EU-27 electricity demand by
    17% in 2030 and 25% by 2035** — the same shape as finding 4's volume spread, on the other side of
