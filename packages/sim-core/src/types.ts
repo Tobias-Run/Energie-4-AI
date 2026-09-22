@@ -59,7 +59,28 @@ export interface Levers {
    * keeps pace with demand" as an explicit, labelled assumption instead of an invisible one.
    */
   connectionCapacityGrowthPerYear: number;
+  /**
+   * Which published reading of European electricity demand the exogenous baseline follows.
+   *
+   * This is a lever rather than a parameter because the sources genuinely disagree and the model
+   * cannot follow both (issue #68). Ember's DC-share anchors imply an EU-27 denominator near
+   * 2,490 TWh in 2030 and 2,684 in 2035; ENTSO-E's TYNDP 2026 Central Scenario publishes 2,920
+   * and 3,361 for the same quantity -- 17% apart in 2030, 25% by 2035.
+   *
+   * It matters because this trajectory is the denominator of `dcShareOfPeak`, which since #30 B2
+   * is the only criterion that decides a stress flag. Under `tyndp` the denominator grows enough
+   * to clear every flag in the central run, and two independent anchors that the `ember` path
+   * meets are missed instead. Neither reading is free.
+   *
+   * `ember` is the default and reproduces every published figure in this repository. It is named
+   * for the reading it is consistent with, not for a derivation: the country rates behind it are
+   * `expert-guess` scaffolding that happens to sit near Ember's implied path (issue #68).
+   */
+  demandPath: DemandPath;
 }
+
+/** The two published readings of European electricity demand the model can follow (issue #68). */
+export type DemandPath = 'ember' | 'tyndp';
 
 export type SitingPolicy = 'market' | 'renewables' | 'capped';
 

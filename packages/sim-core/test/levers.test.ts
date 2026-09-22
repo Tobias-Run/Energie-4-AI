@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { runMonteCarlo, runSimulation } from '../src/index.js';
+import type { Levers } from '../src/types.js';
 import { scenarioDefaults as d, globalCompute } from '../src/data.js';
 
 const BASE = d.levers;
@@ -244,5 +245,54 @@ describe('P2 levers (issue #6)', () => {
       at({ ...BASE, sitingPolicy: 'market', flexibilityShare: 0, priceSensitivity: 1 }).agg.euDcTwh,
       9,
     );
+  });
+});
+
+describe('demand path lever (issue #68)', () => {
+  // The two options are two published readings of European electricity demand that disagree by
+  // 17-25%, not a tuning range. What makes this lever worth having is that the disagreement lands
+  // on the denominator of the only criterion that still decides a flag (#30 B2).
+  const euDemand = (levers: Levers, year: number) => {
+    const r = runSimulation({ levers });
+    const i = r.years.indexOf(year);
+    return r.aggregates[i]!.euTotalDemandTwh;
+  };
+
+  it('defaults to ember, so every published figure is computed on it', () => {
+    expect(d.levers.demandPath).toBe('ember');
+  });
+
+  it('approaches the TYNDP trajectory, overshooting it by a known and stated margin', () => {
+    // TYNDP 2026 Central Scenario publishes 2,920 TWh for 2030 and 3,710 for 2040. This path
+    // lands ABOVE both, by roughly 7%, and the reason is structural rather than a tuning error:
+    // TYNDP's rates are applied to this model's NON-DC baseline and data centre demand is then
+    // added on top, while TYNDP's own trajectory already contains data centres ("including
+    // datacentre expansion and cloud-based services"). Correcting for it would need TYNDP's
+    // DC component broken out, which the report does not publish. Left overshooting and
+    // disclosed rather than silently scaled to fit (issue #68).
+    const tyndp: Levers = { ...BASE, demandPath: 'tyndp' };
+    const overshoot = (v: number, target: number) => v / target - 1;
+    expect(overshoot(euDemand(tyndp, 2030), 2920)).toBeGreaterThan(0);
+    expect(overshoot(euDemand(tyndp, 2030), 2920)).toBeLessThan(0.1);
+    expect(overshoot(euDemand(tyndp, 2040), 3710)).toBeGreaterThan(0);
+    expect(overshoot(euDemand(tyndp, 2040), 3710)).toBeLessThan(0.1);
+  });
+
+  it('clears every flag, because the denominator grows past the peak-share line', () => {
+    // This is the point of the lever: the model's single central-run flag is contingent on which
+    // authority the demand denominator follows, and that is now visible instead of assumed.
+    const r = runSimulation({ levers: BASE });
+    const t = runSimulation({ levers: { ...BASE, demandPath: 'tyndp' } });
+    const last = r.years.indexOf(2045);
+    expect(r.aggregates[last]!.flaggedRegions).toEqual(['LU']);
+    expect(t.aggregates[last]!.flaggedRegions).toEqual([]);
+  });
+
+  it('leaves data centre demand itself untouched — it moves the denominator, not the numerator', () => {
+    const r = runSimulation({ levers: BASE });
+    const t = runSimulation({ levers: { ...BASE, demandPath: 'tyndp' } });
+    const i = r.years.indexOf(2045);
+    expect(t.aggregates[i]!.euDcTwh).toBeCloseTo(r.aggregates[i]!.euDcTwh, 6);
+    expect(t.aggregates[i]!.euDcShareOfDemand).toBeLessThan(r.aggregates[i]!.euDcShareOfDemand);
   });
 });

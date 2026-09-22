@@ -101,6 +101,12 @@ export interface ScenarioDefaults {
   pueFloor: number;
   pueAnnualDeclineRate: number;
   itUtilization: number;
+  /**
+   * EU-27 demand growth implied by ENTSO-E's TYNDP 2026 Central Scenario, used only when the
+   * `demandPath` lever is set to `tyndp` (issue #68). Derived from the report's published
+   * trajectory: 2,380 TWh (2023) -> 2,920 (2030) -> 3,710 (2040).
+   */
+  tyndpDemandGrowth: { pre2030: number; post2030: number };
   firmLoadShare: number;
   connectionLoadFactor: number;
   spareCapacityFactor: number;

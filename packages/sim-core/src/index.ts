@@ -20,7 +20,7 @@ export {
   globalEnvelopeTwh,
 } from './modules/benchmarks.js';
 export type { Hub, NtcLink } from './data.js';
-export type { SitingPolicy } from './types.js';
+export type { SitingPolicy, DemandPath } from './types.js';
 export { hubs, ntcLinks, ntcAnchorYears } from './data.js';
 export { runMonteCarlo, sampleTriangular, TORNADO_TARGETS } from './modules/monteCarlo.js';
 export type {

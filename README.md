@@ -26,7 +26,7 @@ _🇩🇪 Energie-4-AI ist ein interaktives Browser-Tool, das den Ausbau von KI-
 ## What it does
 
 - 🗺️ **Interactive Europe map** with a 2026–2045 time slider — regions colored by grid stress, data center load share, price proxy, or emissions
-- 🎛️ **Scenario levers** — compute growth, efficiency gains, siting policy, flexible connection agreements, grid buildout speed (permitting reform), price sensitivity, and Europe's share of the global buildout; every lever with source-backed defaults and plausible ranges
+- 🎛️ **Scenario levers** — compute growth, efficiency gains, siting policy, flexible connection agreements, grid buildout speed (permitting reform), connection-capacity growth, price sensitivity, Europe's share of the global buildout, and which published reading of European electricity demand the baseline follows; every lever with source-backed defaults and plausible ranges
 - 📊 **Uncertainty as a first-class citizen** — every scenario renders a corridor (central + high/low), never a false point forecast; Monte Carlo mode for sensitivity analysis
 - 📖 **Story mode** — curated guided scenarios (e.g. _"Dublin freeze spreads"_, _"Grids Package delivers"_) for policymakers, journalists, and the public
 - 🔍 **No unexplained numbers** — every on-screen figure links to an assumptions drawer with its source; parameters without a source are visibly marked `expert-guess`
@@ -111,6 +111,18 @@ meeting it is not independent confirmation against either extreme. EUDCA names t
 itself: its figure is "significantly lower compared to the most recent IEA estimates for about
 100 TWh in 2022," and it claims grid-operator data corroborates its own reading, which the IEA
 figure does not carry.
+
+**And the denominator has the same conflict** ([#68](https://github.com/Tobias-Run/Energie-4-AI/issues/68)).
+Everything above is how much electricity _data centres_ draw. What they are measured against
+disagrees too: Ember's DC-share anchors imply an EU-27 total near **2,490 TWh** in 2030 and 2,684 in
+2035, where ENTSO-E's TYNDP 2026 Central Scenario publishes **2,920** and **3,361** — 17% apart in
+2030, 25% by 2035. This one bites harder than the others, because since
+[#30 B2](https://github.com/Tobias-Run/Energie-4-AI/issues/30) the data-centre share of peak load is
+the _only_ criterion that decides a stress flag, and this is its denominator. On the TYNDP reading
+no country is flagged at all; on the default, Luxembourg is. So it is a lever (`demandPath`) rather
+than a buried assumption, and the two country growth rates behind the default — which carried
+ENTSO-E's `source_id` from the first commit while implying about a third of its growth — are now
+honestly marked `expert-guess`.
 
 **Installed IT power, contested rather than independent** ([#34](https://github.com/Tobias-Run/Energie-4-AI/issues/34)):
 

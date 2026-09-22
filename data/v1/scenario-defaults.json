@@ -14,6 +14,10 @@
   "pueFloor": 1.15,
   "pueAnnualDeclineRate": 0.008,
   "itUtilization": 0.316,
+  "tyndpDemandGrowth": {
+    "pre2030": 0.0296,
+    "post2030": 0.0242
+  },
   "firmLoadShare": 0.85,
   "connectionLoadFactor": 0.85,
   "spareCapacityFactor": 1.5,
@@ -40,7 +44,8 @@
     "flexibilityShare": 0.0,
     "priceSensitivity": 1.0,
     "capturePost2030": null,
-    "connectionCapacityGrowthPerYear": 0.0
+    "connectionCapacityGrowthPerYear": 0.0,
+    "demandPath": "ember"
   },
   "provenance": {
     "captureShareOfGlobalAdditions.euPre2030": "iea2025energyai",
@@ -75,6 +80,8 @@
     "levers.capturePost2030": "ember2025grids",
     "levers.priceSensitivity": "expert-guess",
     "levers.connectionCapacityGrowthPerYear": "expert-guess",
-    "hubCapDcShareOfDemand": "expert-guess"
+    "hubCapDcShareOfDemand": "expert-guess",
+    "tyndpDemandGrowth": "entsoe2026tyndp",
+    "levers.demandPath": "entsoe2026tyndp"
   }
 }

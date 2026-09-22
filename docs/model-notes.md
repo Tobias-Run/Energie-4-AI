@@ -422,6 +422,20 @@ This also disproves a claim the `euDcShareOfDemand2030` note used to carry — t
 projection is not the figure ENTSO-E disagrees with". It is exactly that figure. The note is
 corrected.
 
+**The choice is now a lever, not an assumption (issue #68).** `demandPath` selects between the two
+readings: `ember` (the default, reproducing every figure in this repository) and `tyndp` (ENTSO-E's
+rates, 2.96%/yr to 2030 then 2.42%, uniform across countries because the report publishes no
+country breakdown). It is an enum rather than a slider for two reasons — the disagreement is between
+two named sources rather than a continuum, so intermediate values would be readings nobody
+published; and a single growth multiplier could not express it anyway, because the bundle's shape is
+inverted against TYNDP's and no one factor reaches both segments.
+
+One imperfection is stated rather than fitted away: the `tyndp` path overshoots TYNDP's own totals
+by roughly 7%, because those rates are applied to this model's **non-DC** baseline and data centre
+demand is then added on top, while TYNDP's trajectory already includes data centres. Correcting it
+would need TYNDP's DC component broken out, which the report does not publish. The lever's own UI
+note says so, in both locales.
+
 **Why this matters more than a provenance tidy-up.** Since #30/B2 the DC share of peak load is the
 only criterion that decides a flag, and this trajectory is its denominator. Issue #67 measured that
 **+0.5 pp/yr on baseline growth clears every flag in the model**; the gap to TYNDP is roughly
@@ -499,10 +513,19 @@ a factor of two, with this model mid-range throughout.
 ## Data provenance
 
 Every parameter carries a `source_id` resolving to `docs/sources.bib` or the reserved value
-`expert-guess`, enforced by a unit test. Currently **108 of 154 tracked parameters are sourced
+`expert-guess`, enforced by a unit test. Currently **112 of 160 tracked parameters are sourced
 (70%)**, computed directly from `provenanceMaps` rather than carried over by hand. The jump from
 80/128 is almost entirely the 28 new `countries.<ISO>.priceIndex` entries (issue #4, below); the
-drop from 156 to 154 is `stressFlagThreshold` leaving the model entirely (issue #30, B2, below).
+drop from 156 to 154 was `stressFlagThreshold` leaving the model entirely (issue #30, B2, below).
+
+The move from 108/154 to 112/160 is worth reading in full, because the share did not budge while
+six entries arrived and two changed sides. Four new sourced anchors came from the EC Cloud & AI
+study and the TYNDP trajectory (issues #63, #68), and two new sourced entries came with the
+`demandPath` lever. Against that, `baselineGrowthPre2030` and `baselineGrowthPost2030` moved from
+sourced to `expert-guess` — not because anything about them changed, but because they had carried
+ENTSO-E's `source_id` since the first commit while implying about a third of that report's growth
+(issue #68). **A percentage that holds steady while a false citation is withdrawn is the more
+honest 70%**, and it is the reason this figure is computed rather than asserted.
 
 That percentage went _down_ when uncertainty ranges were added, because 19 new parameters came under
 the same tracking rule and 11 of them are expert estimates. The denominator grew; nothing regressed.

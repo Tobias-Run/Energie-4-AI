@@ -21,12 +21,23 @@ describe('scenario permalinks (issue #6)', () => {
         priceSensitivity: 2.5,
         capturePost2030: 0.085,
         connectionCapacityGrowthPerYear: 0.03,
+        demandPath: 'tyndp',
       },
       year: 2041,
       metricId: 'dcShareOfPeak',
       monteCarlo: true,
     };
     expect(decodeScenario(encodeScenario(s), central)).toEqual(s);
+  });
+
+  it('falls back to the default demand path rather than inventing one (issue #68)', () => {
+    // The lever names two published readings; a hand-edited link must not be able to assert a
+    // third. Same discipline as the siting-policy and capture-share bounds above.
+    expect(decodeScenario('dp=tyndp', central).levers.demandPath).toBe('tyndp');
+    expect(decodeScenario('dp=nonsense', central).levers.demandPath).toBe(
+      central.levers.demandPath,
+    );
+    expect(decodeScenario('', central).levers.demandPath).toBe(central.levers.demandPath);
   });
 
   it('omits defaults so a central-scenario link stays short', () => {

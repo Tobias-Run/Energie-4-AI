@@ -30,6 +30,7 @@ const BOOM: Levers = {
   priceSensitivity: 1,
   capturePost2030: scenarioDefaults.levers.capturePost2030,
   connectionCapacityGrowthPerYear: 0,
+  demandPath: 'ember',
 };
 
 function dkAt2045(
