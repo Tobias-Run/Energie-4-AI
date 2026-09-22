@@ -451,6 +451,25 @@ demand is then added on top, while TYNDP's trajectory already includes data cent
 would need TYNDP's DC component broken out, which the report does not publish. The lever's own UI
 note says so, in both locales.
 
+**Which reading the tool follows is a declared open question, not an unmade decision (issue #68).**
+The default stays `ember` and will stay there until an external reviewer says otherwise — and that
+is a position taken deliberately, so it should be argued rather than left to look like inertia.
+
+Neither option is clean. `ember` meets the calibration gate better, but the rates behind it are
+`expert-guess` scaffolding that happens to land near the denominator Ember's share anchors imply —
+agreement by coincidence, not derivation. `tyndp` is a genuinely published demand path, and it
+breaks two independent anchors, removes the model's only central-run flag, and overshoots its own
+source by 7%. Choosing either one and presenting it as settled would assert a confidence the
+evidence does not support.
+
+What makes leaving it open defensible rather than evasive is that the alternative is fully built:
+the lever exposes the choice, the corridor samples it (issue #67), and both readings are recorded
+as contested anchors that the calibration report prints. A reader can see what each reading does to
+the flag list in one click. **A tool that says "two authorities disagree, here is the map under
+each" is more honest to a policy audience than one that picks silently** — and picking is precisely
+the judgement an external energy-system modeller is better placed to make than we are. It is filed
+as weak-point 6 of the review package for exactly that reason.
+
 **Why this matters more than a provenance tidy-up.** Since #30/B2 the DC share of peak load is the
 only criterion that decides a flag, and this trajectory is its denominator. Issue #67 measured that
 **+0.5 pp/yr on baseline growth clears every flag in the model**; the gap to TYNDP is roughly
