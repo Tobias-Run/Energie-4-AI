@@ -142,7 +142,7 @@ and the central value alone was always false precision.
 Monte Carlo mode samples all of them jointly, seeded and deterministic per seed. The tornado is a
 one-at-a-time sensitivity and does not capture interactions; the corridor does.
 
-### The corridor was four-dimensional and presented as nineteen (now twenty) (issue #30, B3)
+### The corridor was four-dimensional and presented as nineteen (now twenty-one) (issue #30, B3)
 
 Three separate complaints, and they age differently.
 
@@ -174,7 +174,17 @@ Left open and disclosed rather than patched with a guess.
 The country-parameter layer is the same shape at larger scale: `priceIndex`, `pipelineTightness`,
 `baseConnectableGwPerYear` and the growth-rate fields vary by country and drive what the map
 shows, but none of them carries a low/central/high range, so the map's per-country figures carry
-no uncertainty at all regardless of how wide the aggregate corridor is. Building 30-country ranges
+no uncertainty at all regardless of how wide the aggregate corridor is.
+
+**One piece of that has since been closed, and it was the piece that mattered most (issue #67).**
+The growth-rate fields set the denominator of `dcShareOfPeak`, which is the only criterion that
+decides a flag, and the corridor treated it as certain. `demandPathBlend` now samples it — not
+per country, but as a single global interpolation between the two published readings, which is
+the resolution the sources actually support. The effect was large and in the direction that
+matters: sampled flag frequencies fall by roughly two thirds (Luxembourg 60.0% → 44.5%, Ireland
+12.0% → 4.0%). The corridor had been overstating how often anything crosses the line, because it
+held the denominator fixed at the low end of a 17–25% disagreement. The rest of this paragraph
+still stands — `priceIndex`, `pipelineTightness` and `baseConnectableGwPerYear` remain unsampled. Building 30-country ranges
 for each would multiply the sourcing burden by the country count, for parameters that are
 mostly still `expert-guess` at the point estimate (#4) — ranging an unsourced guess produces a
 wider unsourced guess, not a narrower gap. This one stays open for the same reason as the last:
@@ -183,8 +193,8 @@ honest absence beats invented precision.
 Two results from that machinery a reviewer should see early:
 
 - **Flag frequencies say more than the flags.** For 2045 the deterministic run names Luxembourg
-  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in **60.0%** of runs,
-  Finland in **23.5%**, Ireland in 12.0%, Malta in 11.5%, Latvia in 6.5% and Estonia in 4.0%. A
+  alone; across sampled ranges (200 runs, seed 1) Luxembourg is flagged in **44.5%** of runs,
+  Finland in **11.5%**, Ireland in 4.0%, Malta in 3.0%, Latvia in 1.5% and Estonia in 0.5%. A
   country the deterministic run clears — every one of the other five here — can still be a
   meaningful share of an uncertainty draw away from tripping the line. Ireland's trajectory is
   the sharper story across the corrections that have touched this figure: no sampled run at all,
@@ -193,10 +203,15 @@ Two results from that machinery a reviewer should see early:
   13.0% once `priceIndex` was sourced from real data (issue #4) — Ireland's real industrial
   electricity price turned out to be the highest of any country in this dataset (1.62× the EU
   average, against an expert guess of 1.10×), which makes the country less attractive to new
-  siting than the guess had it, not more — and **12.0%** once `stressFlagThreshold` stopped
+  siting than the guess had it, not more — 12.0% once `stressFlagThreshold` stopped
   being sampled at all (issue #30, B2, below): removing one dimension from the draw shifts every
   later parameter's random sequence, moving every frequency in this list by a point or two even
-  though the removed parameter itself never decided a single flag at 2045. Finland is the more
+  though the removed parameter itself never decided a single flag at 2045 — and **4.0%** once the
+  demand denominator started being sampled (issue #67). That last step is the one real movement in
+  this chain rather than an RNG artefact, and it cuts every frequency here by roughly two thirds:
+  the corridor had been treating the denominator as certain at the low end of a 17–25% disagreement
+  between authorities, which inflated how often anything crossed the line. **These numbers were too
+  high, and the reason they were too high is the thing that was missing from the corridor.** Finland is the more
   striking change from the `priceIndex` fix specifically: absent from every sampled run through
   every earlier correction, now the second most frequently flagged country in Europe, because its
   real price (0.42×, the cheapest in the dataset, cheaper even than Norway's 0.49×) pulls enough

@@ -102,6 +102,34 @@ describe('Monte Carlo mode (issue #5)', () => {
     expect('scenarioDefaults.stressFlagThreshold' in uncertaintyRanges).toBe(false);
   });
 
+  it('samples the demand denominator, which nothing did before (issue #67)', () => {
+    // The denominator of the only criterion that decides a flag carried no uncertainty at all:
+    // every corridor parameter was a scenarioDefaults or globalCompute value. It is sampled now,
+    // ranged on the disagreement BETWEEN two authorities (17% in 2030, 25% by 2035) rather than
+    // on TYNDP's own economic variants (+/-8%) -- the variants measure movement within one
+    // reading and would leave the choice between readings treated as certain.
+    expect('scenarioDefaults.demandPathBlend' in uncertaintyRanges).toBe(true);
+    const r = uncertaintyRanges['scenarioDefaults.demandPathBlend']!;
+    expect(r.low).toBe(0);
+    expect(r.central).toBe(0);
+    expect(r.high).toBe(1);
+    // The mode sits at the low bound on purpose: the central run and every published figure are
+    // at the Ember end, so the model occupies the low end of a disagreement rather than its
+    // middle. A symmetric range would assert a midpoint no source publishes.
+  });
+
+  it('moves the flag count but not EU DC demand — it is a denominator, not a numerator', () => {
+    // Under the default siting policy the baseline path feeds only the saturation cap, which is
+    // inactive, so it cannot touch allocation. That asymmetry is exactly why the tornado offers
+    // a second target: on euDcTwh this parameter is invisible, on flaggedCount it is not.
+    const demand = runMonteCarlo({ levers: LEVERS, runs: 20, seed: 4, tornadoTarget: 'euDcTwh' });
+    const flags = runMonteCarlo({ levers: LEVERS, runs: 20, seed: 4, tornadoTarget: 'flaggedCount' });
+    const swing = (r: typeof demand) =>
+      r.tornado.find((t) => t.path === 'scenarioDefaults.demandPathBlend')!.swing;
+    expect(swing(demand)).toBeCloseTo(0, 9);
+    expect(swing(flags)).toBeGreaterThan(0);
+  });
+
   it('reports flag frequencies as shares in [0,1]', () => {
     const r = runMonteCarlo({ levers: LEVERS, runs: 40, seed: 4 });
     for (const [iso, f] of Object.entries(r.flagFrequency)) {

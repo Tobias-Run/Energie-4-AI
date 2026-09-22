@@ -28,8 +28,13 @@ export function baselineDemandTwh(
   defaults: ScenarioDefaults,
   path: DemandPath = 'ember',
 ): number {
-  const pre = path === 'tyndp' ? defaults.tyndpDemandGrowth.pre2030 : c.baselineGrowthPre2030;
-  const post = path === 'tyndp' ? defaults.tyndpDemandGrowth.post2030 : c.baselineGrowthPost2030;
+  // The lever asserts a reading; absent that, the blend is whatever the bundle says -- which is
+  // 0 by default and a sampled value in Monte Carlo (issue #67). Same shape as capturePost2030:
+  // setting the lever deliberately closes that corridor dimension, because the user has asserted.
+  const blend = path === 'tyndp' ? 1 : defaults.demandPathBlend;
+  const mix = (ember: number, tyndp: number) => ember + (tyndp - ember) * blend;
+  const pre = mix(c.baselineGrowthPre2030, defaults.tyndpDemandGrowth.pre2030);
+  const post = mix(c.baselineGrowthPost2030, defaults.tyndpDemandGrowth.post2030);
   const yearsPre = Math.min(year, 2030) - BASE_YEAR;
   const yearsPost = Math.max(year - 2030, 0);
   return c.baselineTwh2024 * Math.pow(1 + pre, yearsPre) * Math.pow(1 + post, yearsPost);

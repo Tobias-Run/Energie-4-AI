@@ -154,6 +154,14 @@
       "rationale": "Post-reform permitting duration, ~4–6 years.",
       "source_id": "ec2025gridspackage",
       "kind": "physical"
+    },
+    "scenarioDefaults.demandPathBlend": {
+      "low": 0.0,
+      "central": 0.0,
+      "high": 1.0,
+      "rationale": "How far the exogenous demand denominator sits between the two published readings: 0 = the bundle's own country rates, which every published figure in this repository rests on and which sit near the denominator Ember's DC-share anchors imply; 1 = ENTSO-E's TYNDP 2026 Central Scenario. The two disagree by 17% in 2030 and 25% by 2035 (issue #68). Ranged on that disagreement rather than on TYNDP's own economic variants (+/-8%), because the variants measure how one scenario moves under different GDP assumptions and say nothing about a second authority reading the same quantity a quarter differently -- sampling only them would treat the choice BETWEEN readings as certain, which is the error issue #68 found one level down. IMPORTANT, and stated because the shape invites the wrong reading: this is NOT a probability statement. A draw of 0.5 is not 'more likely' than 1.0 and corresponds to no published path at all; the range says two serious sources span this interval, not that the truth is distributed across it. The mode sits at 0 because that is where the central run and every published figure are -- the model occupies the low end of a disagreement rather than its middle, and the corridor should show that rather than hide it. The low bound is NOT the Ember-implied denominator: back-derived from their share anchor it falls BELOW the 2024 base year by 2030, which docs/model-notes.md already records as implausible in the middle of electrification. It is an inference from a share, not a published demand path, so it is not used as a bound.",
+      "source_id": "entsoe2026tyndp",
+      "kind": "physical"
     }
   },
   "provenance": {
