@@ -24,6 +24,29 @@ Concretely, three questions:
 We are explicitly not asking whether the projections are correct. The tool is framed throughout as
 an exploration device, and the reviewer is not being asked to endorse any scenario.
 
+## What this would cost you, and what you get
+
+Stated plainly, because an open-ended "please review our model" is not a reasonable thing to send
+anyone.
+
+**A useful review is roughly half a day.** Reading `model-notes.md` and this document is about two
+hours; forming a judgement on the three questions above is another two. Running anything is
+optional — every figure quoted here is reproducible in a few minutes, but nothing in the ask
+depends on you doing so.
+
+**You would not be asked to find the obvious problems.** The ten weaknesses below are ones we found
+ourselves and published, several by overturning our own earlier claims on measurement. The
+calibration gate currently reports **FAILING**, unrounded, in the README badge and in the UI. What
+we cannot do from inside is tell whether the construction is sound for the audience it targets.
+
+**A "this should not be published as is" is a useful answer** and will be recorded as such. So is
+disagreement we decide not to act on — the repository already carries several such cases with the
+reasoning, rather than quietly dropping them.
+
+**Attribution is yours to choose:** named in the repository and in the tool's own about panel,
+acknowledged without naming, or anonymous. The project is MIT-licensed, data bundles CC-BY-4.0, and
+there is no commercial interest behind it.
+
 ## Reproducing a run
 
 ```bash
