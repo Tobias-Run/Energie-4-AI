@@ -195,8 +195,15 @@ Stating this up front so the review is not spent rediscovering it.
    the ratio. Both readings are now recorded as contested anchors and neither is enforced.
    The choice is now a `demandPath` lever rather than a buried assumption — `ember` (default, every
    figure here) or `tyndp` — so a reviewer can see what it does to the flag list directly.
-   **We would value a view on whether a flag criterion whose denominator carries no uncertainty
-   should be reported at all**, and on which authority a European demand denominator should follow.
+   **We have deliberately not chosen between the two readings, and this is the single question we
+   would most like answered.** The default stays `ember`; neither option is clean. `ember` meets the
+   gate better but rests on scaffolding that agrees with Ember by coincidence rather than
+   derivation. `tyndp` is a published path that breaks two independent anchors, removes the only
+   central-run flag, and overshoots its own source by 7%. Picking one and presenting it as settled
+   would assert a confidence we do not have — and picking is the judgement an external modeller is
+   better placed to make than we are. **We would value a view on which authority a European demand
+   denominator should follow**, and, separately, on whether a flag criterion whose denominator
+   carries this much disagreement should be reported at all.
 7. **Both share anchors run lean.** The model hits the absolute TWh anchors closely but lands at
    4.22% vs 4.5% and 5.36% vs 5.7% on DC share of EU demand, suggesting the exogenous baseline
    demand trajectory may be slightly high.
